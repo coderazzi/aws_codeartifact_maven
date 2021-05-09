@@ -1,4 +1,7 @@
-# CodeCommit - Maven Idea plugin
+# CodeArtifact+Maven Idea plugin
+
+* Website: https://coderazzi.net/codeartifact-maven
+* Github: https://github.com/coderazzi/codeartifact_maven
 
 This plugin facilitates accessing and deploying artifacts in CodeArtifact on Maven Intellij Idea projects.
 
@@ -31,7 +34,7 @@ A better option for this specific scenario is to automatically update the passwo
  &lt;server&gt;  
  &lt;id&gtcoderazzi-project-yz&lt/id&gt;  
  &lt;username&gtaws&lt/username&gt;  
- &lt;password&gt$REAL_CREDENTIALS_OBTAINED_FROM_AWS&lt/password&gt;  
+ &lt;password&gtREAL_CREDENTIALS_OBTAINED_FROM_AWS&lt/password&gt;  
  &lt;/server&gt;  
  &lt;/servers&gt;  
 &lt;/settings&gt;  

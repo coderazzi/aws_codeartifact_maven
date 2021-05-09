@@ -1,0 +1,29 @@
+<idea-plugin url="https://github.com/coderazzi/codeartifact_maven">
+  <id>net.coderazzi.codeartifact_maven</id>
+  <name>CodeArtifact + Maven</name>
+  <version>1.0.0</version>
+  <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
+
+  <description><![CDATA[
+    Support to update AWS CodeArtifact credentials on maven projects.
+    <p>It access AWS to retrieve a new token and updates the maven settings file with it</p>
+    ]]></description>
+
+  <change-notes><![CDATA[
+    ]]>
+  </change-notes>
+
+  <idea-version since-build="173.0"/>
+
+  <depends>com.intellij.modules.platform</depends>
+
+  <actions>
+    <action id="net.coderazzi.codeartifact_maven.LaunchAction" class="net.coderazzi.codeartifact_maven.LaunchAction"
+            text="Generate AWS CodeArtifact credentials for Maven" description="Generate AWS CodeArtifact credentials for Maven"
+            icon="AllIcons.Actions.ShowWriteAccess">
+      <add-to-group group-id="ToolsMenu" anchor="first"/>
+
+    </action>
+  </actions>
+
+</idea-plugin>
