@@ -1,15 +1,84 @@
 <idea-plugin url="https://github.com/coderazzi/codeartifact_maven">
-  <id>net.coderazzi.codeartifact_maven</id>
-  <name>CodeArtifact + Maven</name>
-  <version>1.0.0</version>
+  <id>net.coderazzi.aws_codeartifact_maven</id>
+  <name>AWS CodeArtifact + Maven</name>
+  <version>1.0.2</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
-    Support to update AWS CodeArtifact credentials on maven projects.
-    <p>It access AWS to retrieve a new token and updates the maven settings file with it</p>
+    <h1>Support to update AWS CodeArtifact credentials on maven projects.</h1>
+
+    <p>This plugin facilitates accessing and deploying artifacts in CodeArtifact on Maven Intellij Idea projects.</p>
+
+    <p>AWS provides very specific <a href="https://docs.aws.amazon.com/codeartifact/latest/ug/maven-mvn.html">instructions</a>
+     to setup Maven to support AWS CodeArtifact. Basically, your file ~/.m2/settings.xml must include a server
+     specification such as:</p>
+    <pre>&lt;settings&gt;
+     &lt;servers&gt;
+      &lt;server&gt;
+       &lt;id&gtcoderazzi-project-yz&lt/id&gt;
+       &lt;username&gtaws&lt/username&gt;
+       &lt;password&gt${env.CODEARTIFACT_AUTH_TOKEN}&lt/password&gt;
+      &lt;/server&gt;
+     &lt;/servers&gt;
+  &lt;/settings&gt;
+    </pre>
+
+    <p>The token CODEARTIFACT_AUTH_TOKEN needs to be refreshed every 12 hours (by default) by doing:</p>
+    <pre>export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain DOMAIN --domain-owner DOMAIN_OWNER --query authorizationToken --output text`</pre>
+
+    <p>After issuing the previous command, the environment that executes the command has authorized access to CodeCommit</p>
+
+    <p>The main problem here is that when using an IDE like IDEA, you would need to update the CODEARTIFACT_AUTH_TOKEN
+     environment variable and then launch the IDE. And as the token needs to be refreshed, it is needed to quit the
+     IDE and repeat the process every 12 hours. Plus, it is needed to update the environment variable in the same
+     environment where the IDE is launched, quite inconvenient if launching the IDE from anywhere except the command line.
+    </p>
+
+    <p>Idea allows to setup environment variables for MVN execution
+     (under Settings/Build/Execution/Deployment/Build Tools/Maven/Runner),
+     but this would imply to manually obtaining the token and updating the setting periodically.</p>
+
+    <p>A better option for this specific scenario is to automatically update the password in ~/.m2/settings.xml,
+     to reflect the real token. That is, the settings file will look like:</p>
+    <pre>&lt;settings&gt;
+     &lt;servers&gt;
+      &lt;server&gt;
+       &lt;id&gtcoderazzi-project-yz&lt/id&gt;
+       &lt;username&gtaws&lt/username&gt;
+       &lt;password&gtREAL_CREDENTIALS_OBTAINED_FROM_AWS&lt/password&gt;
+      &lt;/server&gt;
+     &lt;/servers&gt;
+  &lt;/settings&gt;
+    </pre>
+
+    <p><b>CodeArtifact-Maven Idea plugin</b> does exactly this simple task. Note that there is a AWS-supported
+    AWS plugin, but it does not cover getting credentials for CodeArtifact</p>
+
+   <h2>Installation</h2>
+
+       <p>Plugin available in Intellij Idea public plugin repository, as CodeArtifact+Maven</p>
+
+   <h2>Usage</h2>
+
+    <p>After installation, a menu entry appear under Tools: <b>Generate AWS CodeArtifact credentials for Maven</b></p>
+
+    <p>When selected, a window appears to enter the required details:</p>
+    <img class='centered' src="window.png">
+    <ul>
+     <li><b>Domain</b>: the domain in AWS</li>
+     <li><b>Domain Owner</b>: the account owner, something like 023174738914</li>
+     <li><b>Maven: server id:</b> the server name provided in your maven settings file -as following the instructions from AWS-</li>
+     <li><b>Maven: settings file:</b> the location of the maven settings file, usually under ~/.m2</li>
+    </ul>
+
+    <p>The button Generate credentials will initiate the requests of a token to AWS and its inclusion in the maven settings file</p>
     ]]></description>
 
   <change-notes><![CDATA[
+    <ul>
+      <li>Version 1.0.1 : 10th May 2021: added AWS cli path
+      <li>Version 1.0.2 : 10th May 2021: changed name to prefix it with AWS, to facilitate searches.
+    </ul>
     ]]>
   </change-notes>
 
@@ -18,7 +87,7 @@
   <depends>com.intellij.modules.platform</depends>
 
   <actions>
-    <action id="net.coderazzi.codeartifact_maven.LaunchAction" class="net.coderazzi.codeartifact_maven.LaunchAction"
+    <action id="net.coderazzi.aws_codeartifact_maven.LaunchAction" class="net.coderazzi.aws_codeartifact_maven.LaunchAction"
             text="Generate AWS CodeArtifact credentials for Maven" description="Generate AWS CodeArtifact credentials for Maven"
             icon="AllIcons.Actions.ShowWriteAccess">
       <add-to-group group-id="ToolsMenu" anchor="first"/>

@@ -1,4 +1,4 @@
-package net.coderazzi.codeartifact_maven;
+package net.coderazzi.aws_codeartifact_maven;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -15,12 +15,19 @@ import java.nio.file.Paths;
 
 class InputDialog extends DialogWrapper {
 
-    private final static String PROPERTIES_PREFIX="net.coderazzi.codeartifact_maven";
+    private final static String PROPERTIES_PREFIX="net.coderazzi.aws_codeartifact_maven";
+    public static final String MAVEN_SETTINGS_FILE = "mavenSettingsFile";
+    public static final String AWS_PATH = "awsPath";
+    public static final String MAVEN_SERVER_ID = "mavenServerId";
+    public static final String DOMAIN_OWNER = "domainOwner";
+    public static final String DOMAIN = "domain";
+    public static final String DEFAULT_AWS_CLI_PATH = "aws";
 
     private final JTextField domain = new JTextField(32);
     private final JTextField domainOwner = new JTextField(32);
     private final JTextField mavenServerId = new JTextField(32);
     private final JTextField mavenSettingsFile = new JTextField(32);
+    private final JTextField awsPath = new JTextField(32);
 
     private final PropertiesComponent properties;
 
@@ -34,19 +41,24 @@ class InputDialog extends DialogWrapper {
     }
 
     public String getDomain(){
-        return getPropertiesValue("domain");
+        return getPropertiesValue(DOMAIN);
     }
 
     public String getDomainOwner(){
-        return getPropertiesValue("domainOwner");
+        return getPropertiesValue(DOMAIN_OWNER);
     }
 
     public String getMavenServerId(){
-        return getPropertiesValue("mavenServerId");
+        return getPropertiesValue(MAVEN_SERVER_ID);
+    }
+
+    public String getAWSPath(){
+        String ret =  getPropertiesValue(AWS_PATH);
+        return ret.trim().isEmpty()? DEFAULT_AWS_CLI_PATH : ret;
     }
 
     public String getMavenServerSettingsFile(){
-        String ret = getPropertiesValue("mavenSettingsFile");
+        String ret = getPropertiesValue(MAVEN_SETTINGS_FILE);
         if (ret.isEmpty()) {
             String home = System.getProperty("user.home");
             if (home != null){
@@ -73,12 +85,15 @@ class InputDialog extends DialogWrapper {
         centerPanel.add(mavenServerId, gridbag.next().weightx(0.8));
         centerPanel.add(getLabel("Maven: settings file:"), gridbag.nextLine().next().weightx(0.8));
         centerPanel.add(mavenSettingsFile, gridbag.next().weightx(0.8));
+        centerPanel.add(getLabel("AWS cli path:"), gridbag.nextLine().next().weightx(0.8));
+        centerPanel.add(awsPath, gridbag.next().weightx(0.8));
 
         PropertiesComponent properties = PropertiesComponent.getInstance();
         domain.setText(getDomain());
         domainOwner.setText(getDomainOwner());
         mavenServerId.setText(getMavenServerId());
         mavenSettingsFile.setText(getMavenServerSettingsFile());
+        awsPath.setText(getAWSPath());
 
         return centerPanel;
     }
@@ -94,10 +109,11 @@ class InputDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        String mavenSettingsFileText = getGuiValueAndPersist(mavenSettingsFile, "mavenSettingsFile");
-        String mavenServerIdText = getGuiValueAndPersist(mavenServerId, "mavenServerId");
-        String domainOwnerText = getGuiValueAndPersist(domainOwner, "domainOwner");
-        String domainText = getGuiValueAndPersist(domain, "domain");
+        getGuiValueAndPersist(awsPath, AWS_PATH);
+        String mavenSettingsFileText = getGuiValueAndPersist(mavenSettingsFile, MAVEN_SETTINGS_FILE);
+        String mavenServerIdText = getGuiValueAndPersist(mavenServerId, MAVEN_SERVER_ID);
+        String domainOwnerText = getGuiValueAndPersist(domainOwner, DOMAIN_OWNER);
+        String domainText = getGuiValueAndPersist(domain, DOMAIN);
         if (domainText!=null && domainOwnerText!=null && mavenServerIdText!=null && mavenSettingsFileText!=null){
             super.doOKAction();
         }
@@ -105,13 +121,16 @@ class InputDialog extends DialogWrapper {
 
     private String getGuiValueAndPersist(JTextField check, String name){
         String ret = check.getText().trim();
+        setPropertiesValue(name, ret);
         if (ret.isEmpty()) {
             domain.requestFocus();
             return null;
-        } else {
-            properties.setValue(String.format("%s.%s", PROPERTIES_PREFIX, name), ret);
         }
         return ret;
+    }
+
+    private void setPropertiesValue(String name, String value){
+        properties.setValue(String.format("%s.%s", PROPERTIES_PREFIX, name), value);
     }
 
     private String getPropertiesValue(String name){

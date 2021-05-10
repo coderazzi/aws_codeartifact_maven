@@ -1,4 +1,4 @@
-# CodeArtifact+Maven Idea plugin
+# WS CodeArtifact+Maven Idea plugin
 
 * Website: https://coderazzi.net/codeartifact-maven
 * Github: https://github.com/coderazzi/codeartifact_maven
@@ -10,8 +10,8 @@ AWS provides very specific [instructions](https://docs.aws.amazon.com/codeartifa
 &lt;settings&gt;  
  &lt;servers&gt;  
  &lt;server&gt;  
- &lt;id&gtcoderazzi-project-yz&lt/id&gt;  
- &lt;username&gtaws&lt/username&gt;  
+ &lt;id&gt;coderazzi-project-yz&lt/id&gt;  
+ &lt;username&gt;aws&lt/username&gt;  
  &lt;password&gt${env.CODEARTIFACT_AUTH_TOKEN}&lt/password&gt;  
  &lt;/server&gt;  
  &lt;/servers&gt;  
@@ -21,7 +21,7 @@ The token CODEARTIFACT_AUTH_TOKEN needs to be refreshed every 12 hours (by defau
 
 <pre>export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain DOMAIN --domain-owner DOMAIN_OWNER --query authorizationToken --output text`</pre>
 
-After issuing the previous command, the environment that executes the command has authorized access to CodeCommit
+After issuing the previous command, the environment that executes the command has authorized access to CodeCommit.
 
 The main problem here is that when using an IDE like IDEA, you would need to update the CODEARTIFACT_AUTH_TOKEN environment variable and then launch the IDE. And as the token needs to be refreshed, it is needed to quit the IDE and repeat the process every 12 hours. Plus, it is needed to update the environment variable in the same environment where the IDE is launched, quite inconvenient if launching the IDE from anywhere except the command line.
 
@@ -40,7 +40,7 @@ A better option for this specific scenario is to automatically update the passwo
 &lt;/settings&gt;  
   </pre>
 
-**CodeArtifact-Maven Idea plugin** does exactly this simple task. Note that there is a AWS-supported AWS plugin, but it does not cover getting credentials for CodeArtifact
+**CodeArtifact-Maven Idea plugin** does exactly this simple task. Note that there is an AWS-supported AWS plugin, but it does not cover getting credentials for CodeArtifact
 
 ## Usage
 
@@ -52,5 +52,6 @@ When selected, a window appears to enter the required details:
 *   **Domain Owner**: the account owner, something like 023174738914
 *   **Maven: server id:** the server name provided in your maven settings file -as following the instructions from AWS-
 *   **Maven: settings file:** the location of the maven settings file, usually under ~/.m2
+*   **AWS cli path:** the location of the aws executable, cabe specified as **aws** if it can be found in the path 
 
 The button Generate credentials will initiate the requests of a token to AWS and its inclusion in the maven settings file

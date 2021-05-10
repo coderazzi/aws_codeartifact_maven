@@ -1,4 +1,4 @@
-package net.coderazzi.codeartifact_maven;
+package net.coderazzi.aws_codeartifact_maven;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,12 +7,12 @@ import java.io.InputStreamReader;
 
 class AWSTask {
 
-    public static TaskOutput getCredentials(String domain, String domainOwner) {
+    public static TaskOutput getCredentials(String domain, String domainOwner, String awsPath) {
         TaskOutput ret = new TaskOutput();
         try {
             Process process = Runtime.getRuntime().exec(String.format(
-                    "aws codeartifact get-authorization-token --domain %s --domain-owner %s --query authorizationToken --output text",
-                    domain, domainOwner));
+                    "%s codeartifact get-authorization-token --domain %s --domain-owner %s --query authorizationToken --output text",
+                    awsPath, domain, domainOwner));
             ProcessReader inputReader = new ProcessReader(process.getInputStream());
             ProcessReader errorReader = new ProcessReader(process.getErrorStream());
             if (0 == process.waitFor()) {

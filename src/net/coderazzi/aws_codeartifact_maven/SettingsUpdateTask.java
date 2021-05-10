@@ -1,4 +1,4 @@
-package net.coderazzi.codeartifact_maven;
+package net.coderazzi.aws_codeartifact_maven;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
