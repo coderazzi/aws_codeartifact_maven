@@ -1,7 +1,7 @@
 # WS CodeArtifact+Maven Idea plugin
 
 * Website: https://coderazzi.net/codeartifact-maven
-* Github: https://github.com/coderazzi/codeartifact_maven
+* Github: https://github.com/coderazzi/aws_codeartifact_maven
 
 This plugin facilitates accessing and deploying artifacts in CodeArtifact on Maven Intellij Idea projects.
 

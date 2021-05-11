@@ -1,7 +1,7 @@
-<idea-plugin url="https://github.com/coderazzi/codeartifact_maven">
+<idea-plugin url="https://github.com/coderazzi/aws_codeartifact_maven">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -78,6 +78,7 @@
     <ul>
       <li>Version 1.0.1 : 10th May 2021: added AWS cli path
       <li>Version 1.0.2 : 10th May 2021: changed name to prefix it with AWS, to facilitate searches.
+      <li>Version 1.0.3 : 11th May 2021: compiled with JDK.
     </ul>
     ]]>
   </change-notes>

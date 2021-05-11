@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/codeartifact_maven.iml" filepath="$PROJECT_DIR$/codeartifact_maven.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aws_codeartifact_maven.iml" filepath="$PROJECT_DIR$/aws_codeartifact_maven.iml" />
     </modules>
   </component>
 </project>
