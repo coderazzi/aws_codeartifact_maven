@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/coderazzi/aws_codeartifact_maven">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>1.0.3</version>
+  <version>1.0.4</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -63,7 +63,6 @@
     <p>After installation, a menu entry appear under Tools: <b>Generate AWS CodeArtifact credentials for Maven</b></p>
 
     <p>When selected, a window appears to enter the required details:</p>
-    <img class='centered' src="window.png">
     <ul>
      <li><b>Domain</b>: the domain in AWS</li>
      <li><b>Domain Owner</b>: the account owner, something like 023174738914</li>
@@ -79,6 +78,7 @@
       <li>Version 1.0.1 : 10th May 2021: added AWS cli path
       <li>Version 1.0.2 : 10th May 2021: changed name to prefix it with AWS, to facilitate searches.
       <li>Version 1.0.3 : 11th May 2021: compiled with JDK.
+      <li>Version 1.0.4 : 12th May 2021: removed missing image from plugin description.
     </ul>
     ]]>
   </change-notes>
