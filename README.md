@@ -8,12 +8,12 @@ This plugin facilitates accessing and deploying artifacts in CodeArtifact on Mav
 AWS provides very specific [instructions](https://docs.aws.amazon.com/codeartifact/latest/ug/maven-mvn.html) to setup Maven to support AWS CodeArtifact. Basically, your file ~/.m2/settings.xml must include a server specification such as:
 <pre>
 &lt;settings&gt;  
- &lt;servers&gt;  
- &lt;server&gt;  
- &lt;id&gt;coderazzi-project-yz&lt/id&gt;  
- &lt;username&gt;aws&lt/username&gt;  
- &lt;password&gt${env.CODEARTIFACT_AUTH_TOKEN}&lt/password&gt;  
- &lt;/server&gt;  
+  &lt;servers&gt;  
+    &lt;server&gt;  
+      &lt;id&gt;coderazzi-project-yz&lt;/id&gt;  
+      &lt;username&gt;aws&lt;/username&gt;  
+      &lt;password&gt;${env.CODEARTIFACT_AUTH_TOKEN}&lt;/password&gt;  
+    &lt;/server&gt;  
  &lt;/servers&gt;  
 &lt;/settings&gt;
 </pre>
@@ -29,16 +29,17 @@ Idea allows to setup environment variables for MVN execution (under Settings/Bui
 
 A better option for this specific scenario is to automatically update the password in ~/.m2/settings.xml, to reflect the real token. That is, the settings file will look like:
 
-  <pre>&lt;settings&gt;  
- &lt;servers&gt;  
- &lt;server&gt;  
- &lt;id&gtcoderazzi-project-yz&lt/id&gt;  
- &lt;username&gtaws&lt/username&gt;  
- &lt;password&gtREAL_CREDENTIALS_OBTAINED_FROM_AWS&lt/password&gt;  
- &lt;/server&gt;  
+<pre>
+&lt;settings&gt;  
+  &lt;servers&gt;  
+    &lt;server&gt;  
+      &lt;id&gt;coderazzi-project-yz&lt;/id&gt;  
+      &lt;username&gt;aws&lt;/username&gt;  
+      &lt;password&gt;REAL_CREDENTIALS_OBTAINED_FROM_AWS&lt;/password&gt;  
+    &lt;/server&gt;  
  &lt;/servers&gt;  
-&lt;/settings&gt;  
-  </pre>
+&lt;/settings&gt;
+</pre>
 
 **CodeArtifact-Maven Idea plugin** does exactly this simple task. Note that there is an AWS-supported AWS plugin, but it does not cover getting credentials for CodeArtifact
 
