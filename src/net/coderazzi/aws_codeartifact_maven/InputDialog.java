@@ -2,8 +2,10 @@ package net.coderazzi.aws_codeartifact_maven;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.ui.ColorUtil;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.AbstractLayout;
+import com.intellij.util.SVGLoader;
 import com.intellij.util.ui.GridBag;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
@@ -11,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 
 class InputDialog extends DialogWrapper {
@@ -22,6 +26,9 @@ class InputDialog extends DialogWrapper {
     public static final String DOMAIN_OWNER = "domainOwner";
     public static final String DOMAIN = "domain";
     public static final String DEFAULT_AWS_CLI_PATH = "aws";
+
+    private static String DARK_ICON = "/META-INF/pluginIcon_dark.svg";
+    private static String LIGHT_ICON = "/META-INF/pluginIcon.svg";
 
     private final JTextField domain = new JTextField(32);
     private final JTextField domainOwner = new JTextField(32);
@@ -71,6 +78,7 @@ class InputDialog extends DialogWrapper {
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
+
         GridBag gridbag = new GridBag()
                 .setDefaultWeightX(1.0)
                 .setDefaultFill(GridBagConstraints.HORIZONTAL)
@@ -95,7 +103,23 @@ class InputDialog extends DialogWrapper {
         mavenSettingsFile.setText(getMavenServerSettingsFile());
         awsPath.setText(getAWSPath());
 
-        return centerPanel;
+        JPanel ret = new JPanel(new BorderLayout(24, 0));
+        ret.add(centerPanel, BorderLayout.CENTER);
+        ret.add(getIconPanel(), BorderLayout.WEST);
+
+        return ret;
+    }
+
+    private JComponent getIconPanel(){
+        String resource = ColorUtil.isDark(getOwner().getBackground())? DARK_ICON : LIGHT_ICON;
+        InputStream is = getClass().getClassLoader().getResourceAsStream(resource);
+        try {
+            return new JLabel(new ImageIcon(SVGLoader.load(is, 2.0f)));
+        } catch (IOException ex){
+            return new JLabel();
+        } finally{
+            try {is.close();} catch(IOException ex) {}
+        }
     }
 
 

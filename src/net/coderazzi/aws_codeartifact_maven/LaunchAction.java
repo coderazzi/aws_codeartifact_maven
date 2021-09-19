@@ -30,12 +30,14 @@ public class LaunchAction extends AnAction {
                         final TaskOutput to = launchTasks(dialog.getDomain(), dialog.getDomainOwner(),
                                 dialog.getMavenServerId(), dialog.getMavenServerSettingsFile(),
                                 dialog.getAWSPath());
-                        SwingUtilities.invokeLater(()->{
-                            if (showResults(project, to)){
-                                showDialog(project);
-                            }
-                        });
-                    }, "Generating credentials", true, project);
+                        if (to!=null ) {
+                            SwingUtilities.invokeLater(() -> {
+                                if (showResults(project, to)) {
+                                    showDialog(project);
+                                }
+                            });
+                        }
+                    }, "Generating Credentials", true, project);
         }
     }
 
@@ -46,16 +48,16 @@ public class LaunchAction extends AnAction {
         progressIndicator.setText("Checking settings file");
         SettingsUpdateTask settingsUpdateTask = new SettingsUpdateTask(mavenSettingsFile);
         TaskOutput taskOutput = settingsUpdateTask.locateServer(mavenServerId);
-        if (taskOutput.ok) {
+        if (taskOutput.ok && !progressIndicator.isCanceled()) {
             progressIndicator.setText("Obtaining AWS credentials");
-            taskOutput = AWSTask.getCredentials(domain, domainOwner, awsPath);
-            if (taskOutput.ok) {
+            taskOutput = AWSTask.getCredentials(domain, domainOwner, awsPath, progressIndicator::isCanceled);
+            if (taskOutput.ok  && !progressIndicator.isCanceled()) {
                 progressIndicator.setText("Updating settings file");
                 String credentials = taskOutput.output;
                 taskOutput = settingsUpdateTask.setPassword(credentials);
             }
         }
-        return taskOutput;
+        return progressIndicator.isCanceled()? null : taskOutput;
     }
 
     /**

@@ -4,10 +4,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.concurrent.TimeUnit;
 
 class AWSTask {
 
-    public static TaskOutput getCredentials(String domain, String domainOwner, String awsPath) {
+    public interface Cancellable {
+        boolean isCancelled();
+    }
+
+    public static TaskOutput getCredentials(String domain, String domainOwner, String awsPath,
+                                            Cancellable cancellable) {
         TaskOutput ret = new TaskOutput();
         try {
             Process process = Runtime.getRuntime().exec(String.format(
@@ -15,7 +21,12 @@ class AWSTask {
                     awsPath, domain, domainOwner));
             ProcessReader inputReader = new ProcessReader(process.getInputStream());
             ProcessReader errorReader = new ProcessReader(process.getErrorStream());
-            if (0 == process.waitFor()) {
+            while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
+                 if (cancellable.isCancelled()) {
+                     process.destroy();
+                 }
+            }
+            if (0 == process.exitValue()) {
                 ret.output = inputReader.getOutput();
                 if (ret.output == null) {
                     ret.output = "No output collected from AWS command";
@@ -25,6 +36,7 @@ class AWSTask {
             } else {
                 ret.output = errorReader.getOutput();
             }
+
         } catch (IOException | InterruptedException ex){
             ret.output = "Error executing aws:" + ex.getMessage();
         }
@@ -46,7 +58,7 @@ class AWSTask {
 
         @Override
         public void run() {
-            new BufferedReader(new InputStreamReader(inputStream)).lines().forEach((line)->readLine(line));
+            new BufferedReader(new InputStreamReader(inputStream)).lines().forEach(this::readLine);
         }
 
         private void readLine(String line){
