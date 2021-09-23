@@ -27,8 +27,8 @@ class InputDialog extends DialogWrapper {
     public static final String DOMAIN = "domain";
     public static final String DEFAULT_AWS_CLI_PATH = "aws";
 
-    private static String DARK_ICON = "/META-INF/pluginIcon_dark.svg";
-    private static String LIGHT_ICON = "/META-INF/pluginIcon.svg";
+    private static String DARK_ICON = "META-INF/pluginIcon_dark.svg";
+    private static String LIGHT_ICON = "META-INF/pluginIcon.svg";
 
     private final JTextField domain = new JTextField(32);
     private final JTextField domainOwner = new JTextField(32);
