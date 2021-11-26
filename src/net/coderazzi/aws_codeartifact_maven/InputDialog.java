@@ -36,26 +36,26 @@ class InputDialog extends DialogWrapper {
 
     private final JTextField domain = new JTextField(32);
     private final JTextField domainOwner = new JTextField(32);
-    private final DefaultComboBoxModel<String> servers = new DefaultComboBoxModel<>();
-    private final ComboBoxWithWidePopup<String> mavenServerId = new ComboBoxWithWidePopup<>(servers);
+    private final DefaultComboBoxModel<String> serverIdsModel = new DefaultComboBoxModel<>();
+    private final ComboBoxWithWidePopup<String> mavenServerId = new ComboBoxWithWidePopup<>(serverIdsModel);
     private final JTextField mavenSettingsFile = new JTextField(32);
     private final JTextField awsPath = new JTextField(32);
     private Thread loadingServersThread;
-    private PluginState state;
+    private InputDialogState state;
 
     private final PropertiesComponent properties;
 
     public InputDialog() {
         super(true); // use current window as parent
         properties = PropertiesComponent.getInstance();
-        state = PluginState.getInstance();
+        state = InputDialogState.getInstance();
         init();
         setTitle("Generate AWS CodeArtifact Credentials");
         setAutoAdjustable(true);
         setOKButtonText("Generate credentials");
     }
 
-    public PluginState getState() {
+    public InputDialogState getState() {
         return state;
     }
 
@@ -91,6 +91,7 @@ class InputDialog extends DialogWrapper {
 
         mavenSettingsFile.setText(state.getMavenServerSettingsFile());
         mavenSettingsFile.addActionListener(x -> reloadServers()); // handle ENTER key
+        mavenServerId.addItemListener(x -> updatedMavenServerId());
         awsPath.setText(state.getAWSPath());
         updateRepositoryInformation(true);
 
@@ -113,12 +114,18 @@ class InputDialog extends DialogWrapper {
         return ret;
     }
 
+    private void updatedMavenServerId(){
+        state.updateMavenServerId((String) mavenServerId.getSelectedItem());
+        domain.setText(state.getDomain(domain.getText()));
+        domainOwner.setText(state.getDomainOwner(domainOwner.getText()));
+    }
+
 
     private void updateRepositoryInformation(boolean reloadServersIfNeeded){
         domain.setText(state.getDomain(domain.getText()));
         domainOwner.setText(state.getDomainOwner(domainOwner.getText()));
-        servers.removeAllElements();
-
+        serverIdsModel.removeAllElements();
+        mavenServerId.setEnabled(true);
         Set<String> serverIds = state.getMavenServerIds();
         if (serverIds.isEmpty()) {
             if (reloadServersIfNeeded) {
@@ -126,18 +133,18 @@ class InputDialog extends DialogWrapper {
             }
         } else {
             for (String each : serverIds) {
-                servers.addElement(each);
+                serverIdsModel.addElement(each);
             }
-            servers.setSelectedItem(state.getMavenServerId());
+            serverIdsModel.setSelectedItem(state.getMavenServerId());
         }
     }
 
     private void reloadServers(){
         final String filename = mavenSettingsFile.getText().trim();
         if (loadingServersThread==null || state.updateMavenSettingsFile(filename)) {
-            servers.removeAllElements();
+            serverIdsModel.removeAllElements();
             if (!filename.isEmpty()) {
-                servers.addElement("Loading server ids from maven file...");
+                serverIdsModel.addElement("Loading server ids from maven file...");
                 mavenServerId.setEnabled(false);
                 loadingServersThread = new Thread(() -> loadingServersInBackground(filename));
                 loadingServersThread.start();
@@ -160,10 +167,15 @@ class InputDialog extends DialogWrapper {
         final Thread thread = Thread.currentThread();
         SwingUtilities.invokeLater(() -> {
             if (thread == loadingServersThread) {
-                state.setMavenServerIds(serverIds);
+                state.updateMavenServerIds(serverIds);
                 loadingServersThread = null;
                 updateRepositoryInformation(false);
-                if (error != null) {
+                if (error == null){
+                    if (serverIds.isEmpty()) {
+                        Messages.showErrorDialog(mavenSettingsFile, "Maven settings file does not define any server with username 'aws'", COMPONENT_TITLE);
+                    }
+                }
+                else {
                     Messages.showErrorDialog(mavenSettingsFile, error, COMPONENT_TITLE);
                 }
             }
@@ -191,7 +203,7 @@ class InputDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         try {
-            state.update(
+            state.updateFull(
                     getGuiValue(mavenServerId),
                     getGuiValue(domain),
                     getGuiValue(domainOwner),

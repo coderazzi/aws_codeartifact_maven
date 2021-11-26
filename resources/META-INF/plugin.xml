@@ -93,6 +93,10 @@
 
   <depends>com.intellij.modules.platform</depends>
 
+<!--  <extensions defaultExtensionNs="com.intellij">-->
+<!--    <applicationService serviceImplementation="net.coderazzi.aws_codeartifact_maven.PluginState"/>-->
+<!--  </extensions>-->
+
   <actions>
     <action id="net.coderazzi.aws_codeartifact_maven.LaunchAction" class="net.coderazzi.aws_codeartifact_maven.LaunchAction"
             text="Generate AWS CodeArtifact Credentials for Maven" description="Generate AWS CodeArtifact credentials for Maven"

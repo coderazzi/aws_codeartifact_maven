@@ -27,7 +27,7 @@ public class LaunchAction extends AnAction {
         if (dialog.showAndGet()){
             ProgressManager.getInstance().runProcessWithProgressSynchronously(
                     () -> {
-                        final PluginState state = dialog.getState();
+                        final InputDialogState state = dialog.getState();
                         final OperationOutput to = launchTasks(state.getDomain(), state.getDomainOwner(),
                                 state.getMavenServerId(), state.getMavenServerSettingsFile(),
                                 state.getAWSPath());
