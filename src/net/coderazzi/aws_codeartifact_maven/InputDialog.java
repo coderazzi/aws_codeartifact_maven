@@ -19,10 +19,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.intellij.util.ui.JBUI.Borders.empty;
 
@@ -36,9 +38,9 @@ class InputDialog extends DialogWrapper {
 
     private final JTextField domain = new JTextField(32);
     private final JTextField domainOwner = new JTextField(32);
-    private final DefaultComboBoxModel<String> serverIdsModel = new DefaultComboBoxModel<>();
-    private final ComboBoxWithWidePopup<String> mavenServerId = new ComboBoxWithWidePopup<>(serverIdsModel);
-    private final JTextField mavenSettingsFile = new JTextField(32);
+    private final DefaultComboBoxModel serverIdsModel = new DefaultComboBoxModel();
+    private final ComboBoxWithWidePopup mavenServerId = new ComboBoxWithWidePopup(serverIdsModel);
+    private final JTextField settingsFile = new JTextField(32);
     private final JTextField awsPath = new JTextField(32);
     private Thread loadingServersThread;
     private InputDialogState state;
@@ -59,92 +61,46 @@ class InputDialog extends DialogWrapper {
         return state;
     }
 
-    @Nullable
-    @Override
-    protected JComponent createCenterPanel() {
-
-        TextFieldWithBrowseButton mvnBrowser = new TextFieldWithBrowseButton(mavenSettingsFile, x -> reloadServers());
-        TextFieldWithBrowseButton awsBrowser = new TextFieldWithBrowseButton(awsPath);
-        ComponentWithBrowseButton<ComboBoxWithWidePopup<String>> mvnServer =
-                new ComponentWithBrowseButton<>(mavenServerId, x-> reloadServers());
-
-        GridBag gridbag = new GridBag()
-                .setDefaultWeightX(10.0)
-                .setDefaultFill(GridBagConstraints.HORIZONTAL)
-                .setDefaultInsets(JBUI.insets(0, 0, AbstractLayout.DEFAULT_VGAP, AbstractLayout.DEFAULT_HGAP));
-
-        JPanel centerPanel = new JPanel(new GridBagLayout());
-
-        centerPanel.add(new TitledSeparator("Repository"), gridbag.nextLine().coverLine());
-        centerPanel.add(getLabel("Domain:"), gridbag.nextLine().next().weightx(2.0));
-        centerPanel.add(domain, gridbag.next().coverLine());
-        centerPanel.add(getLabel("Domain owner:"), gridbag.nextLine().next().weightx(2.0));
-        centerPanel.add(domainOwner, gridbag.next().coverLine());
-        centerPanel.add(getLabel("Maven server id:"), gridbag.nextLine().next().weightx(2.0));
-        centerPanel.add(mvnServer, gridbag.next().coverLine());
-        centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
-        centerPanel.add(getLabel("Maven settings file:"), gridbag.nextLine().next().weightx(2.0));
-        centerPanel.add(mvnBrowser, gridbag.next().coverLine());
-
-        centerPanel.add(getLabel("AWS cli path:"), gridbag.nextLine().next().weightx(2.0));
-        centerPanel.add(awsBrowser, gridbag.next().coverLine());
-
-        mavenSettingsFile.setText(state.getMavenServerSettingsFile());
-        mavenSettingsFile.addActionListener(x -> reloadServers()); // handle ENTER key
-        mavenServerId.addItemListener(x -> updatedMavenServerId());
-        awsPath.setText(state.getAWSPath());
-        updateRepositoryInformation(true);
-
-        mvnBrowser.addBrowseFolderListener("Maven Settings File", null, null,
-                new FileChooserDescriptor(true, false, false, false, false, false));
-        awsBrowser.addBrowseFolderListener("aws Executable Location", null, null,
-                new FileChooserDescriptor(true, false, false, false, false, false));
-        mvnServer.setButtonIcon(AllIcons.Actions.Refresh);
-
-        checkGenerateCredentialsButtonState(awsPath);
-        checkGenerateCredentialsButtonState(mavenSettingsFile);
-        checkGenerateCredentialsButtonState(domainOwner);
-        checkGenerateCredentialsButtonState(domain);
-        checkGenerateCredentialsButtonState(mavenServerId);
-
-        JPanel ret = new JPanel(new BorderLayout(24, 0));
-        ret.add(centerPanel, BorderLayout.CENTER);
-        ret.add(getIconPanel(), BorderLayout.WEST);
-
-        return ret;
-    }
-
     private void updatedMavenServerId(){
-        state.updateMavenServerId((String) mavenServerId.getSelectedItem());
-        domain.setText(state.getDomain(domain.getText()));
-        domainOwner.setText(state.getDomainOwner(domainOwner.getText()));
+        Object s = mavenServerId.getSelectedItem();
+        if (s instanceof String) {
+            state.updateMavenServerId((String) s);
+            domain.setText(state.getDomain(domain.getText()));
+            domainOwner.setText(state.getDomainOwner(domainOwner.getText()));
+            domain.setEnabled(true);
+            domainOwner.setEnabled(true);
+        } else {
+            domain.setEnabled(false);
+            domainOwner.setEnabled(false);
+        }
     }
 
 
     private void updateRepositoryInformation(boolean reloadServersIfNeeded){
-        domain.setText(state.getDomain(domain.getText()));
-        domainOwner.setText(state.getDomainOwner(domainOwner.getText()));
         serverIdsModel.removeAllElements();
-        mavenServerId.setEnabled(true);
         Set<String> serverIds = state.getMavenServerIds();
         if (serverIds.isEmpty()) {
             if (reloadServersIfNeeded) {
                 reloadServers();
+                return;
             }
         } else {
+            String currentId = state.getMavenServerId();
             for (String each : serverIds) {
                 serverIdsModel.addElement(each);
             }
-            serverIdsModel.setSelectedItem(state.getMavenServerId());
+            serverIdsModel.setSelectedItem(currentId);
         }
+        mavenServerId.setEnabled(true);
+        updateGenerateCredentialsButtonState();
     }
 
     private void reloadServers(){
-        final String filename = mavenSettingsFile.getText().trim();
-        if (loadingServersThread==null || state.updateMavenSettingsFile(filename)) {
+        final String filename = settingsFile.getText().trim();
+        if (state.updateMavenSettingsFile(filename) || loadingServersThread==null) {
             serverIdsModel.removeAllElements();
             if (!filename.isEmpty()) {
-                serverIdsModel.addElement("Loading server ids from maven file...");
+                serverIdsModel.addElement(LOADING_SERVER_IDS);
                 mavenServerId.setEnabled(false);
                 loadingServersThread = new Thread(() -> loadingServersInBackground(filename));
                 loadingServersThread.start();
@@ -172,23 +128,111 @@ class InputDialog extends DialogWrapper {
                 updateRepositoryInformation(false);
                 if (error == null){
                     if (serverIds.isEmpty()) {
-                        Messages.showErrorDialog(mavenSettingsFile, "Maven settings file does not define any server with username 'aws'", COMPONENT_TITLE);
+                        Messages.showErrorDialog(settingsFile,
+                                "Maven settings file does not define any server with username 'aws'",
+                                COMPONENT_TITLE);
                     }
                 }
                 else {
-                    Messages.showErrorDialog(mavenSettingsFile, error, COMPONENT_TITLE);
+                    Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
                 }
             }
         });
     }
 
+    private void updateGenerateCredentialsButtonState(){
+        JButton ok = getButton((getOKAction()));
+        if (ok!=null) {
+            ok.setEnabled(checkNonEmpty(domain)
+                    && checkNonEmpty(domainOwner)
+                    && checkHasSelection(mavenServerId)
+                    && checkNonEmpty(awsPath)
+            );
+        }
+    }
+
+    private void handleTextFieldChange(JTextField check, Consumer<String> action){
+        check.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            protected void textChanged(@NotNull DocumentEvent documentEvent) {
+                updateGenerateCredentialsButtonState();
+                action.accept(check.getText().trim());
+            }
+        });
+    }
+
+    private void handleComboBoxChange(ComboBoxWithWidePopup check, Runnable action){
+        check.addItemListener(x -> {
+            if (x.getStateChange()== ItemEvent.SELECTED) {
+                updateGenerateCredentialsButtonState();
+                action.run();
+            }
+        });
+    }
+
+    @Nullable
+    @Override
+    protected JComponent createCenterPanel() {
+
+        TextFieldWithBrowseButton settingsFileBrowser = new TextFieldWithBrowseButton(settingsFile, x -> reloadServers());
+        TextFieldWithBrowseButton awsPathBrowser = new TextFieldWithBrowseButton(awsPath);
+        ComponentWithBrowseButton<ComboBoxWithWidePopup> mavenServerIdWrapper =
+                new ComponentWithBrowseButton<>(mavenServerId, x-> reloadServers());
+
+        GridBag gridbag = new GridBag()
+                .setDefaultWeightX(10.0)
+                .setDefaultFill(GridBagConstraints.HORIZONTAL)
+                .setDefaultInsets(JBUI.insets(0, 0, AbstractLayout.DEFAULT_VGAP, AbstractLayout.DEFAULT_HGAP));
+
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+
+        centerPanel.add(new TitledSeparator("Repository"), gridbag.nextLine().coverLine());
+        centerPanel.add(getLabel("Domain:"), gridbag.nextLine().next().weightx(2.0));
+        centerPanel.add(domain, gridbag.next().coverLine());
+        centerPanel.add(getLabel("Domain owner:"), gridbag.nextLine().next().weightx(2.0));
+        centerPanel.add(domainOwner, gridbag.next().coverLine());
+        centerPanel.add(getLabel("Maven server id:"), gridbag.nextLine().next().weightx(2.0));
+        centerPanel.add(mavenServerIdWrapper, gridbag.next().coverLine());
+        centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
+        centerPanel.add(getLabel("Maven settings file:"), gridbag.nextLine().next().weightx(2.0));
+        centerPanel.add(settingsFileBrowser, gridbag.next().coverLine());
+
+        centerPanel.add(getLabel("AWS cli path:"), gridbag.nextLine().next().weightx(2.0));
+        centerPanel.add(awsPathBrowser, gridbag.next().coverLine());
+
+        settingsFile.setText(state.getMavenServerSettingsFile());
+        settingsFile.addActionListener(x -> reloadServers()); // handle ENTER key
+        awsPath.setText(state.getAWSPath());
+
+        settingsFileBrowser.addBrowseFolderListener("Maven Settings File", null, null,
+                new FileChooserDescriptor(true, false, false, false, false, false));
+        awsPathBrowser.addBrowseFolderListener("aws Executable Location", null, null,
+                new FileChooserDescriptor(true, false, false, false, false, false));
+        mavenServerIdWrapper.setButtonIcon(AllIcons.Actions.Refresh);
+
+        handleTextFieldChange(awsPath, x -> state.updateAwsPath(x));
+        handleTextFieldChange(domainOwner, x -> state.updateDomainOwner(x));
+        handleTextFieldChange(domain, x -> state.updateDomain(x));
+        handleComboBoxChange(mavenServerId, this::updatedMavenServerId);
+
+        updateRepositoryInformation(true);
+
+        JPanel ret = new JPanel(new BorderLayout(24, 0));
+        ret.add(centerPanel, BorderLayout.CENTER);
+        ret.add(getIconPanel(), BorderLayout.WEST);
+
+        return ret;
+    }
+
     private JComponent getIconPanel(){
         String resource = ColorUtil.isDark(getOwner().getBackground())? DARK_ICON : LIGHT_ICON;
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(resource)){
-            return new JLabel(new ImageIcon(SVGLoader.load(is, 2.5f)));
+            if (is!=null) {
+                return new JLabel(new ImageIcon(SVGLoader.load(is, 2.5f)));
+            }
         } catch (IOException ex){
-            return new JLabel();
         }
+        return new JLabel();
     }
 
 
@@ -201,72 +245,24 @@ class InputDialog extends DialogWrapper {
     }
 
     @Override
-    protected void doOKAction() {
-        try {
-            state.updateFull(
-                    getGuiValue(mavenServerId),
-                    getGuiValue(domain),
-                    getGuiValue(domainOwner),
-                    getGuiValue(mavenSettingsFile),
-                    getGuiValue(awsPath)
-                    );
-            super.doOKAction();
-        } catch (InvalidState ex) {
-            ex.component.requestFocus();
-        }
-    }
-
-    @Override
     public void doCancelAction() {
         loadingServersThread = null;
         super.doCancelAction();
     }
 
-    private void updateGenerateCredentialsButtonState(){
-        try{
-            getGuiValue(mavenServerId);
-            getGuiValue(domain);
-            getGuiValue(domainOwner);
-            getGuiValue(mavenSettingsFile);
-            getGuiValue(awsPath);
-            getButton(getOKAction()).setEnabled(true);
-        } catch(InvalidState ex){
-            getButton(getOKAction()).setEnabled(false);
+    private boolean checkNonEmpty(JTextField check){
+        return !check.getText().trim().isEmpty();
+    }
+
+    private boolean checkHasSelection(ComboBoxWithWidePopup check) {
+        return check.isEnabled() && check.getSelectedItem() !=null;
+    }
+
+    private static Object LOADING_SERVER_IDS = new Object(){
+        @Override
+        public String toString() {
+            return "Loading server ids from maven file...";
         }
-    }
-
-    private void checkGenerateCredentialsButtonState(JTextField check){
-        check.getDocument().addDocumentListener(new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent documentEvent) {
-                updateGenerateCredentialsButtonState();
-            }
-        });
-    }
-
-    private void checkGenerateCredentialsButtonState(ComboBoxWithWidePopup<String> check){
-        check.addItemListener(x -> updateGenerateCredentialsButtonState());
-    }
-
-    private String getGuiValue(JTextField check) throws InvalidState {
-        String ret = check.getText().trim();
-        if (ret.isEmpty()) {
-            throw new InvalidState(check);
-        }
-        return ret;
-    }
-
-    private String getGuiValue(ComboBoxWithWidePopup<String> check) throws InvalidState {
-        String selection = (String) check.getSelectedItem();
-        if (selection == null) {
-            throw new InvalidState(check);
-        }
-        return selection;
-    }
-
-    static class InvalidState extends Exception {
-        JComponent component;
-        InvalidState(JComponent component){ this.component = component;}
-    }
+    };
 
 }

@@ -22,12 +22,16 @@ final public class InputDialogState {
         state.allMavenServerIds = allMavenServerIds;
     }
 
-    public void updateFull(String mavenServerId, String domain, String domainOwner, String mavenSettingsFile, String awsPath) {
-        state.mavenServerId = mavenServerId;
+    public void updateDomain(String domain) {
         state.domains.put(state.mavenServerId, domain);
+    }
+
+    public void updateDomainOwner(String domainOwner) {
         state.domainOwners.put(state.mavenServerId, domainOwner);
-        state.mavenSettingsFile = mavenSettingsFile;
-        state.awsPath=awsPath;
+    }
+
+    public void updateAwsPath(String aws) {
+        state.awsPath = aws;
     }
 
     public void updateMavenServerId(String id){
