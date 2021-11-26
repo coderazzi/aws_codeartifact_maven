@@ -6,15 +6,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
-class AWSTask {
+class AWSInvoker {
 
     public interface Cancellable {
         boolean isCancelled();
     }
 
-    public static TaskOutput getCredentials(String domain, String domainOwner, String awsPath,
-                                            Cancellable cancellable) {
-        TaskOutput ret = new TaskOutput();
+    public static OperationOutput getCredentials(String domain, String domainOwner, String awsPath,
+                                                 Cancellable cancellable) {
+        OperationOutput ret = new OperationOutput();
         try {
             Process process = Runtime.getRuntime().exec(String.format(
                     "%s codeartifact get-authorization-token --domain %s --domain-owner %s --query authorizationToken --output text",
@@ -45,15 +45,20 @@ class AWSTask {
 
     private static class ProcessReader implements Runnable {
         private InputStream inputStream;
-        private String read;
+        private Thread thread;
+        private StringBuffer read = new StringBuffer();
 
         public ProcessReader(InputStream inputStream) {
             this.inputStream = inputStream;
-            new Thread(this).start();
+            this.thread = new Thread(this);
+            this.thread.start();
         }
 
         public String getOutput(){
-            return read;
+            try {
+                this.thread.join();
+            } catch (InterruptedException ex){}
+            return read.length()==0 ? null : read.toString();
         }
 
         @Override
@@ -62,8 +67,8 @@ class AWSTask {
         }
 
         private void readLine(String line){
-            if (read==null && !line.isEmpty()) {
-                read = line;
+            if (!line.isEmpty()) {
+                read.append(line);
             }
         }
     }

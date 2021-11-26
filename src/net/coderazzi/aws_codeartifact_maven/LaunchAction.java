@@ -27,9 +27,10 @@ public class LaunchAction extends AnAction {
         if (dialog.showAndGet()){
             ProgressManager.getInstance().runProcessWithProgressSynchronously(
                     () -> {
-                        final TaskOutput to = launchTasks(dialog.getDomain(), dialog.getDomainOwner(),
-                                dialog.getMavenServerId(), dialog.getMavenServerSettingsFile(),
-                                dialog.getAWSPath());
+                        final PluginState state = dialog.getState();
+                        final OperationOutput to = launchTasks(state.getDomain(), state.getDomainOwner(),
+                                state.getMavenServerId(), state.getMavenServerSettingsFile(),
+                                state.getAWSPath());
                         if (to!=null ) {
                             SwingUtilities.invokeLater(() -> {
                                 if (showResults(project, to)) {
@@ -41,20 +42,20 @@ public class LaunchAction extends AnAction {
         }
     }
 
-    private TaskOutput launchTasks(String domain, String domainOwner,
-                                   String mavenServerId, String mavenSettingsFile, String awsPath){
+    private OperationOutput launchTasks(String domain, String domainOwner,
+                                        String mavenServerId, String mavenSettingsFile, String awsPath){
         ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
         progressIndicator.setIndeterminate(true);
         progressIndicator.setText("Checking settings file");
-        SettingsUpdateTask settingsUpdateTask = new SettingsUpdateTask(mavenSettingsFile);
-        TaskOutput taskOutput = settingsUpdateTask.locateServer(mavenServerId);
+        MavenSettingsFileHandler mavenSettingsFileHandler = new MavenSettingsFileHandler(mavenSettingsFile);
+        OperationOutput taskOutput = mavenSettingsFileHandler.locateServer(mavenServerId);
         if (taskOutput.ok && !progressIndicator.isCanceled()) {
             progressIndicator.setText("Obtaining AWS credentials");
-            taskOutput = AWSTask.getCredentials(domain, domainOwner, awsPath, progressIndicator::isCanceled);
+            taskOutput = AWSInvoker.getCredentials(domain, domainOwner, awsPath, progressIndicator::isCanceled);
             if (taskOutput.ok  && !progressIndicator.isCanceled()) {
                 progressIndicator.setText("Updating settings file");
                 String credentials = taskOutput.output;
-                taskOutput = settingsUpdateTask.setPassword(credentials);
+                taskOutput = mavenSettingsFileHandler.setPassword(credentials);
             }
         }
         return progressIndicator.isCanceled()? null : taskOutput;
@@ -64,12 +65,12 @@ public class LaunchAction extends AnAction {
      * Shows the results of the operation.
      * @return True if we need to show the main dialog again
      */
-    private boolean showResults(Project project, TaskOutput output){
+    private boolean showResults(Project project, OperationOutput output){
         if (output.ok) {
-            Messages.showMessageDialog(project, "Credentials updated", "CodeArtifact + Maven",
+            Messages.showMessageDialog(project, "Credentials updated", InputDialog.COMPONENT_TITLE,
                     Messages.getInformationIcon());
         } else {
-            Messages.showErrorDialog(project, output.output, "CodeArtifact + Maven");
+            Messages.showErrorDialog(project, output.output, InputDialog.COMPONENT_TITLE);
         }
         return !output.ok;
     }

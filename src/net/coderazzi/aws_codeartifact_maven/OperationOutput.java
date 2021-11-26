@@ -1,6 +1,6 @@
 package net.coderazzi.aws_codeartifact_maven;
 
-class TaskOutput {
+class OperationOutput {
     public boolean ok;
     public String output;
 }

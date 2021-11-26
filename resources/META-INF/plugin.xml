@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/coderazzi/aws_codeartifact_maven">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>1.1.1</version>
+  <version>2.0.0</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -77,6 +77,7 @@
 
   <change-notes><![CDATA[
     <ul>
+      <li>Version 2.0.0 : 24th Nov 2021: Changed GUI to use dropdowns with serverIds extracted from maven settings file.
       <li>Version 1.1.1 : 23rd Sep 2021: solved bug: "Do not request resource from classloader using path with leading slash".
       <li>Version 1.1.0 : 19th Sep 2021: proper implementation of Cancel button.
       <li>Version 1.0.5 : 13th May 2021: corrected html tags on plugin description and readme.md files
@@ -94,7 +95,7 @@
 
   <actions>
     <action id="net.coderazzi.aws_codeartifact_maven.LaunchAction" class="net.coderazzi.aws_codeartifact_maven.LaunchAction"
-            text="Generate AWS CodeArtifact credentials for Maven" description="Generate AWS CodeArtifact credentials for Maven"
+            text="Generate AWS CodeArtifact Credentials for Maven" description="Generate AWS CodeArtifact credentials for Maven"
             icon="AllIcons.Actions.ShowWriteAccess">
       <add-to-group group-id="ToolsMenu" anchor="first"/>
 
