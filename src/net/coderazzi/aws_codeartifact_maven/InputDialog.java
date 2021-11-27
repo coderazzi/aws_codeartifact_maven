@@ -195,9 +195,9 @@ class InputDialog extends DialogWrapper {
         centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("Maven settings file:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(settingsFileBrowser, gridbag.next().coverLine());
-
         centerPanel.add(getLabel("AWS cli path:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(awsPathBrowser, gridbag.next().coverLine());
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(0,0,24,0));
 
         settingsFile.setText(state.getMavenServerSettingsFile());
         settingsFile.addActionListener(x -> reloadServers()); // handle ENTER key
