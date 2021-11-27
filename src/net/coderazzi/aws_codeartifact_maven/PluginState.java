@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-@Service
 @com.intellij.openapi.components.State(name = "aws_codeartifact_maven.state", storages = @Storage("aws_codeartifact_maven.xml"))//, roamingType = RoamingType.DISABLED))
 final public class PluginState implements PersistentStateComponent<PluginState> {
 

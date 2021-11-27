@@ -68,8 +68,10 @@
     <ul>
      <li><b>Domain</b>: the domain in AWS</li>
      <li><b>Domain Owner</b>: the account owner, something like 023174738914</li>
-     <li><b>Maven: server id:</b> the server name provided in your maven settings file -as following the instructions from AWS-</li>
-     <li><b>Maven: settings file:</b> the location of the maven settings file, usually under ~/.m2</li>
+     <li><b>Maven server id</b>: the server name provided in your maven settings file -as following the instructions from AWS-.
+        This is a value obtained already from the maven settings file, using all servers whose username is <b>aws</b></li>
+     <li><b>Maven settings file</b>: the location of the maven settings file, usually under ~/.m2</li>
+     <li><b>AWS cli path</b>: where to find the <b>aws</b> executable</li>
     </ul>
 
     <p>The button Generate credentials will initiate the requests of a token to AWS and its inclusion in the maven settings file</p>
@@ -89,13 +91,13 @@
     ]]>
   </change-notes>
 
-  <idea-version since-build="173.0"/>
+  <idea-version since-build="173"/>
 
   <depends>com.intellij.modules.platform</depends>
 
-<!--  <extensions defaultExtensionNs="com.intellij">-->
-<!--    <applicationService serviceImplementation="net.coderazzi.aws_codeartifact_maven.PluginState"/>-->
-<!--  </extensions>-->
+    <extensions defaultExtensionNs="com.intellij">
+      <applicationService serviceImplementation="net.coderazzi.aws_codeartifact_maven.PluginState"/>
+    </extensions>
 
   <actions>
     <action id="net.coderazzi.aws_codeartifact_maven.LaunchAction" class="net.coderazzi.aws_codeartifact_maven.LaunchAction"
