@@ -21,7 +21,7 @@ import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -61,7 +61,7 @@ class InputDialog extends DialogWrapper {
         return state;
     }
 
-    private void updatedMavenServerId(){
+    private void updatedMavenServerId() {
         Object s = mavenServerId.getSelectedItem();
         if (s instanceof String) {
             state.updateMavenServerId((String) s);
@@ -76,7 +76,7 @@ class InputDialog extends DialogWrapper {
     }
 
 
-    private void updateRepositoryInformation(boolean reloadServersIfNeeded){
+    private void updateRepositoryInformation(boolean reloadServersIfNeeded) {
         serverIdsModel.removeAllElements();
         Set<String> serverIds = state.getMavenServerIds();
         if (serverIds.isEmpty()) {
@@ -95,9 +95,9 @@ class InputDialog extends DialogWrapper {
         updateGenerateCredentialsButtonState();
     }
 
-    private void reloadServers(){
+    private void reloadServers() {
         final String filename = settingsFile.getText().trim();
-        if (state.updateMavenSettingsFile(filename) || loadingServersThread==null) {
+        if (state.updateMavenSettingsFile(filename) || loadingServersThread == null) {
             serverIdsModel.removeAllElements();
             if (!filename.isEmpty()) {
                 serverIdsModel.addElement(LOADING_SERVER_IDS);
@@ -108,41 +108,40 @@ class InputDialog extends DialogWrapper {
         }
     }
 
-    private void loadingServersInBackground(String settingsFile){
+    private void loadingServersInBackground(String settingsFile) {
         try {
             updateServersInForeground(
                     new MavenSettingsFileHandler(settingsFile).getServerIds(MAVEN_SERVER_USERNAME),
                     null
             );
-        } catch (MavenSettingsFileHandler.GetServerIdsException ex){
+        } catch (MavenSettingsFileHandler.GetServerIdsException ex) {
             updateServersInForeground(new HashSet<>(), ex.getMessage());
         }
     }
 
-    private void updateServersInForeground(Set<String> serverIds, String error){
+    private void updateServersInForeground(Set<String> serverIds, String error) {
         final Thread thread = Thread.currentThread();
         SwingUtilities.invokeLater(() -> {
             if (thread == loadingServersThread) {
                 state.updateMavenServerIds(serverIds);
                 loadingServersThread = null;
                 updateRepositoryInformation(false);
-                if (error == null){
+                if (error == null) {
                     if (serverIds.isEmpty()) {
                         Messages.showErrorDialog(settingsFile,
                                 "Maven settings file does not define any server with username 'aws'",
                                 COMPONENT_TITLE);
                     }
-                }
-                else {
+                } else {
                     Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
                 }
             }
         });
     }
 
-    private void updateGenerateCredentialsButtonState(){
+    private void updateGenerateCredentialsButtonState() {
         JButton ok = getButton((getOKAction()));
-        if (ok!=null) {
+        if (ok != null) {
             ok.setEnabled(checkNonEmpty(domain)
                     && checkNonEmpty(domainOwner)
                     && checkHasSelection(mavenServerId)
@@ -151,7 +150,7 @@ class InputDialog extends DialogWrapper {
         }
     }
 
-    private void handleTextFieldChange(JTextField check, Consumer<String> action){
+    private void handleTextFieldChange(JTextField check, Consumer<String> action) {
         check.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent documentEvent) {
@@ -161,9 +160,9 @@ class InputDialog extends DialogWrapper {
         });
     }
 
-    private void handleComboBoxChange(ComboBoxWithWidePopup check, Runnable action){
+    private void handleComboBoxChange(ComboBoxWithWidePopup check, Runnable action) {
         check.addItemListener(x -> {
-            if (x.getStateChange()== ItemEvent.SELECTED) {
+            if (x.getStateChange() == ItemEvent.SELECTED) {
                 updateGenerateCredentialsButtonState();
                 action.run();
             }
@@ -177,7 +176,7 @@ class InputDialog extends DialogWrapper {
         TextFieldWithBrowseButton settingsFileBrowser = new TextFieldWithBrowseButton(settingsFile, x -> reloadServers());
         TextFieldWithBrowseButton awsPathBrowser = new TextFieldWithBrowseButton(awsPath);
         ComponentWithBrowseButton<ComboBoxWithWidePopup> mavenServerIdWrapper =
-                new ComponentWithBrowseButton<>(mavenServerId, x-> reloadServers());
+                new ComponentWithBrowseButton<>(mavenServerId, x -> reloadServers());
 
         GridBag gridbag = new GridBag()
                 .setDefaultWeightX(10.0)
@@ -224,13 +223,14 @@ class InputDialog extends DialogWrapper {
         return ret;
     }
 
-    private JComponent getIconPanel(){
-        String resource = ColorUtil.isDark(getOwner().getBackground())? DARK_ICON : LIGHT_ICON;
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resource)){
-            if (is!=null) {
-                return new JLabel(new ImageIcon(SVGLoader.load(is, 2.5f)));
+    private JComponent getIconPanel() {
+        String resource = ColorUtil.isDark(getOwner().getBackground()) ? DARK_ICON : LIGHT_ICON;
+        URL url = getClass().getClassLoader().getResource(resource);
+        if (url != null) {
+            try {
+                return new JLabel(new ImageIcon(SVGLoader.load(url, 2.5f)));
+            } catch (IOException ex) {
             }
-        } catch (IOException ex){
         }
         return new JLabel();
     }
@@ -250,19 +250,18 @@ class InputDialog extends DialogWrapper {
         super.doCancelAction();
     }
 
-    private boolean checkNonEmpty(JTextField check){
+    private boolean checkNonEmpty(JTextField check) {
         return !check.getText().trim().isEmpty();
     }
 
     private boolean checkHasSelection(ComboBoxWithWidePopup check) {
-        return check.isEnabled() && check.getSelectedItem() !=null;
+        return check.isEnabled() && check.getSelectedItem() != null;
     }
 
-    private static Object LOADING_SERVER_IDS = new Object(){
+    private static Object LOADING_SERVER_IDS = new Object() {
         @Override
         public String toString() {
             return "Loading server ids from maven file...";
         }
     };
-
 }
