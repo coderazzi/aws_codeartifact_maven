@@ -1,4 +1,4 @@
-# WS CodeArtifact+Maven Idea plugin
+# CodeArtifact+Maven Idea plugin
 
 * Website: https://coderazzi.net/codeartifact-maven
 * Github: https://github.com/coderazzi/aws_codeartifact_maven
