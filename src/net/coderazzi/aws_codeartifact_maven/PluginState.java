@@ -7,10 +7,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-@com.intellij.openapi.components.State(name = "aws_codeartifact_maven.state", storages = @Storage("aws_codeartifact_maven.xml"))//, roamingType = RoamingType.DISABLED))
+@com.intellij.openapi.components.State(
+        name = "aws_codeartifact_maven.state",
+        storages = @Storage("aws_codeartifact_maven.xml"))//, roamingType = RoamingType.DISABLED))
 final public class PluginState implements PersistentStateComponent<PluginState> {
 
-    public static final int CURRENT_VERSION=2;
+    public static final int CURRENT_VERSION=3;
 
     public static PluginState getInstance() {
         return ServiceManager.getService(PluginState.class).ensureInitialization();
@@ -20,6 +22,8 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
     public String mavenSettingsFile;
     public String awsPath;
     public String mavenServerId;
+    public String awsProfile;
+    public Set<String> allProfiles;
     public Set<String> allMavenServerIds;
     public Map<String, String> domains;      // mavenServerId -> domain
     public Map<String, String> domainOwners; // mavenServerId -> domainOwner
@@ -42,13 +46,13 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
             mavenSettingsFile = getAndCleanPropertiesComponentProperty(properties, "mavenSettingsFile");
             awsPath = getAndCleanPropertiesComponentProperty(properties, "awsPath");
             mavenServerId = getAndCleanPropertiesComponentProperty(properties, "mavenServerId");
-            version = CURRENT_VERSION;
             if (!mavenServerId.isEmpty()) {
                 // allMavenServerIds.add(mavenServerId); // do not load this, so that the maven settings file is read
                 domains.put(mavenServerId, getAndCleanPropertiesComponentProperty(properties, "domain"));
                 domainOwners.put(mavenServerId, getAndCleanPropertiesComponentProperty(properties, "domainOwner"));
             }
         }
+        version = CURRENT_VERSION;
         return this;
     }
 

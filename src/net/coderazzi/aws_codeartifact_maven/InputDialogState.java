@@ -9,6 +9,8 @@ final public class InputDialogState {
 
     private PluginState state;
     private TreeSet<String> allMavenServerIds;
+    private TreeSet<String> allProfiles = new TreeSet<>();
+    private boolean loadProfiles;
 
     public static InputDialogState getInstance() {
         return new InputDialogState(PluginState.getInstance());
@@ -20,6 +22,16 @@ final public class InputDialogState {
         // so we just load the state, and convert the set to TreeSet
         allMavenServerIds = new TreeSet<>(state.allMavenServerIds);
         state.allMavenServerIds = allMavenServerIds;
+        if (state.allProfiles == null) {
+            loadProfiles = true;
+        } else {
+            allProfiles.addAll(state.allProfiles);
+            state.allProfiles = allProfiles;
+        }
+    }
+
+    public boolean shouldLoadProfiles(){
+        return loadProfiles;
     }
 
     public void updateDomain(String domain) {
@@ -92,6 +104,43 @@ final public class InputDialogState {
             }
         }
         return ret;
+    }
+
+    public String getAWSProfile(){
+        String ret = state.awsProfile;
+        if (!validProfile(ret)) {
+            ret = AWSProfileHandler.DEFAULT_PROFILE;
+            String awsProfile = System.getenv("AWS_PROFILE");
+            if (awsProfile != null) {
+                awsProfile = awsProfile.trim();
+                if (validProfile(awsProfile)) {
+                    ret = awsProfile;
+                }
+            }
+        }
+        return validProfile(ret)? ret : null;
+    }
+
+    private boolean validProfile(String profile){
+        return profile!=null && allProfiles.contains(profile);
+    }
+
+    public void setAWSProfile(String profile){
+        if (state.allProfiles!=null && state.allProfiles.contains(profile)) {
+            state.awsProfile = profile;
+        }
+    }
+
+    public Set<String> getAWSProfiles(){
+        return state.allProfiles;
+    }
+
+    public Set<String> updateAWSProfiles(Set<String> profiles){
+        allProfiles.clear();
+        allProfiles.addAll(profiles);
+        state.allProfiles = allProfiles;
+        loadProfiles = false;
+        return allProfiles;
     }
 
 }

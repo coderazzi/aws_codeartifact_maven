@@ -12,13 +12,14 @@ class AWSInvoker {
         boolean isCancelled();
     }
 
-    public static OperationOutput getCredentials(String domain, String domainOwner, String awsPath,
+    public static OperationOutput getCredentials(String domain, String domainOwner, String awsPath, String awsProfile,
                                                  Cancellable cancellable) {
         OperationOutput ret = new OperationOutput();
         try {
+            String profile=awsProfile==null? "" : String.format(" --profile %s", awsProfile);
             Process process = Runtime.getRuntime().exec(String.format(
-                    "%s codeartifact get-authorization-token --domain %s --domain-owner %s --query authorizationToken --output text",
-                    awsPath, domain, domainOwner));
+                    "%s codeartifact get-authorization-token %s --domain %s --domain-owner %s --query authorizationToken --output text",
+                    awsPath, profile, domain, domainOwner));
             ProcessReader inputReader = new ProcessReader(process.getInputStream());
             ProcessReader errorReader = new ProcessReader(process.getErrorStream());
             while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {

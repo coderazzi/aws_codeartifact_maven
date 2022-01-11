@@ -22,6 +22,7 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -40,9 +41,11 @@ class InputDialog extends DialogWrapper {
     private final JTextField domainOwner = new JTextField(32);
     private final DefaultComboBoxModel serverIdsModel = new DefaultComboBoxModel();
     private final ComboBoxWithWidePopup mavenServerId = new ComboBoxWithWidePopup(serverIdsModel);
+    private final DefaultComboBoxModel awsProfileModel = new DefaultComboBoxModel();
+    private final ComboBoxWithWidePopup awsProfile = new ComboBoxWithWidePopup(awsProfileModel);
     private final JTextField settingsFile = new JTextField(32);
     private final JTextField awsPath = new JTextField(32);
-    private Thread loadingServersThread;
+    private Thread loadingServersThread, loadingProfilesThread;
     private InputDialogState state;
 
     private final PropertiesComponent properties;
@@ -75,6 +78,15 @@ class InputDialog extends DialogWrapper {
         }
     }
 
+    private void updatedAwsProfile(){
+        if (awsProfile.isEnabled()) {
+            Object s = awsProfile.getSelectedItem();
+            if (s instanceof String) {
+                state.setAWSProfile((String) s);
+            }
+        }
+    }
+
 
     private void updateRepositoryInformation(boolean reloadServersIfNeeded) {
         serverIdsModel.removeAllElements();
@@ -100,23 +112,58 @@ class InputDialog extends DialogWrapper {
         if (state.updateMavenSettingsFile(filename) || loadingServersThread == null) {
             serverIdsModel.removeAllElements();
             if (!filename.isEmpty()) {
-                serverIdsModel.addElement(LOADING_SERVER_IDS);
+                serverIdsModel.addElement(LOADING);
                 mavenServerId.setEnabled(false);
-                loadingServersThread = new Thread(() -> loadingServersInBackground(filename));
+                loadingServersThread = new Thread(() -> {
+                    try {
+                        updateServersInForeground(
+                                new MavenSettingsFileHandler(filename).getServerIds(MAVEN_SERVER_USERNAME),
+                                null
+                        );
+                    } catch (MavenSettingsFileHandler.GetServerIdsException ex) {
+                        updateServersInForeground(new HashSet<>(), ex.getMessage());
+                    }
+                });
                 loadingServersThread.start();
             }
         }
     }
 
-    private void loadingServersInBackground(String settingsFile) {
-        try {
-            updateServersInForeground(
-                    new MavenSettingsFileHandler(settingsFile).getServerIds(MAVEN_SERVER_USERNAME),
-                    null
-            );
-        } catch (MavenSettingsFileHandler.GetServerIdsException ex) {
-            updateServersInForeground(new HashSet<>(), ex.getMessage());
+    private void reloadAWSProfiles() {
+        if (loadingProfilesThread == null) {
+            awsProfileModel.removeAllElements();
+            awsProfileModel.addElement(LOADING);
+            awsProfile.setEnabled(false);
+            loadingProfilesThread = new Thread(() -> {
+                Set<String> profiles = null;
+                String error = null;
+                try {
+                    profiles = AWSProfileHandler.getProfiles();
+                } catch (AWSProfileHandler.GetProfilesException ex) {
+                    error = ex.getMessage();
+                }
+                updateProfilesInForeground(profiles, error);
+            });
+            loadingProfilesThread.start();
         }
+    }
+
+    private void updateProfilesInForeground(Set<String> profiles, String error) {
+        final Thread thread = Thread.currentThread();
+        SwingUtilities.invokeLater(() -> {
+            if (thread == loadingProfilesThread) {
+                awsProfileModel.removeAllElements();
+                loadingProfilesThread = null;
+                if (error == null) {
+                    state.updateAWSProfiles(profiles).forEach(awsProfileModel::addElement);
+                    awsProfileModel.setSelectedItem(state.getAWSProfile());
+                } else {
+                    state.updateAWSProfiles(Collections.EMPTY_SET);
+                    Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
+                }
+                awsProfile.setEnabled(true);
+            }
+        });
     }
 
     private void updateServersInForeground(Set<String> serverIds, String error) {
@@ -177,6 +224,8 @@ class InputDialog extends DialogWrapper {
         TextFieldWithBrowseButton awsPathBrowser = new TextFieldWithBrowseButton(awsPath);
         ComponentWithBrowseButton<ComboBoxWithWidePopup> mavenServerIdWrapper =
                 new ComponentWithBrowseButton<>(mavenServerId, x -> reloadServers());
+        ComponentWithBrowseButton<ComboBoxWithWidePopup> awsProfileWrapper =
+                new ComponentWithBrowseButton<>(awsProfile, x -> reloadAWSProfiles());
 
         GridBag gridbag = new GridBag()
                 .setDefaultWeightX(10.0)
@@ -192,6 +241,8 @@ class InputDialog extends DialogWrapper {
         centerPanel.add(domainOwner, gridbag.next().coverLine());
         centerPanel.add(getLabel("Maven server id:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(mavenServerIdWrapper, gridbag.next().coverLine());
+        centerPanel.add(getLabel("AWS profile:"), gridbag.nextLine().next().weightx(2.0));
+        centerPanel.add(awsProfileWrapper, gridbag.next().coverLine());
         centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("Maven settings file:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(settingsFileBrowser, gridbag.next().coverLine());
@@ -208,17 +259,29 @@ class InputDialog extends DialogWrapper {
         awsPathBrowser.addBrowseFolderListener("aws Executable Location", null, null,
                 new FileChooserDescriptor(true, false, false, false, false, false));
         mavenServerIdWrapper.setButtonIcon(AllIcons.Actions.Refresh);
+        awsProfileWrapper.setButtonIcon(AllIcons.Actions.Refresh);
 
         handleTextFieldChange(awsPath, x -> state.updateAwsPath(x));
         handleTextFieldChange(domainOwner, x -> state.updateDomainOwner(x));
         handleTextFieldChange(domain, x -> state.updateDomain(x));
         handleComboBoxChange(mavenServerId, this::updatedMavenServerId);
+        handleComboBoxChange(awsProfile, this::updatedAwsProfile);
 
         updateRepositoryInformation(true);
 
         JPanel ret = new JPanel(new BorderLayout(24, 0));
         ret.add(centerPanel, BorderLayout.CENTER);
         ret.add(getIconPanel(), BorderLayout.WEST);
+
+        if (state.shouldLoadProfiles()) {
+            reloadAWSProfiles();
+        } else {
+            String profile = state.getAWSProfile();
+            Set<String> profiles = state.getAWSProfiles();
+            // next call will modify the profile, that is why we store it beforehand
+            profiles.forEach(awsProfileModel::addElement);
+            awsProfileModel.setSelectedItem(profile);
+        }
 
         return ret;
     }
@@ -258,10 +321,11 @@ class InputDialog extends DialogWrapper {
         return check.isEnabled() && check.getSelectedItem() != null;
     }
 
-    private static Object LOADING_SERVER_IDS = new Object() {
+    private static Object LOADING = new Object() {
         @Override
         public String toString() {
-            return "Loading server ids from maven file...";
+            return "Loading ...";
         }
     };
+
 }
