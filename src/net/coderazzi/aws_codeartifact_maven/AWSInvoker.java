@@ -16,10 +16,9 @@ class AWSInvoker {
                                                  Cancellable cancellable) {
         OperationOutput ret = new OperationOutput();
         try {
-            String profile=awsProfile==null? "" : String.format(" --profile %s", awsProfile);
             Process process = Runtime.getRuntime().exec(String.format(
-                    "%s codeartifact get-authorization-token %s --domain %s --domain-owner %s --query authorizationToken --output text",
-                    awsPath, profile, domain, domainOwner));
+                    "%s codeartifact get-authorization-token --profile %s --domain %s --domain-owner %s --query authorizationToken --output text",
+                    awsPath, awsProfile, domain, domainOwner));
             ProcessReader inputReader = new ProcessReader(process.getInputStream());
             ProcessReader errorReader = new ProcessReader(process.getErrorStream());
             while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
@@ -38,7 +37,7 @@ class AWSInvoker {
                 ret.output = errorReader.getOutput();
             }
 
-        } catch (IOException | InterruptedException ex){
+        } catch (Exception ex){
             ret.output = "Error executing aws:" + ex.getMessage();
         }
         return ret;

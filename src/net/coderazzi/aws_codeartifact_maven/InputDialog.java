@@ -277,13 +277,14 @@ class InputDialog extends DialogWrapper {
 
         JPanel centerPanel = new JPanel(new GridBagLayout());
 
-        centerPanel.add(new TitledSeparator("Repository / Profile"), gridbag.nextLine().coverLine());
+        centerPanel.add(new TitledSeparator("Repository"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("Domain:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(domain, gridbag.next().coverLine());
         centerPanel.add(getLabel("Domain owner:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(domainOwner, gridbag.next().coverLine());
         centerPanel.add(getLabel("Maven server id:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(mavenServerIdWrapper, gridbag.next().coverLine());
+        centerPanel.add(new TitledSeparator("Profile"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("AWS profile:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(awsProfileWrapper, gridbag.next().coverLine());
         centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
@@ -317,7 +318,7 @@ class InputDialog extends DialogWrapper {
         URL url = getClass().getClassLoader().getResource(resource);
         if (url != null) {
             try {
-                return new JLabel(new ImageIcon(SVGLoader.load(url, 2.5f)));
+                return new JLabel(new ImageIcon(SVGLoader.load(url, 3.5f)));
             } catch (IOException ex) {
             }
         }
