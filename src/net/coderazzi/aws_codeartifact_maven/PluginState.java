@@ -37,12 +37,13 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
     }
 
     private PluginState ensureInitialization(){
+        if (allProfiles==null) allProfiles = new TreeSet<>();
+        if (allMavenServerIds==null) allMavenServerIds = new TreeSet<>();
+        if (domains==null) domains = new HashMap<>();
+        if (domainOwners==null) domainOwners = new HashMap<>();
         if (version==0) {
             // migrating from old PropertiesComponent persistence
             PropertiesComponent properties = PropertiesComponent.getInstance();
-            domains = new HashMap<>();
-            domainOwners = new HashMap<>();
-            allMavenServerIds = new TreeSet<>();
             mavenSettingsFile = getAndCleanPropertiesComponentProperty(properties, "mavenSettingsFile");
             awsPath = getAndCleanPropertiesComponentProperty(properties, "awsPath");
             mavenServerId = getAndCleanPropertiesComponentProperty(properties, "mavenServerId");

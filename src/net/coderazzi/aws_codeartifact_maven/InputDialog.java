@@ -88,7 +88,7 @@ class InputDialog extends DialogWrapper {
         if (awsProfile.isEnabled()) {
             Object s = awsProfile.getSelectedItem();
             if (s instanceof String) {
-                state.setAWSProfile((String) s);
+                state.setProfile((String) s);
             }
         }
     }
@@ -113,6 +113,20 @@ class InputDialog extends DialogWrapper {
         }
         mavenServerId.setEnabled(true);
         updateGenerateCredentialsButtonState();
+    }
+
+    private void showProfileInformation(boolean reloadIfNeeded) {
+        Set<String> profiles = state.getProfiles();
+        if (profiles.isEmpty()) {
+            if (reloadIfNeeded) {
+                reloadProfilesInBackground();
+            }
+        } else {
+            String profile = state.getProfile();
+            // next call will modify the profile, that is why we store it beforehand
+            profiles.forEach(awsProfileModel::addElement);
+            awsProfileModel.setSelectedItem(profile);
+        }
     }
 
     /**
@@ -145,13 +159,12 @@ class InputDialog extends DialogWrapper {
      * Starts a new thread to load the profiles from the aws config gile.
      * It does nothing if there is already a reload in progress
      */
-    private void reloadAwsProfilesInBackground() {
+    private void reloadProfilesInBackground() {
         if (loadingProfilesThread == null) {
             awsProfileModel.removeAllElements();
             awsProfileModel.addElement(LOADING);
             awsProfile.setEnabled(false);
             loadingProfilesThread = new Thread(() -> {
-                try {Thread.sleep(5000);}catch(InterruptedException ex){}
                 Set<String> profiles = null;
                 String error = null;
                 try {
@@ -159,7 +172,7 @@ class InputDialog extends DialogWrapper {
                 } catch (AWSProfileHandler.GetProfilesException ex) {
                     error = ex.getMessage();
                 }
-                updateAwsProfilesInForeground(profiles, error);
+                updateProfilesInForeground(profiles, error);
             });
             loadingProfilesThread.start();
         }
@@ -168,15 +181,15 @@ class InputDialog extends DialogWrapper {
     /**
      * Displays the information for the aws profiles, once loaded in the background
      */
-    private void updateAwsProfilesInForeground(Set<String> profiles, String error) {
+    private void updateProfilesInForeground(Set<String> profiles, String error) {
         SwingUtilities.invokeLater(() -> {
             loadingProfilesThread = null;
             awsProfileModel.removeAllElements();
             if (error == null) {
-                state.updateAWSProfiles(profiles).forEach(awsProfileModel::addElement);
-                awsProfileModel.setSelectedItem(state.getAWSProfile());
+                state.setProfiles(profiles);
+                showProfileInformation(false);
             } else {
-                state.updateAWSProfiles(Collections.EMPTY_SET);
+                state.setProfiles(Collections.EMPTY_SET);
                 Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
             }
             awsProfile.setEnabled(true);
@@ -209,6 +222,7 @@ class InputDialog extends DialogWrapper {
             ok.setEnabled(checkNonEmpty(domain)
                     && checkNonEmpty(domainOwner)
                     && checkHasSelection(mavenServerId)
+                    && checkHasSelection(awsProfile)
                     && checkNonEmpty(awsPath)
             );
         }
@@ -233,6 +247,18 @@ class InputDialog extends DialogWrapper {
         });
     }
 
+    @Override
+    protected void init() {
+        super.init();
+        handleTextFieldChange(awsPath, x -> state.updateAwsPath(x));
+        handleTextFieldChange(domainOwner, x -> state.updateDomainOwner(x));
+        handleTextFieldChange(domain, x -> state.updateDomain(x));
+        handleComboBoxChange(mavenServerId, this::updatedMavenServerId);
+        handleComboBoxChange(awsProfile, this::updatedAwsProfile);
+        showProfileInformation(true);
+        showRepositoryInformation(true);
+    }
+
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
@@ -242,7 +268,7 @@ class InputDialog extends DialogWrapper {
         ComponentWithBrowseButton<ComboBoxWithWidePopup> mavenServerIdWrapper =
                 new ComponentWithBrowseButton<>(mavenServerId, x -> reloadServersInBackground());
         ComponentWithBrowseButton<ComboBoxWithWidePopup> awsProfileWrapper =
-                new ComponentWithBrowseButton<>(awsProfile, x -> reloadAwsProfilesInBackground());
+                new ComponentWithBrowseButton<>(awsProfile, x -> reloadProfilesInBackground());
 
         GridBag gridbag = new GridBag()
                 .setDefaultWeightX(10.0)
@@ -251,7 +277,7 @@ class InputDialog extends DialogWrapper {
 
         JPanel centerPanel = new JPanel(new GridBagLayout());
 
-        centerPanel.add(new TitledSeparator("Repository"), gridbag.nextLine().coverLine());
+        centerPanel.add(new TitledSeparator("Repository / Profile"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("Domain:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(domain, gridbag.next().coverLine());
         centerPanel.add(getLabel("Domain owner:"), gridbag.nextLine().next().weightx(2.0));
@@ -278,27 +304,10 @@ class InputDialog extends DialogWrapper {
         mavenServerIdWrapper.setButtonIcon(AllIcons.Actions.Refresh);
         awsProfileWrapper.setButtonIcon(AllIcons.Actions.Refresh);
 
-        handleTextFieldChange(awsPath, x -> state.updateAwsPath(x));
-        handleTextFieldChange(domainOwner, x -> state.updateDomainOwner(x));
-        handleTextFieldChange(domain, x -> state.updateDomain(x));
-        handleComboBoxChange(mavenServerId, this::updatedMavenServerId);
-        handleComboBoxChange(awsProfile, this::updatedAwsProfile);
-
-        showRepositoryInformation(true);
 
         JPanel ret = new JPanel(new BorderLayout(24, 0));
         ret.add(centerPanel, BorderLayout.CENTER);
         ret.add(getIconPanel(), BorderLayout.WEST);
-
-        if (state.shouldLoadProfiles()) {
-            reloadAwsProfilesInBackground();
-        } else {
-            String profile = state.getAWSProfile();
-            Set<String> profiles = state.getAWSProfiles();
-            // next call will modify the profile, that is why we store it beforehand
-            profiles.forEach(awsProfileModel::addElement);
-            awsProfileModel.setSelectedItem(profile);
-        }
 
         return ret;
     }

@@ -30,7 +30,7 @@ public class LaunchAction extends AnAction {
                         final InputDialogState state = dialog.getState();
                         final OperationOutput to = launchTasks(state.getDomain(), state.getDomainOwner(),
                                 state.getMavenServerId(), state.getMavenServerSettingsFile(),
-                                state.getAWSPath(), state.getAWSProfile());
+                                state.getAWSPath(), state.getProfile());
                         if (to!=null ) {
                             SwingUtilities.invokeLater(() -> {
                                 if (showResults(project, to)) {

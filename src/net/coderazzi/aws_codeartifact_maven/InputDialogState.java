@@ -9,8 +9,7 @@ final public class InputDialogState {
 
     private PluginState state;
     private TreeSet<String> allMavenServerIds;
-    private TreeSet<String> allProfiles = new TreeSet<>();
-    private boolean loadProfiles;
+    private TreeSet<String> allProfiles;
 
     public static InputDialogState getInstance() {
         return new InputDialogState(PluginState.getInstance());
@@ -22,16 +21,8 @@ final public class InputDialogState {
         // so we just load the state, and convert the set to TreeSet
         allMavenServerIds = new TreeSet<>(state.allMavenServerIds);
         state.allMavenServerIds = allMavenServerIds;
-        if (state.allProfiles == null) {
-            loadProfiles = true;
-        } else {
-            allProfiles.addAll(state.allProfiles);
-            state.allProfiles = allProfiles;
-        }
-    }
-
-    public boolean shouldLoadProfiles(){
-        return loadProfiles;
+        allProfiles  = new TreeSet<>(state.allProfiles);
+        state.allProfiles = allProfiles;
     }
 
     public void updateDomain(String domain) {
@@ -106,40 +97,39 @@ final public class InputDialogState {
         return ret;
     }
 
-    public String getAWSProfile(){
+    public String getProfile(){
         String ret = state.awsProfile;
-        if (!validProfile(ret)) {
+        if (!isValidProfile(ret)) {
             ret = AWSProfileHandler.DEFAULT_PROFILE;
             String awsProfile = System.getenv("AWS_PROFILE");
             if (awsProfile != null) {
                 awsProfile = awsProfile.trim();
-                if (validProfile(awsProfile)) {
+                if (isValidProfile(awsProfile)) {
                     ret = awsProfile;
                 }
             }
         }
-        return validProfile(ret)? ret : null;
+        return isValidProfile(ret)? ret : null;
     }
 
-    private boolean validProfile(String profile){
+    private boolean isValidProfile(String profile){
         return profile!=null && allProfiles.contains(profile);
     }
 
-    public void setAWSProfile(String profile){
+    public void setProfile(String profile){
         if (state.allProfiles!=null && state.allProfiles.contains(profile)) {
             state.awsProfile = profile;
         }
     }
 
-    public Set<String> getAWSProfiles(){
+    public Set<String> getProfiles(){
         return state.allProfiles;
     }
 
-    public Set<String> updateAWSProfiles(Set<String> profiles){
+    public Set<String> setProfiles(Set<String> profiles){
         allProfiles.clear();
         allProfiles.addAll(profiles);
         state.allProfiles = allProfiles;
-        loadProfiles = false;
         return allProfiles;
     }
 
