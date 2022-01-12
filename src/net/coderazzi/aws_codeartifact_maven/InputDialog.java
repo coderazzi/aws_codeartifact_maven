@@ -64,6 +64,9 @@ class InputDialog extends DialogWrapper {
         return state;
     }
 
+    /**
+     * Called whenever the user changes the maven server id
+     */
     private void updatedMavenServerId() {
         Object s = mavenServerId.getSelectedItem();
         if (s instanceof String) {
@@ -78,6 +81,9 @@ class InputDialog extends DialogWrapper {
         }
     }
 
+    /**
+     * Called whenever the user changes the AWS profile
+     */
     private void updatedAwsProfile(){
         if (awsProfile.isEnabled()) {
             Object s = awsProfile.getSelectedItem();
@@ -88,26 +94,32 @@ class InputDialog extends DialogWrapper {
     }
 
 
-    private void updateRepositoryInformation(boolean reloadServersIfNeeded) {
+    /**
+     * Displays all information related to the repository.
+     * @param reloadServersIfNeeded set to true to load servers from maven settings file IF there are none yet
+     */
+    private void showRepositoryInformation(boolean reloadServersIfNeeded) {
         serverIdsModel.removeAllElements();
         Set<String> serverIds = state.getMavenServerIds();
         if (serverIds.isEmpty()) {
             if (reloadServersIfNeeded) {
-                reloadServers();
+                reloadServersInBackground();
                 return;
             }
         } else {
             String currentId = state.getMavenServerId();
-            for (String each : serverIds) {
-                serverIdsModel.addElement(each);
-            }
+            serverIds.forEach(serverIdsModel::addElement);
             serverIdsModel.setSelectedItem(currentId);
         }
         mavenServerId.setEnabled(true);
         updateGenerateCredentialsButtonState();
     }
 
-    private void reloadServers() {
+    /**
+     * Starts a new thread to load the servers from the maven settings file.
+     * It does nothing if there is already a reload in progress for the same settings file
+     */
+    private void reloadServersInBackground() {
         final String filename = settingsFile.getText().trim();
         if (state.updateMavenSettingsFile(filename) || loadingServersThread == null) {
             serverIdsModel.removeAllElements();
@@ -129,12 +141,17 @@ class InputDialog extends DialogWrapper {
         }
     }
 
-    private void reloadAWSProfiles() {
+    /**
+     * Starts a new thread to load the profiles from the aws config gile.
+     * It does nothing if there is already a reload in progress
+     */
+    private void reloadAwsProfilesInBackground() {
         if (loadingProfilesThread == null) {
             awsProfileModel.removeAllElements();
             awsProfileModel.addElement(LOADING);
             awsProfile.setEnabled(false);
             loadingProfilesThread = new Thread(() -> {
+                try {Thread.sleep(5000);}catch(InterruptedException ex){}
                 Set<String> profiles = null;
                 String error = null;
                 try {
@@ -142,27 +159,27 @@ class InputDialog extends DialogWrapper {
                 } catch (AWSProfileHandler.GetProfilesException ex) {
                     error = ex.getMessage();
                 }
-                updateProfilesInForeground(profiles, error);
+                updateAwsProfilesInForeground(profiles, error);
             });
             loadingProfilesThread.start();
         }
     }
 
-    private void updateProfilesInForeground(Set<String> profiles, String error) {
-        final Thread thread = Thread.currentThread();
+    /**
+     * Displays the information for the aws profiles, once loaded in the background
+     */
+    private void updateAwsProfilesInForeground(Set<String> profiles, String error) {
         SwingUtilities.invokeLater(() -> {
-            if (thread == loadingProfilesThread) {
-                awsProfileModel.removeAllElements();
-                loadingProfilesThread = null;
-                if (error == null) {
-                    state.updateAWSProfiles(profiles).forEach(awsProfileModel::addElement);
-                    awsProfileModel.setSelectedItem(state.getAWSProfile());
-                } else {
-                    state.updateAWSProfiles(Collections.EMPTY_SET);
-                    Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
-                }
-                awsProfile.setEnabled(true);
+            loadingProfilesThread = null;
+            awsProfileModel.removeAllElements();
+            if (error == null) {
+                state.updateAWSProfiles(profiles).forEach(awsProfileModel::addElement);
+                awsProfileModel.setSelectedItem(state.getAWSProfile());
+            } else {
+                state.updateAWSProfiles(Collections.EMPTY_SET);
+                Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
             }
+            awsProfile.setEnabled(true);
         });
     }
 
@@ -172,7 +189,7 @@ class InputDialog extends DialogWrapper {
             if (thread == loadingServersThread) {
                 state.updateMavenServerIds(serverIds);
                 loadingServersThread = null;
-                updateRepositoryInformation(false);
+                showRepositoryInformation(false);
                 if (error == null) {
                     if (serverIds.isEmpty()) {
                         Messages.showErrorDialog(settingsFile,
@@ -220,12 +237,12 @@ class InputDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
 
-        TextFieldWithBrowseButton settingsFileBrowser = new TextFieldWithBrowseButton(settingsFile, x -> reloadServers());
+        TextFieldWithBrowseButton settingsFileBrowser = new TextFieldWithBrowseButton(settingsFile, x -> reloadServersInBackground());
         TextFieldWithBrowseButton awsPathBrowser = new TextFieldWithBrowseButton(awsPath);
         ComponentWithBrowseButton<ComboBoxWithWidePopup> mavenServerIdWrapper =
-                new ComponentWithBrowseButton<>(mavenServerId, x -> reloadServers());
+                new ComponentWithBrowseButton<>(mavenServerId, x -> reloadServersInBackground());
         ComponentWithBrowseButton<ComboBoxWithWidePopup> awsProfileWrapper =
-                new ComponentWithBrowseButton<>(awsProfile, x -> reloadAWSProfiles());
+                new ComponentWithBrowseButton<>(awsProfile, x -> reloadAwsProfilesInBackground());
 
         GridBag gridbag = new GridBag()
                 .setDefaultWeightX(10.0)
@@ -251,7 +268,7 @@ class InputDialog extends DialogWrapper {
         centerPanel.setBorder(BorderFactory.createEmptyBorder(0,0,24,0));
 
         settingsFile.setText(state.getMavenServerSettingsFile());
-        settingsFile.addActionListener(x -> reloadServers()); // handle ENTER key
+        settingsFile.addActionListener(x -> reloadServersInBackground()); // handle ENTER key
         awsPath.setText(state.getAWSPath());
 
         settingsFileBrowser.addBrowseFolderListener("Maven Settings File", null, null,
@@ -267,14 +284,14 @@ class InputDialog extends DialogWrapper {
         handleComboBoxChange(mavenServerId, this::updatedMavenServerId);
         handleComboBoxChange(awsProfile, this::updatedAwsProfile);
 
-        updateRepositoryInformation(true);
+        showRepositoryInformation(true);
 
         JPanel ret = new JPanel(new BorderLayout(24, 0));
         ret.add(centerPanel, BorderLayout.CENTER);
         ret.add(getIconPanel(), BorderLayout.WEST);
 
         if (state.shouldLoadProfiles()) {
-            reloadAWSProfiles();
+            reloadAwsProfilesInBackground();
         } else {
             String profile = state.getAWSProfile();
             Set<String> profiles = state.getAWSProfiles();
