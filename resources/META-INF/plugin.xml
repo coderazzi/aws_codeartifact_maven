@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/coderazzi/aws_codeartifact_maven">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>2.1.0-beta</version>
+  <version>2.1.0-beta-2</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -70,7 +70,10 @@
      <li><b>Domain Owner</b>: the account owner, something like 023174738914</li>
      <li><b>Maven server id</b>: the server name provided in your maven settings file -as following the instructions from AWS-.
         This is a value obtained already from the maven settings file, using all servers whose username is <b>aws</b></li>
-     <li><b>Maven settings file</b>: the location of the maven settings file, usually under ~/.m2</li>
+     <li><b>AWS profile</b>: the profile to use to obtain the credentials, obtained from any of the files
+      &lt;USER-HOME&gt;/.aws/config, &lt;USER-HOME&gt;/.aws/credentials, &lt;AWS_CONFIG_FILE&gt;,
+      &lt;AWS_SHARED_CREDENTIALS_FILE&gt;</li>
+     <li><b>Maven settings file</b>: the location of the maven settings file, usually under USER-HOME/.m2</li>
      <li><b>AWS cli path</b>: where to find the <b>aws</b> executable</li>
     </ul>
 

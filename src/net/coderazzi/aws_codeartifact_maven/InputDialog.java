@@ -156,7 +156,7 @@ class InputDialog extends DialogWrapper {
     }
 
     /**
-     * Starts a new thread to load the profiles from the aws config gile.
+     * Starts a new thread to load the profiles from the aws config file.
      * It does nothing if there is already a reload in progress
      */
     private void reloadProfilesInBackground() {
@@ -170,6 +170,7 @@ class InputDialog extends DialogWrapper {
                 try {
                     profiles = AWSProfileHandler.getProfiles();
                 } catch (AWSProfileHandler.GetProfilesException ex) {
+                    profiles = AWSProfileHandler.getDefaultProfiles();
                     error = ex.getMessage();
                 }
                 updateProfilesInForeground(profiles, error);
@@ -185,11 +186,9 @@ class InputDialog extends DialogWrapper {
         SwingUtilities.invokeLater(() -> {
             loadingProfilesThread = null;
             awsProfileModel.removeAllElements();
-            if (error == null) {
-                state.setProfiles(profiles);
-                showProfileInformation(false);
-            } else {
-                state.setProfiles(Collections.EMPTY_SET);
+            state.setProfiles(profiles);
+            showProfileInformation(false);
+            if (error != null) {
                 Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
             }
             awsProfile.setEnabled(true);
@@ -284,7 +283,7 @@ class InputDialog extends DialogWrapper {
         centerPanel.add(domainOwner, gridbag.next().coverLine());
         centerPanel.add(getLabel("Maven server id:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(mavenServerIdWrapper, gridbag.next().coverLine());
-        centerPanel.add(new TitledSeparator("Profile"), gridbag.nextLine().coverLine());
+//        centerPanel.add(new TitledSeparator("Profile"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("AWS profile:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(awsProfileWrapper, gridbag.next().coverLine());
         centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
