@@ -22,7 +22,6 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -115,18 +114,19 @@ class InputDialog extends DialogWrapper {
         updateGenerateCredentialsButtonState();
     }
 
-    private void showProfileInformation(boolean reloadIfNeeded) {
+    private void showProfileInformation() {
         Set<String> profiles = state.getProfiles();
         if (profiles.isEmpty()) {
-            if (reloadIfNeeded) {
-                reloadProfilesInBackground();
-            }
+            // next call will always find profiles to show
+            reloadProfilesInBackground();
         } else {
             String profile = state.getProfile();
             // next call will modify the profile, that is why we store it beforehand
             profiles.forEach(awsProfileModel::addElement);
+            awsProfile.setEnabled(true);
             awsProfileModel.setSelectedItem(profile);
         }
+        updateGenerateCredentialsButtonState();
     }
 
     /**
@@ -161,9 +161,9 @@ class InputDialog extends DialogWrapper {
      */
     private void reloadProfilesInBackground() {
         if (loadingProfilesThread == null) {
+            awsProfile.setEnabled(false);
             awsProfileModel.removeAllElements();
             awsProfileModel.addElement(LOADING);
-            awsProfile.setEnabled(false);
             loadingProfilesThread = new Thread(() -> {
                 Set<String> profiles = null;
                 String error = null;
@@ -187,11 +187,11 @@ class InputDialog extends DialogWrapper {
             loadingProfilesThread = null;
             awsProfileModel.removeAllElements();
             state.setProfiles(profiles);
-            showProfileInformation(false);
+            showProfileInformation();
+            awsProfile.requestFocus();
             if (error != null) {
                 Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
             }
-            awsProfile.setEnabled(true);
         });
     }
 
@@ -207,6 +207,8 @@ class InputDialog extends DialogWrapper {
                         Messages.showErrorDialog(settingsFile,
                                 "Maven settings file does not define any server with username 'aws'",
                                 COMPONENT_TITLE);
+                    } else {
+                        mavenServerId.requestFocus();
                     }
                 } else {
                     Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
@@ -254,7 +256,7 @@ class InputDialog extends DialogWrapper {
         handleTextFieldChange(domain, x -> state.updateDomain(x));
         handleComboBoxChange(mavenServerId, this::updatedMavenServerId);
         handleComboBoxChange(awsProfile, this::updatedAwsProfile);
-        showProfileInformation(true);
+        showProfileInformation();
         showRepositoryInformation(true);
     }
 
