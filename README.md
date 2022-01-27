@@ -52,6 +52,9 @@ When selected, a window appears to enter the required details:
 *   **Domain**: the domain in AWS
 *   **Domain Owner**: the account owner, something like 023174738914
 *   **Maven server id**: the server name provided in your maven settings file -as following the instructions from AWS-. This is a value obtained already from the maven settings file, using all servers whose username is **aws**
+*   **AWS profile**: the profile to use to obtain the credentials, obtained from any of the files
+         &lt;USER-HOME&gt;/.aws/config, &lt;USER-HOME&gt;/.aws/credentials, &lt;AWS_CONFIG_FILE&gt;,
+         &lt;AWS_SHARED_CREDENTIALS_FILE&gt;
 *   **Maven settings file**: the location of the maven settings file, usually under ~/.m2
 *   **AWS cli path**: the location of the aws executable, cabe specified as **aws** if it can be found in the path 
 
@@ -59,6 +62,7 @@ The button Generate credentials will initiate the requests of a token to AWS and
 
 ## Versions
 
+* Version 2.1.0 : 27th Jan 2022: Added AWS profile management.
 * Version 2.0.1 : 27th Nov 2021: Removed use of deprecated API, improved dialog layout.
 * Version 2.0.0 : 24th Nov 2021: Changed GUI to use dropdowns with serverIds extracted from maven settings file.
 * Version 1.1.1 : 23rd Sep 2021: solved bug: "Do not request resource from classloader using path with leading slash".
