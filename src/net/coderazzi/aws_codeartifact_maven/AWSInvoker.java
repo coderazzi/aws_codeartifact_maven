@@ -16,9 +16,12 @@ class AWSInvoker {
                                                  Cancellable cancellable) {
         OperationOutput ret = new OperationOutput();
         try {
+            // Do not send the profile if awsProfile is null or default
+            String profile = awsProfile==null || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
+                    String.format("--profile %s ", awsProfile);
             Process process = Runtime.getRuntime().exec(String.format(
-                    "%s codeartifact get-authorization-token --profile %s --domain %s --domain-owner %s --query authorizationToken --output text",
-                    awsPath, awsProfile, domain, domainOwner));
+                    "%s codeartifact get-authorization-token %s--domain %s --domain-owner %s --query authorizationToken --output text",
+                    awsPath, profile, domain, domainOwner));
             ProcessReader inputReader = new ProcessReader(process.getInputStream());
             ProcessReader errorReader = new ProcessReader(process.getErrorStream());
             while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
@@ -57,7 +60,9 @@ class AWSInvoker {
         public String getOutput(){
             try {
                 this.thread.join();
-            } catch (InterruptedException ex){}
+            } catch (InterruptedException ex){
+                // thread interrupted, app being stopped, nothing else to do here
+            }
             return read.length()==0 ? null : read.toString();
         }
 

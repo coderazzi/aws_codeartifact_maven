@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/coderazzi/aws_codeartifact_maven">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>2.1.0</version>
+  <version>2.1.1</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -82,6 +82,7 @@
 
   <change-notes><![CDATA[
     <ul>
+      <li>Version 2.1.1 : 29th Jan 2022: if profile is default, do not include it when getting credentials.</li>
       <li>Version 2.1.0 : 27th Jan 2022: Added AWS profile management.</li>
       <li>Version 2.0.1 : 27th Nov 2021: Removed use of deprecated API, improved dialog layout.</li>
       <li>Version 2.0.0 : 24th Nov 2021: Changed GUI to use dropdowns with serverIds extracted from maven settings file.</li>
