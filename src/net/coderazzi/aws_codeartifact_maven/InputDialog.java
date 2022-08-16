@@ -33,8 +33,8 @@ class InputDialog extends DialogWrapper {
     public static final String COMPONENT_TITLE = "CodeArtifact + Maven";
     private static final String MAVEN_SERVER_USERNAME = "aws";
 
-    private static String DARK_ICON = "META-INF/pluginIcon_dark.svg";
-    private static String LIGHT_ICON = "META-INF/pluginIcon.svg";
+    private final static String DARK_ICON = "META-INF/pluginIcon_dark.svg";
+    private final static String LIGHT_ICON = "META-INF/pluginIcon.svg";
 
     private final JTextField domain = new JTextField(32);
     private final JTextField domainOwner = new JTextField(32);
@@ -45,18 +45,15 @@ class InputDialog extends DialogWrapper {
     private final JTextField settingsFile = new JTextField(32);
     private final JTextField awsPath = new JTextField(32);
     private Thread loadingServersThread, loadingProfilesThread;
-    private InputDialogState state;
-
-    private final PropertiesComponent properties;
+    private final InputDialogState state;
 
     public InputDialog() {
         super(true); // use current window as parent
-        properties = PropertiesComponent.getInstance();
         state = InputDialogState.getInstance();
         init();
         setTitle("Generate AWS CodeArtifact Credentials");
         setAutoAdjustable(true);
-        setOKButtonText("Generate credentials");
+        setOKButtonText("Generate Credentials");
     }
 
     public InputDialogState getState() {
@@ -83,7 +80,7 @@ class InputDialog extends DialogWrapper {
     /**
      * Called whenever the user changes the AWS profile
      */
-    private void updatedAwsProfile(){
+    private void updatedAwsProfile() {
         if (awsProfile.isEnabled()) {
             Object s = awsProfile.getSelectedItem();
             if (s instanceof String) {
@@ -95,6 +92,7 @@ class InputDialog extends DialogWrapper {
 
     /**
      * Displays all information related to the repository.
+     *
      * @param reloadServersIfNeeded set to true to load servers from maven settings file IF there are none yet
      */
     private void showRepositoryInformation(boolean reloadServersIfNeeded) {
@@ -165,7 +163,7 @@ class InputDialog extends DialogWrapper {
             awsProfileModel.removeAllElements();
             awsProfileModel.addElement(LOADING);
             loadingProfilesThread = new Thread(() -> {
-                Set<String> profiles = null;
+                Set<String> profiles;
                 String error = null;
                 try {
                     profiles = AWSProfileHandler.getProfiles();
@@ -251,9 +249,9 @@ class InputDialog extends DialogWrapper {
     @Override
     protected void init() {
         super.init();
-        handleTextFieldChange(awsPath, x -> state.updateAwsPath(x));
-        handleTextFieldChange(domainOwner, x -> state.updateDomainOwner(x));
-        handleTextFieldChange(domain, x -> state.updateDomain(x));
+        handleTextFieldChange(awsPath, state::updateAwsPath);
+        handleTextFieldChange(domainOwner, state::updateDomainOwner);
+        handleTextFieldChange(domain, state::updateDomain);
         handleComboBoxChange(mavenServerId, this::updatedMavenServerId);
         handleComboBoxChange(awsProfile, this::updatedAwsProfile);
         showProfileInformation();
@@ -293,7 +291,7 @@ class InputDialog extends DialogWrapper {
         centerPanel.add(settingsFileBrowser, gridbag.next().coverLine());
         centerPanel.add(getLabel("AWS cli path:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(awsPathBrowser, gridbag.next().coverLine());
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(0,0,24,0));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 24, 0));
 
         settingsFile.setText(state.getMavenServerSettingsFile());
         settingsFile.addActionListener(x -> reloadServersInBackground()); // handle ENTER key
@@ -349,7 +347,7 @@ class InputDialog extends DialogWrapper {
         return check.isEnabled() && check.getSelectedItem() != null;
     }
 
-    private static Object LOADING = new Object() {
+    private static final Object LOADING = new Object() {
         @Override
         public String toString() {
             return "Loading ...";
