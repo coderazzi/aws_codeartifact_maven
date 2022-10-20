@@ -1,18 +1,23 @@
 package net.coderazzi.aws_codeartifact_maven;
 
 import com.intellij.ide.util.PropertiesComponent;
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 @com.intellij.openapi.components.State(
         name = "aws_codeartifact_maven.state",
         storages = @Storage("aws_codeartifact_maven.xml"))//, roamingType = RoamingType.DISABLED))
 final public class PluginState implements PersistentStateComponent<PluginState> {
 
-    public static final int CURRENT_VERSION=3;
+    public static final int CURRENT_VERSION = 3;
 
     public static PluginState getInstance() {
         return ServiceManager.getService(PluginState.class).ensureInitialization();
@@ -36,12 +41,12 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
         XmlSerializerUtil.copyBean(state, this);
     }
 
-    private PluginState ensureInitialization(){
-        if (allProfiles==null) allProfiles = new TreeSet<>();
-        if (allMavenServerIds==null) allMavenServerIds = new TreeSet<>();
-        if (domains==null) domains = new HashMap<>();
-        if (domainOwners==null) domainOwners = new HashMap<>();
-        if (version==0) {
+    private PluginState ensureInitialization() {
+        if (allProfiles == null) allProfiles = new TreeSet<>();
+        if (allMavenServerIds == null) allMavenServerIds = new TreeSet<>();
+        if (domains == null) domains = new HashMap<>();
+        if (domainOwners == null) domainOwners = new HashMap<>();
+        if (version == 0) {
             // migrating from old PropertiesComponent persistence
             PropertiesComponent properties = PropertiesComponent.getInstance();
             mavenSettingsFile = getAndCleanPropertiesComponentProperty(properties, "mavenSettingsFile");
@@ -57,7 +62,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
         return this;
     }
 
-    private String getAndCleanPropertiesComponentProperty(PropertiesComponent properties, String name){
+    private String getAndCleanPropertiesComponentProperty(PropertiesComponent properties, String name) {
         String key = String.format("net.coderazzi.aws_codeartifact_maven.%s", name);
         String ret = properties.getValue(key, "");
         properties.unsetValue(key);
