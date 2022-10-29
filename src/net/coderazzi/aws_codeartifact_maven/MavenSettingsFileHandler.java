@@ -17,7 +17,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,7 +28,9 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 class MavenSettingsFileHandler {
 
     static class GetServerIdsException extends Exception {
-        GetServerIdsException(String ex){super(ex);}
+        GetServerIdsException(String ex) {
+            super(ex);
+        }
     }
 
     public static final String PASSWORD = "password";
@@ -35,22 +38,22 @@ class MavenSettingsFileHandler {
     private final String settingsPath;
     private Element xmlPasswordElement;
 
-    public MavenSettingsFileHandler(String settingsPath){
+    public MavenSettingsFileHandler(String settingsPath) {
         this.settingsPath = settingsPath;
     }
 
-    public Set<String> getServerIds(String username) throws GetServerIdsException{
+    public Set<String> getServerIds(String username) throws GetServerIdsException {
         Set<String> ret = new TreeSet<>();
         try {
             Document input = getDocument();
             XPath xpath = XPathFactory.newInstance().newXPath();
             NodeList nodes = (NodeList) xpath.evaluate("/settings/servers/server", input, XPathConstants.NODESET);
-            for (int i = nodes.getLength()-1; i>=0; i--){
+            for (int i = nodes.getLength() - 1; i >= 0; i--) {
                 Node node = nodes.item(i);
                 Element element = (Element) node;
                 NodeList idsNodes = element.getElementsByTagName("id");
                 NodeList usernameNodes = element.getElementsByTagName("username");
-                if (idsNodes.getLength()==1 && usernameNodes.getLength()==1 && username.equals(usernameNodes.item(0).getTextContent())){
+                if (idsNodes.getLength() == 1 && usernameNodes.getLength() == 1 && username.equals(usernameNodes.item(0).getTextContent())) {
                     ret.add(idsNodes.item(0).getTextContent());
                 }
             }
@@ -62,7 +65,7 @@ class MavenSettingsFileHandler {
         return ret;
     }
 
-    private Document getDocument() throws ParserConfigurationException, SAXException, IOException{
+    private Document getDocument() throws ParserConfigurationException, SAXException, IOException {
         File f = new File(this.settingsPath);
         if (f.canRead()) {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -89,11 +92,11 @@ class MavenSettingsFileHandler {
                 nodes = parent.getElementsByTagName(PASSWORD);
                 if (nodes.getLength() == 1) {
                     xmlPasswordElement = (Element) nodes.item(0);
-                    ret.ok=true;
+                    ret.ok = true;
                 } else if (nodes.getLength() == 0) {
                     xmlPasswordElement = input.createElement(PASSWORD);
                     parent.appendChild(xmlPasswordElement);
-                    ret.ok=true;
+                    ret.ok = true;
                 } else {
                     ret.output = String.format("Unexpected: many password tags for server '%s' in settings file %s",
                             serverId, this.settingsPath);
@@ -114,7 +117,7 @@ class MavenSettingsFileHandler {
 
     public OperationOutput setPassword(String awsCredential) {//throws TransformerException, IOException {
         OperationOutput ret = new OperationOutput();
-        if (xmlPasswordElement==null){
+        if (xmlPasswordElement == null) {
             ret.output = "Cannot replace credentials";
         } else {
             xmlPasswordElement.setTextContent(awsCredential);
@@ -135,9 +138,9 @@ class MavenSettingsFileHandler {
                 } finally {
                     temp.delete();
                 }
-            } catch (TransformerException tex){
+            } catch (TransformerException tex) {
                 ret.output = "Unexpected XML error: " + tex.getMessage();
-            } catch (IOException ex){
+            } catch (IOException ex) {
                 ret.output = "Could not update settings file: " + ex.getMessage();
             }
         }
