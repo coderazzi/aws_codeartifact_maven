@@ -24,27 +24,27 @@ public class LaunchAction extends AnAction {
 
     private void showDialog(Project project) {
         final InputDialog dialog = new InputDialog();
-        if (dialog.showAndGet()) {
+        if (dialog.showAndGet()){
             ProgressManager.getInstance().runProcessWithProgressSynchronously(
                     () -> {
                         final InputDialogState state = dialog.getState();
                         final OperationOutput to = launchTasks(state.getDomain(), state.getDomainOwner(),
                                 state.getMavenServerId(), state.getMavenServerSettingsFile(),
                                 state.getAWSPath(), state.getProfile());
-                        if (to != null) {
+                        if (to!=null ) {
                             SwingUtilities.invokeLater(() -> {
                                 if (showResults(project, to)) {
                                     showDialog(project);
                                 }
                             });
                         }
-                    }, "Generating credentials", true, project);
+                    }, "Generating Credentials", true, project);
         }
     }
 
     private OperationOutput launchTasks(String domain, String domainOwner,
                                         String mavenServerId, String mavenSettingsFile,
-                                        String awsPath, String awsProfile) {
+                                        String awsPath, String awsProfile){
         ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
         progressIndicator.setIndeterminate(true);
         progressIndicator.setText("Checking settings file");
@@ -54,21 +54,20 @@ public class LaunchAction extends AnAction {
             progressIndicator.setText("Obtaining AWS credentials");
             taskOutput = AWSInvoker.getCredentials(domain, domainOwner, awsPath, awsProfile,
                     progressIndicator::isCanceled);
-            if (taskOutput.ok && !progressIndicator.isCanceled()) {
+            if (taskOutput!=null && taskOutput.ok  && !progressIndicator.isCanceled()) {
                 progressIndicator.setText("Updating settings file");
                 String credentials = taskOutput.output;
                 taskOutput = mavenSettingsFileHandler.setPassword(credentials);
             }
         }
-        return progressIndicator.isCanceled() ? null : taskOutput;
+        return progressIndicator.isCanceled()? null : taskOutput;
     }
 
     /**
      * Shows the results of the operation.
-     *
      * @return True if we need to show the main dialog again
      */
-    private boolean showResults(Project project, OperationOutput output) {
+    private boolean showResults(Project project, OperationOutput output){
         if (output.ok) {
             Messages.showMessageDialog(project, "Credentials updated", InputDialog.COMPONENT_TITLE,
                     Messages.getInformationIcon());

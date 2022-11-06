@@ -1,10 +1,12 @@
 package net.coderazzi.aws_codeartifact_maven;
 
 import com.intellij.openapi.diagnostic.Logger;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class AWSInvoker {
 
@@ -25,10 +27,21 @@ class AWSInvoker {
             LOGGER.debug(command);
             Process process = Runtime.getRuntime().exec(command);
             ProcessReader inputReader = new ProcessReader(process.getInputStream());
-            ProcessReader errorReader = new ProcessReader(process.getErrorStream());
+            ProcessReader outputReader = new ProcessReader(process.getErrorStream());
             while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
                 if (cancellable.isCancelled()) {
                     process.destroy();
+                    return null;
+                }
+                String mfaRequest = outputReader.getMfaCodeRequest();
+                if (mfaRequest != null) {
+                    String mfaCode = MfaDialog.getMfaCode(mfaRequest);
+                    if (mfaCode==null) {
+                        process.destroy();
+                        return null;
+                    }
+                    process.getOutputStream().write((mfaCode+"\n").getBytes(ENCODING));
+                    process.getOutputStream().flush();
                 }
             }
             if (0 == process.exitValue()) {
@@ -39,13 +52,16 @@ class AWSInvoker {
                     ret.ok = true;
                 }
             } else {
-                ret.output = errorReader.getOutput();
+                ret.output = outputReader.getOutput().trim();
             }
+        } catch (InvocationTargetException ex){
+            LOGGER.error(ex);
+            ret.output="Internal plugin error";
 
         } catch (Exception ex) {
             ret.output = "Error executing aws:" + ex.getMessage();
         }
-        if (ret.output != null && !profile.isEmpty() && ret.output.contains("aws configure")) {
+        if (!profile.isEmpty() && ret.output.contains("aws configure")) {
             ret.output+="\n\n You could also consider \"aws configure " + profile.trim() + "\"";
         }
         return ret;
@@ -54,7 +70,8 @@ class AWSInvoker {
     private static class ProcessReader implements Runnable {
         private final InputStream inputStream;
         private final Thread thread;
-        private final StringBuffer read = new StringBuffer();
+        private final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        private final Pattern mfaPattern = Pattern.compile(".*?(Enter MFA code for \\S+\\s)$", Pattern.DOTALL);
 
         public ProcessReader(InputStream inputStream) {
             this.inputStream = inputStream;
@@ -68,21 +85,53 @@ class AWSInvoker {
             } catch (InterruptedException ex) {
                 // thread interrupted, app being stopped, nothing else to do here
             }
-            return read.length() == 0 ? null : read.toString();
+            String read = getRead();
+            return read.length() == 0 ? null : read;
+        }
+
+        public synchronized String getMfaCodeRequest() {
+            Matcher m = mfaPattern.matcher(getRead());
+            if (m.matches()) {
+                byteArrayOutputStream.reset();
+                return m.group(1);
+            }
+            return null;
         }
 
         @Override
         public void run() {
-            new BufferedReader(new InputStreamReader(inputStream)).lines().forEach(this::readLine);
+            try {
+                while (true) {
+                    int b = inputStream.read();
+                    if (b == -1) {
+                        break;
+                    }
+                    byteArrayOutputStream.write(b);
+                }
+            } catch (IOException ex) {
+                try {
+                    byte []b = "Error reading AWS output".getBytes(ENCODING);
+                    byteArrayOutputStream.reset();
+                    byteArrayOutputStream.write(b, 0, b.length);
+                } catch (UnsupportedEncodingException uex){
+                    LOGGER.error(uex);
+                }
+            }
         }
 
-        private void readLine(String line) {
-            if (!line.isEmpty()) {
-                read.append(line);
+        private String getRead() {
+            try {
+                String ret = byteArrayOutputStream.toString(ENCODING);
+                System.out.println("getRead="+ret);
+                return ret;
+            } catch (UnsupportedEncodingException ex) {
+                LOGGER.error(ex);
+                return "";
             }
         }
     }
 
     private final static Logger LOGGER = Logger.getInstance(AWSInvoker.class);
+    private final static String ENCODING = "UTF-8" ; // python 3 (aws cli) encoding
 
 }
