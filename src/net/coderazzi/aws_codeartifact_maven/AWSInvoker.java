@@ -46,7 +46,7 @@ class AWSInvoker {
             ret.output = "Error executing aws:" + ex.getMessage();
         }
         if (ret.output != null && !profile.isEmpty() && ret.output.contains("aws configure")) {
-            ret.output+="\n\n You could also consider \"aws configure " + profile + "\"";
+            ret.output+="\n\n You could also consider \"aws configure " + profile.trim() + "\"";
         }
         return ret;
     }
@@ -83,6 +83,6 @@ class AWSInvoker {
         }
     }
 
-    private static Logger LOGGER = Logger.getInstance(AWSInvoker.class);
+    private final static Logger LOGGER = Logger.getInstance(AWSInvoker.class);
 
 }

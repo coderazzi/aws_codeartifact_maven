@@ -62,7 +62,7 @@ The button Generate credentials will initiate the requests of a token to AWS and
 
 ## Versions
 
-* Version 2.2.0 : 30th Oct 2022: Added hint in case of missing region configuration (issue #8 in Github).
+* Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in Github).
 * Version 2.1.1 : 29th Jan 2022: if profile is default, do not include it when getting credentials.
 * Version 2.1.0 : 27th Jan 2022: Added AWS profile management.
 * Version 2.0.1 : 27th Nov 2021: Removed use of deprecated API, improved dialog layout.
