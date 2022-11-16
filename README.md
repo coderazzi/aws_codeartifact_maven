@@ -60,8 +60,17 @@ When selected, a window appears to enter the required details:
 
 The button Generate credentials will initiate the requests of a token to AWS and its inclusion in the maven settings file
 
+## MFA support
+
+From version 3.0.0, the plugin includes support for MFA, prompting the user to enter the MFA token if required.
+
+Currently, only MFA based on roles is supported, where the chosen profile identifies a IAM role, not a IAM user.
+For more information on the distinction between role-based-MFA and user-based-MFA, check
+[https://coderazzi.net/cloud/aws/mfa](https://coderazzi.net/cloud/aws/mfa)
+
 ## Versions
 
+* Version 3.0.0-beta: 16th Nov 2022: Added support for MFA (role based)
 * Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in Github).
 * Version 2.1.1 : 29th Jan 2022: if profile is default, do not include it when getting credentials.
 * Version 2.1.0 : 27th Jan 2022: Added AWS profile management.
