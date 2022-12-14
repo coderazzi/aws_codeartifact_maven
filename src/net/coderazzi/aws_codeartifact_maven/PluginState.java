@@ -17,7 +17,7 @@ import java.util.TreeSet;
         storages = @Storage("aws_codeartifact_maven.xml"))//, roamingType = RoamingType.DISABLED))
 final public class PluginState implements PersistentStateComponent<PluginState> {
 
-    public static final int CURRENT_VERSION = 3;
+    public static final int CURRENT_VERSION = 4;
 
     public static PluginState getInstance() {
         return ServiceManager.getService(PluginState.class).ensureInitialization();
@@ -28,6 +28,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
     public String awsPath;
     public String mavenServerId;
     public String awsProfile;
+    public String region;
     public Set<String> allProfiles;
     public Set<String> allMavenServerIds;
     public Map<String, String> domains;      // mavenServerId -> domain
