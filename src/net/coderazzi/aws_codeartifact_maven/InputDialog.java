@@ -1,7 +1,6 @@
 package net.coderazzi.aws_codeartifact_maven;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.*;
 import com.intellij.ui.ColorUtil;
@@ -38,6 +37,8 @@ class InputDialog extends DialogWrapper {
 
     private final JTextField domain = new JTextField(32);
     private final JTextField domainOwner = new JTextField(32);
+    private final DefaultComboBoxModel regionsModel = new DefaultComboBoxModel();
+    private final ComboBoxWithWidePopup region = new ComboBoxWithWidePopup(regionsModel);
     private final DefaultComboBoxModel serverIdsModel = new DefaultComboBoxModel();
     private final ComboBoxWithWidePopup mavenServerId = new ComboBoxWithWidePopup(serverIdsModel);
     private final DefaultComboBoxModel awsProfileModel = new DefaultComboBoxModel();
@@ -69,6 +70,7 @@ class InputDialog extends DialogWrapper {
             state.updateMavenServerId((String) s);
             domain.setText(state.getDomain(domain.getText()));
             domainOwner.setText(state.getDomainOwner(domainOwner.getText()));
+            setSelectedRegion(state.getRegion(getSelectedRegion()));
             domain.setEnabled(true);
             domainOwner.setEnabled(true);
         } else {
@@ -86,6 +88,17 @@ class InputDialog extends DialogWrapper {
             if (s instanceof String) {
                 state.setProfile((String) s);
             }
+        }
+    }
+
+
+    /**
+     * Called whenever the user changes the region
+     */
+    private void updatedRegion() {
+        Object s = region.getSelectedItem();
+        if (s != null) {
+            state.updateRegion(s instanceof String ? (String) s : "");
         }
     }
 
@@ -249,11 +262,14 @@ class InputDialog extends DialogWrapper {
     @Override
     protected void init() {
         super.init();
+        regionsModel.addElement(NO_REGION);
+        state.getValidRegions().forEach(regionsModel::addElement);
         handleTextFieldChange(awsPath, state::updateAwsPath);
         handleTextFieldChange(domainOwner, state::updateDomainOwner);
         handleTextFieldChange(domain, state::updateDomain);
         handleComboBoxChange(mavenServerId, this::updatedMavenServerId);
         handleComboBoxChange(awsProfile, this::updatedAwsProfile);
+        handleComboBoxChange(region, this::updatedRegion);
         showProfileInformation();
         showRepositoryInformation(true);
     }
@@ -283,9 +299,10 @@ class InputDialog extends DialogWrapper {
         centerPanel.add(domainOwner, gridbag.next().coverLine());
         centerPanel.add(getLabel("Maven server id:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(mavenServerIdWrapper, gridbag.next().coverLine());
-//        centerPanel.add(new TitledSeparator("Profile"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("AWS profile:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(awsProfileWrapper, gridbag.next().coverLine());
+        centerPanel.add(getLabel("Region:"), gridbag.nextLine().next().weightx(2.0));
+        centerPanel.add(region, gridbag.next().coverLine());
         centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("Maven settings file:"), gridbag.nextLine().next().weightx(2.0));
         centerPanel.add(settingsFileBrowser, gridbag.next().coverLine());
@@ -347,10 +364,30 @@ class InputDialog extends DialogWrapper {
         return check.isEnabled() && check.getSelectedItem() != null;
     }
 
+    private String getSelectedRegion(){
+        Object ret = region.getSelectedItem();
+        return ret==null || ret == NO_REGION? "" : ret.toString();
+    }
+
+    private void setSelectedRegion(String s){
+        if (s==null || s=="") {
+            region.setSelectedItem(NO_REGION);
+        } else {
+            region.setSelectedItem(s);
+        }
+    }
+
     private static final Object LOADING = new Object() {
         @Override
         public String toString() {
             return "Loading ...";
+        }
+    };
+
+    private static final Object NO_REGION = new Object() {
+        @Override
+        public String toString() {
+            return " ( default profile region )";
         }
     };
 

@@ -1,6 +1,7 @@
 package net.coderazzi.aws_codeartifact_maven;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -8,10 +9,13 @@ import java.util.TreeSet;
 final public class InputDialogState {
 
     public static final String DEFAULT_AWS_CLI_PATH = "aws";
+    private static final String VALID_REGIONS = "ap-northeast-1,ap-south-1,ap-southeast-1,ap-southeast-2," +
+            "eu-central-1,eu-north-1,eu-south-1,eu-west-1,eu-west-2,eu-west-3,us-east-1,us-east-2,us-west-2";
 
     private final PluginState state;
     private final TreeSet<String> allMavenServerIds;
     private final TreeSet<String> allProfiles;
+    private final TreeSet<String> validRegions = new TreeSet<>(Arrays.asList(VALID_REGIONS.split(",")));
 
     public static InputDialogState getInstance() {
         return new InputDialogState(PluginState.getInstance());
@@ -29,6 +33,10 @@ final public class InputDialogState {
 
     public void updateDomain(String domain) {
         state.domains.put(state.mavenServerId, domain);
+    }
+
+    public void updateRegion(String region) {
+        state.regions.put(state.mavenServerId, region);
     }
 
     public void updateDomainOwner(String domainOwner) {
@@ -66,6 +74,17 @@ final public class InputDialogState {
     public String getDomain(String current) {
         String ret = state.domains.get(state.mavenServerId);
         return ret == null ? current : ret;
+    }
+
+    public String getRegion() { return getRegion("");}
+
+    public String getRegion(String current){
+        String ret = state.regions.get(state.mavenServerId);
+        return ret == null || !validRegions.contains(ret)? current : ret;
+    }
+
+    public Set<String> getValidRegions() {
+        return validRegions;
     }
 
     public String getDomainOwner() {

@@ -28,9 +28,9 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
     public String awsPath;
     public String mavenServerId;
     public String awsProfile;
-    public String region;
     public Set<String> allProfiles;
     public Set<String> allMavenServerIds;
+    public Map<String, String> regions;      // mavenServerId -> region
     public Map<String, String> domains;      // mavenServerId -> domain
     public Map<String, String> domainOwners; // mavenServerId -> domainOwner
 
@@ -46,6 +46,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
         if (allProfiles == null) allProfiles = new TreeSet<>();
         if (allMavenServerIds == null) allMavenServerIds = new TreeSet<>();
         if (domains == null) domains = new HashMap<>();
+        if (regions == null) regions = new HashMap<>();
         if (domainOwners == null) domainOwners = new HashMap<>();
         if (version == 0) {
             // migrating from old PropertiesComponent persistence
