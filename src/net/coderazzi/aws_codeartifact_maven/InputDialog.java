@@ -387,7 +387,7 @@ class InputDialog extends DialogWrapper {
     private static final Object NO_REGION = new Object() {
         @Override
         public String toString() {
-            return " ( default profile region )";
+            return "<default profile region>";
         }
     };
 
