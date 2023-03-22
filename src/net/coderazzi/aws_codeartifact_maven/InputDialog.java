@@ -262,7 +262,7 @@ class InputDialog extends DialogWrapper {
     @Override
     protected void init() {
         super.init();
-        regionsModel.addElement(NO_REGION);
+        regionsModel.addElement(InputDialogState.NO_REGION);
         state.getValidRegions().forEach(regionsModel::addElement);
         handleTextFieldChange(awsPath, state::updateAwsPath);
         handleTextFieldChange(domainOwner, state::updateDomainOwner);
@@ -366,12 +366,12 @@ class InputDialog extends DialogWrapper {
 
     private String getSelectedRegion(){
         Object ret = region.getSelectedItem();
-        return ret==null || ret == NO_REGION? "" : ret.toString();
+        return ret==null? InputDialogState.NO_REGION : ret.toString();
     }
 
     private void setSelectedRegion(String s){
         if (s==null || s=="") {
-            region.setSelectedItem(NO_REGION);
+            region.setSelectedItem(InputDialogState.NO_REGION);
         } else {
             region.setSelectedItem(s);
         }
@@ -381,13 +381,6 @@ class InputDialog extends DialogWrapper {
         @Override
         public String toString() {
             return "Loading ...";
-        }
-    };
-
-    private static final Object NO_REGION = new Object() {
-        @Override
-        public String toString() {
-            return "<default profile region>";
         }
     };
 

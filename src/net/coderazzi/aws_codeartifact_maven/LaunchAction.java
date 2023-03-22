@@ -30,7 +30,7 @@ public class LaunchAction extends AnAction {
                         final InputDialogState state = dialog.getState();
                         final OperationOutput to = launchTasks(state.getDomain(), state.getDomainOwner(),
                                 state.getMavenServerId(), state.getMavenServerSettingsFile(),
-                                state.getAWSPath(), state.getProfile());
+                                state.getAWSPath(), state.getProfile(), state.getRegion());
                         if (to!=null ) {
                             SwingUtilities.invokeLater(() -> {
                                 if (showResults(project, to)) {
@@ -44,7 +44,7 @@ public class LaunchAction extends AnAction {
 
     private OperationOutput launchTasks(String domain, String domainOwner,
                                         String mavenServerId, String mavenSettingsFile,
-                                        String awsPath, String awsProfile){
+                                        String awsPath, String awsProfile, String awsRegion){
         ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
         progressIndicator.setIndeterminate(true);
         progressIndicator.setText("Checking settings file");
@@ -52,7 +52,7 @@ public class LaunchAction extends AnAction {
         OperationOutput taskOutput = mavenSettingsFileHandler.locateServer(mavenServerId);
         if (taskOutput.ok && !progressIndicator.isCanceled()) {
             progressIndicator.setText("Obtaining AWS credentials");
-            taskOutput = AWSInvoker.getCredentials(domain, domainOwner, awsPath, awsProfile,
+            taskOutput = AWSInvoker.getCredentials(domain, domainOwner, awsPath, awsProfile, awsRegion,
                     progressIndicator::isCanceled);
             if (taskOutput!=null && taskOutput.ok  && !progressIndicator.isCanceled()) {
                 progressIndicator.setText("Updating settings file");

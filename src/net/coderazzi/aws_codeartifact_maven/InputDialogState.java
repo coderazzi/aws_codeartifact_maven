@@ -9,6 +9,7 @@ import java.util.TreeSet;
 final public class InputDialogState {
 
     public static final String DEFAULT_AWS_CLI_PATH = "aws";
+    public static final String NO_REGION = "<default profile region>";
     private static final String VALID_REGIONS = "ap-northeast-1,ap-south-1,ap-southeast-1,ap-southeast-2," +
             "eu-central-1,eu-north-1,eu-south-1,eu-west-1,eu-west-2,eu-west-3,us-east-1,us-east-2,us-west-2";
 
@@ -80,7 +81,7 @@ final public class InputDialogState {
 
     public String getRegion(String current){
         String ret = state.regions.get(state.mavenServerId);
-        return ret == null || !validRegions.contains(ret)? current : ret;
+        return ret == null || (!ret.equals(NO_REGION) && !validRegions.contains(ret))? current : ret;
     }
 
     public Set<String> getValidRegions() {

@@ -15,13 +15,15 @@ class AWSInvoker {
     }
 
     public static OperationOutput getCredentials(String domain, String domainOwner, String awsPath, String awsProfile,
-                                                 Cancellable cancellable) {
+                                                 String awsRegion, Cancellable cancellable) {
         // Do not send the profile if awsProfile is null or default
         String profile = awsProfile == null || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
                 String.format("--profile %s ", awsProfile);
+        String region = awsRegion == null || awsRegion.equals(InputDialogState.NO_REGION) ? "" :
+                String.format("--region %s ", awsRegion);
         String command = String.format(
-                "%s codeartifact get-authorization-token %s--domain %s --domain-owner %s --query authorizationToken --output text",
-                awsPath, profile, domain, domainOwner);
+                "%s codeartifact get-authorization-token %s%s--domain %s --domain-owner %s --query authorizationToken --output text",
+                awsPath, profile, region, domain, domainOwner);
         OperationOutput ret = new OperationOutput();
         try {
             LOGGER.debug(command);
