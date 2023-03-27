@@ -55,6 +55,7 @@ When selected, a window appears to enter the required details:
 *   **AWS profile**: the profile to use to obtain the credentials, obtained from any of the files
          &lt;USER-HOME&gt;/.aws/config, &lt;USER-HOME&gt;/.aws/credentials, &lt;AWS_CONFIG_FILE&gt;,
          &lt;AWS_SHARED_CREDENTIALS_FILE&gt;
+*   **Region**: the target region. If specified, it overrides the region given by the profile -if any-         
 *   **Maven settings file**: the location of the maven settings file, usually under ~/.m2
 *   **AWS cli path**: the location of the aws executable, cabe specified as **aws** if it can be found in the path 
 
@@ -70,6 +71,7 @@ For more information on the distinction between role-based-MFA and user-based-MF
 
 ## Versions
 
+* Version 3.1.0-beta : 27th Mar 2023: User can optionally specify the target region
 * Version 3.0.0 : 04th Dec 2022: Added support for MFA (role based)
 * Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in Github).
 * Version 2.1.1 : 29th Jan 2022: if profile is default, do not include it when getting credentials.

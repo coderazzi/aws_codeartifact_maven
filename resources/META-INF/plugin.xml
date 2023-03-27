@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/coderazzi/aws_codeartifact_maven">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>3.0.0</version>
+  <version>3.1.0-beta</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -73,6 +73,7 @@
      <li><b>AWS profile</b>: the profile to use to obtain the credentials, obtained from any of the files
       &lt;USER-HOME&gt;/.aws/config, &lt;USER-HOME&gt;/.aws/credentials, &lt;AWS_CONFIG_FILE&gt;,
       &lt;AWS_SHARED_CREDENTIALS_FILE&gt;</li>
+     <li><b>Region</b>: the target region. If specified, it overrides the region given by the profile -if any-</li>
      <li><b>Maven settings file</b>: the location of the maven settings file, usually under USER-HOME/.m2</li>
      <li><b>AWS cli path</b>: where to find the <b>aws</b> executable</li>
     </ul>
@@ -91,6 +92,7 @@
 
   <change-notes><![CDATA[
     <ul>
+      <li>Version 3.1.0-beta : 27th Mar 2023: User can optionally specify the target region</li>
       <li>Version 3.0.0 : 04th Dec 2022: Added support for MFA (role based)</li>
       <li>Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in Github).</li>
       <li>Version 2.1.1 : 29th Jan 2022: if profile is default, do not include it when getting credentials.</li>
