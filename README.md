@@ -71,7 +71,7 @@ For more information on the distinction between role-based-MFA and user-based-MF
 
 ## Versions
 
-* Version 3.1.0-beta : 27th Mar 2023: User can optionally specify the target region
+* Version 3.1.0 : 21st Apr 2023: User can optionally specify the target region
 * Version 3.0.0 : 04th Dec 2022: Added support for MFA (role based)
 * Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in Github).
 * Version 2.1.1 : 29th Jan 2022: if profile is default, do not include it when getting credentials.
