@@ -14,8 +14,12 @@ class AWSInvoker {
         boolean isCancelled();
     }
 
-    public static OperationOutput getCredentials(String domain, String domainOwner, String awsPath, String awsProfile,
-                                                 String awsRegion, Cancellable cancellable) {
+    public static OperationOutput getCredentials(String domain,
+                                                 String domainOwner,
+                                                 String awsPath,
+                                                 String awsProfile,
+                                                 String awsRegion,
+                                                 Cancellable cancellable) {
         // Do not send the profile if awsProfile is null or default
         String profile = awsProfile == null || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
                 String.format("--profile %s ", awsProfile);
@@ -54,7 +58,10 @@ class AWSInvoker {
                     ret.ok = true;
                 }
             } else {
-                ret.output = outputReader.getOutput().trim();
+                ret.output = outputReader.getOutput();
+                if (ret.output != null) {
+                    ret.output = ret.output.trim();
+                }
             }
         } catch (InvocationTargetException ex){
             LOGGER.error(ex);
