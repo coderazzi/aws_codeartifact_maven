@@ -24,8 +24,8 @@ final public class InputDialogState {
 
     private InputDialogState(PluginState state) {
         this.state = state;
-        // alas, Idea serializes TreeSets as Sets, and loads them as HashSets
-        // so we just load the state, and convert the set to TreeSet
+        // alas, Idea serializes TreeSets as Sets, and loads them as HashSets, so
+        // we just load the state, and convert the set to TreeSet
         allMavenServerIds = new TreeSet<>(state.allMavenServerIds);
         state.allMavenServerIds = allMavenServerIds;
         allProfiles = new TreeSet<>(state.allProfiles);
