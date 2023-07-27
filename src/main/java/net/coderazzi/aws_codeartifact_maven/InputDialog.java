@@ -334,10 +334,18 @@ class InputDialog extends DialogWrapper {
         String resource = ColorUtil.isDark(getOwner().getBackground()) ? DARK_ICON : LIGHT_ICON;
 //        URL url = getClass().getClassLoader().getResource(resource);
 //        if (url != null) {
-        return new JLabel(new ImageIcon(new ImageIcon(resource).getImage()
-                .getScaledInstance(140, 140, Image.SCALE_SMOOTH)));
+//        return new JLabel(new ImageIcon(new ImageIcon(resource).getImage()
+//                .getScaledInstance(140, 140, Image.SCALE_SMOOTH)));
 //        }
 //        return new JLabel();
+        URL url = getClass().getClassLoader().getResource(resource);
+        if (url != null) {
+            try {
+                return new JLabel(new ImageIcon(SVGLoader.load(url, 3.5f)));
+            } catch (Exception ex) {
+            }
+        }
+        return new JLabel();
     }
 
 

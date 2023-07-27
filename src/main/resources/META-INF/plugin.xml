@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/coderazzi/aws_codeartifact_maven">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>3.2.0-beta</version>
+  <version>3.2.0</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -92,7 +92,7 @@
 
   <change-notes><![CDATA[
     <ul>
-      <li>Version 3.2.0-beta : 27th July 2023: Migration to gradle</li>
+      <li>Version 3.2.0 : 27th Jul 2023: Quick patch to avoid exception due to change on internal SVGLoader</li>
       <li>Version 3.1.0 : 21st Apr 2023: User can optionally specify the target region</li>
       <li>Version 3.0.0 : 04th Dec 2022: Added support for MFA (role based)</li>
       <li>Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in Github).</li>
