@@ -3,6 +3,7 @@ package net.coderazzi.aws_codeartifact_maven;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.*;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.ColorUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.TitledSeparator;
@@ -331,14 +332,12 @@ class InputDialog extends DialogWrapper {
 
     private JComponent getIconPanel() {
         String resource = ColorUtil.isDark(getOwner().getBackground()) ? DARK_ICON : LIGHT_ICON;
-        URL url = getClass().getClassLoader().getResource(resource);
-        if (url != null) {
-            try {
-                return new JLabel(new ImageIcon(SVGLoader.load(url, 3.5f)));
-            } catch (IOException ex) {
-            }
-        }
-        return new JLabel();
+//        URL url = getClass().getClassLoader().getResource(resource);
+//        if (url != null) {
+        return new JLabel(new ImageIcon(new ImageIcon(resource).getImage()
+                .getScaledInstance(140, 140, Image.SCALE_SMOOTH)));
+//        }
+//        return new JLabel();
     }
 
 
@@ -364,13 +363,13 @@ class InputDialog extends DialogWrapper {
         return check.isEnabled() && check.getSelectedItem() != null;
     }
 
-    private String getSelectedRegion(){
+    private String getSelectedRegion() {
         Object ret = region.getSelectedItem();
-        return ret==null? InputDialogState.NO_REGION : ret.toString();
+        return ret == null ? InputDialogState.NO_REGION : ret.toString();
     }
 
-    private void setSelectedRegion(String s){
-        if (s==null || s=="") {
+    private void setSelectedRegion(String s) {
+        if (s == null || s == "") {
             region.setSelectedItem(InputDialogState.NO_REGION);
         } else {
             region.setSelectedItem(s);

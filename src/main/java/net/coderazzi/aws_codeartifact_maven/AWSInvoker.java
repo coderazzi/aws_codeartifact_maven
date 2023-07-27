@@ -42,11 +42,11 @@ class AWSInvoker {
                 String mfaRequest = outputReader.getMfaCodeRequest();
                 if (mfaRequest != null) {
                     String mfaCode = MfaDialog.getMfaCode(mfaRequest);
-                    if (mfaCode==null) {
+                    if (mfaCode == null) {
                         process.destroy();
                         return null;
                     }
-                    process.getOutputStream().write((mfaCode+"\n").getBytes(ENCODING));
+                    process.getOutputStream().write((mfaCode + "\n").getBytes(ENCODING));
                     process.getOutputStream().flush();
                 }
             }
@@ -63,15 +63,15 @@ class AWSInvoker {
                     ret.output = ret.output.trim();
                 }
             }
-        } catch (InvocationTargetException ex){
+        } catch (InvocationTargetException ex) {
             LOGGER.error(ex);
-            ret.output="Internal plugin error";
+            ret.output = "Internal plugin error";
 
         } catch (Exception ex) {
             ret.output = "Error executing aws:" + ex.getMessage();
         }
         if (!profile.isEmpty() && ret.output.contains("aws configure")) {
-            ret.output+="\n\n You could also consider \"aws configure " + profile.trim() + "\"";
+            ret.output += "\n\n You could also consider \"aws configure " + profile.trim() + "\"";
         }
         return ret;
     }
@@ -119,10 +119,10 @@ class AWSInvoker {
                 }
             } catch (IOException ex) {
                 try {
-                    byte []b = "Error reading AWS output".getBytes(ENCODING);
+                    byte[] b = "Error reading AWS output".getBytes(ENCODING);
                     byteArrayOutputStream.reset();
                     byteArrayOutputStream.write(b, 0, b.length);
-                } catch (UnsupportedEncodingException uex){
+                } catch (UnsupportedEncodingException uex) {
                     LOGGER.error(uex);
                 }
             }
@@ -131,7 +131,7 @@ class AWSInvoker {
         private String getRead() {
             try {
                 String ret = byteArrayOutputStream.toString(ENCODING);
-                System.out.println("getRead="+ret);
+                System.out.println("getRead=" + ret);
                 return ret;
             } catch (UnsupportedEncodingException ex) {
                 LOGGER.error(ex);
@@ -141,6 +141,6 @@ class AWSInvoker {
     }
 
     private final static Logger LOGGER = Logger.getInstance(AWSInvoker.class);
-    private final static String ENCODING = "UTF-8" ; // python 3 (aws cli) encoding
+    private final static String ENCODING = "UTF-8"; // python 3 (aws cli) encoding
 
 }

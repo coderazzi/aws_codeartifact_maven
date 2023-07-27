@@ -77,11 +77,13 @@ final public class InputDialogState {
         return ret == null ? current : ret;
     }
 
-    public String getRegion() { return getRegion("");}
+    public String getRegion() {
+        return getRegion("");
+    }
 
-    public String getRegion(String current){
+    public String getRegion(String current) {
         String ret = state.regions.get(state.mavenServerId);
-        return ret == null || (!ret.equals(NO_REGION) && !validRegions.contains(ret))? current : ret;
+        return ret == null || (!ret.equals(NO_REGION) && !validRegions.contains(ret)) ? current : ret;
     }
 
     public Set<String> getValidRegions() {

@@ -36,20 +36,20 @@ class MfaDialog extends DialogWrapper {
     }
 
 
-    public String getMfaCode(){
+    public String getMfaCode() {
         return mfa.getText();
     }
 
-    public static String getMfaCode(final String request) throws InvocationTargetException{
+    public static String getMfaCode(final String request) throws InvocationTargetException {
         final DialogStatus status = new DialogStatus();
         try {
             SwingUtilities.invokeAndWait(() -> {
                 final MfaDialog dialog = new MfaDialog(request);
-                if (dialog.showAndGet()){
+                if (dialog.showAndGet()) {
                     status.code = dialog.getMfaCode();
                 }
             });
-        } catch (InterruptedException ex){
+        } catch (InterruptedException ex) {
         }
         return status.code;
     }
