@@ -71,6 +71,7 @@ For more information on the distinction between role-based-MFA and user-based-MF
 
 ## Versions
 
+* Version 3.2.0 : 27th Jul 2023: Quick patch to avoid exception due to change on internal SVGLoader.
 * Version 3.1.0 : 21st Apr 2023: User can optionally specify the target region
 * Version 3.0.0 : 04th Dec 2022: Added support for MFA (role based)
 * Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in Github).

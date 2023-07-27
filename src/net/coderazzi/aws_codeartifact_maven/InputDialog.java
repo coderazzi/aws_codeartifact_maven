@@ -335,7 +335,7 @@ class InputDialog extends DialogWrapper {
         if (url != null) {
             try {
                 return new JLabel(new ImageIcon(SVGLoader.load(url, 3.5f)));
-            } catch (IOException ex) {
+            } catch (Exception ex) {
             }
         }
         return new JLabel();
