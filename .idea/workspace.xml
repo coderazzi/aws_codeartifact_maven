@@ -7,8 +7,6 @@
     <list default="true" id="00ec5e31-86b5-4add-a132-bbb908348824" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/pluginIcon.svg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/pluginIcon.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/pluginIcon_dark.svg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/pluginIcon_dark.svg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,8 +96,17 @@
       <option name="presentableId" value="Default" />
       <updated>1690458468479</updated>
       <workItem from="1690458469584" duration="3539000" />
-      <workItem from="1690497043913" duration="2715000" />
+      <workItem from="1690497043913" duration="5470000" />
     </task>
+    <task id="LOCAL-00001" summary="Corrected default icon, first attempt to correct icon.">
+      <option name="closed" value="true" />
+      <created>1690530644422</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1690530644422</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -152,18 +159,17 @@
       </map>
     </option>
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Corrected default icon, first attempt to correct icon." />
+    <option name="LAST_COMMIT_MESSAGE" value="Corrected default icon, first attempt to correct icon." />
+  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java</url>
-          <line>333</line>
+          <line>335</line>
           <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java</url>
-          <line>342</line>
-          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

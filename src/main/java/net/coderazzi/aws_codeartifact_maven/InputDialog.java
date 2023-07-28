@@ -19,6 +19,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
@@ -329,30 +330,27 @@ class InputDialog extends DialogWrapper {
     }
 
     private JComponent getIconPanel() {
-        String resource = ColorUtil.isDark(getOwner().getBackground()) ? DARK_ICON : LIGHT_ICON;
-        URL url = getClass().getClassLoader().getResource(resource);
-//        if (url != null) {
-        Icon i = IconLoader.findIcon(url);
+        JLabel label = new JLabel();
+        try {
+            String resource = ColorUtil.isDark(getOwner().getBackground()) ? DARK_ICON : LIGHT_ICON;
+            URL url = getClass().getClassLoader().getResource(resource);
+            if (url != null) {
+                label.setIcon(IconLoader.findIcon(url));
+            }
+        } catch (Exception ex){}
+        return label;
+    }
 
-        return new JLabel(i);
-//            ImageIcon ii = new ImageIcon(resource);
-//            Image i = ii.getImage();
-//            Image im = i.getScaledInstance(1400, 1400, Image.SCALE_SMOOTH);
-//            ImageIcon il = new ImageIcon(im);
-//            JLabel ret = new JLabel(ii);
-//            return ret;
-//        return new JLabel(new ImageIcon(new ImageIcon(resource).getImage()
-//                .getScaledInstance(140, 140, Image.SCALE_SMOOTH)));
-//        }
-//        return new JLabel();
-//        URL url = getClass().getClassLoader().getResource(resource);
-//        if (url != null) {
-//            try {
-//                return new JLabel(new ImageIcon(SVGLoader.load(url, 3.5f)));
-//            } catch (Exception ex) {
-//            }
-//        }
-//        return new JLabel();
+    static BufferedImage fitImage(JLabel label, BufferedImage image) {
+        int newWidth = label.getWidth();
+        int newHeight = label.getHeight();
+        BufferedImage resizedImage = UIUtil.createImage(newWidth, newHeight,
+                BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = resizedImage.createGraphics();
+        g.drawImage(image, 0, 0, newWidth, newHeight, null);
+        g.dispose();
+        label.setIcon(new ImageIcon(resizedImage));
+        return resizedImage;
     }
 
 
