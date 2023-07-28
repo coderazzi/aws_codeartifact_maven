@@ -9,7 +9,6 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.AbstractLayout;
-import com.intellij.util.SVGLoader;
 import com.intellij.util.ui.GridBag;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
@@ -20,7 +19,6 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
@@ -332,20 +330,29 @@ class InputDialog extends DialogWrapper {
 
     private JComponent getIconPanel() {
         String resource = ColorUtil.isDark(getOwner().getBackground()) ? DARK_ICON : LIGHT_ICON;
-//        URL url = getClass().getClassLoader().getResource(resource);
+        URL url = getClass().getClassLoader().getResource(resource);
 //        if (url != null) {
+        Icon i = IconLoader.findIcon(url);
+
+        return new JLabel(i);
+//            ImageIcon ii = new ImageIcon(resource);
+//            Image i = ii.getImage();
+//            Image im = i.getScaledInstance(1400, 1400, Image.SCALE_SMOOTH);
+//            ImageIcon il = new ImageIcon(im);
+//            JLabel ret = new JLabel(ii);
+//            return ret;
 //        return new JLabel(new ImageIcon(new ImageIcon(resource).getImage()
 //                .getScaledInstance(140, 140, Image.SCALE_SMOOTH)));
 //        }
 //        return new JLabel();
-        URL url = getClass().getClassLoader().getResource(resource);
-        if (url != null) {
-            try {
-                return new JLabel(new ImageIcon(SVGLoader.load(url, 3.5f)));
-            } catch (Exception ex) {
-            }
-        }
-        return new JLabel();
+//        URL url = getClass().getClassLoader().getResource(resource);
+//        if (url != null) {
+//            try {
+//                return new JLabel(new ImageIcon(SVGLoader.load(url, 3.5f)));
+//            } catch (Exception ex) {
+//            }
+//        }
+//        return new JLabel();
     }
 
 

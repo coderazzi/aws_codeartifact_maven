@@ -9,8 +9,8 @@
         xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
         xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
         version="1.0"
-        width="40"
-        height="40"
+        width="140"
+        height="140"
         viewBox="0 0 29.999999 29.999999"
         preserveAspectRatio="xMidYMid meet"
         id="svg841"
@@ -665,9 +665,8 @@
             inkscape:window-x="152"
             inkscape:window-y="129"
             inkscape:window-maximized="0"
-            inkscape:current-layer="svg841"
-            units="px"
-            inkscape:document-rotation="0"/>
+            inkscape:current-layer="layer3"
+            units="px" />
     <metadata
             id="metadata825">
         Created by potrace 1.16, written by Peter Selinger 2001-2019
@@ -677,12 +676,6 @@
                 <dc:format>image/svg+xml</dc:format>
                 <dc:type
                         rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-                <dc:title></dc:title>
-            </cc:Work>
-        </rdf:RDF>
-        <rdf:RDF>
-            <cc:Work
-                    rdf:about="">
                 <dc:title></dc:title>
             </cc:Work>
         </rdf:RDF>
