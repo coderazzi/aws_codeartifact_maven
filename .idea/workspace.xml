@@ -9,6 +9,8 @@
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/pluginIcon.svg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/pluginIcon.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/pluginIcon_dark.svg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/pluginIcon_dark.svg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +44,11 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2.4/970a35a6d34df18ce7315e1a9e932cc06cad7ea9/ideaIC-2022.2.4-sources.jar!/com/intellij/openapi/components/ComponentManager.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2.4/970a35a6d34df18ce7315e1a9e932cc06cad7ea9/ideaIC-2022.2.4-sources.jar!/com/intellij/openapi/components/ServiceManager.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2022.2.4/970a35a6d34df18ce7315e1a9e932cc06cad7ea9/ideaIC-2022.2.4-sources.jar!/com/intellij/openapi/util/IconLoader.java" root0="SKIP_INSPECTION" />
+  </component>
   <component name="LogFilters">
     <option name="FILTER_ERRORS" value="false" />
     <option name="FILTER_WARNINGS" value="false" />
@@ -55,9 +62,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 2
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="2T9bue6UgyNEe1Bw3mKMMvvvr7L" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -75,6 +82,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -101,15 +109,6 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration default="true" type="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-      <option name="AUTO_RESTART" value="false" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.aws_codeartifact_maven [buildPlugin]" />
@@ -125,7 +124,15 @@
       <option name="presentableId" value="Default" />
       <updated>1690458468479</updated>
       <workItem from="1690458469584" duration="3539000" />
-      <workItem from="1690497043913" duration="7807000" />
+      <workItem from="1690497043913" duration="8231000" />
+      <workItem from="1690623602313" duration="318000" />
+      <workItem from="1690623936209" duration="809000" />
+      <workItem from="1690624767419" duration="103000" />
+      <workItem from="1690624895922" duration="434000" />
+      <workItem from="1690625345309" duration="795000" />
+      <workItem from="1690626209640" duration="340000" />
+      <workItem from="1690626557832" duration="593000" />
+      <workItem from="1690627166763" duration="39000" />
     </task>
     <task id="LOCAL-00001" summary="Corrected default icon, first attempt to correct icon.">
       <option name="closed" value="true" />
@@ -143,7 +150,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690537582722</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Completed version 3.2.1">
+      <option name="closed" value="true" />
+      <created>1690559706126</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1690559706126</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -198,7 +213,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Corrected default icon, first attempt to correct icon." />
-    <option name="LAST_COMMIT_MESSAGE" value="Corrected default icon, first attempt to correct icon." />
+    <MESSAGE value="Completed version 3.2.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="Completed version 3.2.1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
