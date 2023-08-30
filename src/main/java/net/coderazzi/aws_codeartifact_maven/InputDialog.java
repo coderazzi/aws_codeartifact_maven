@@ -341,19 +341,6 @@ class InputDialog extends DialogWrapper {
         return label;
     }
 
-    static BufferedImage fitImage(JLabel label, BufferedImage image) {
-        int newWidth = label.getWidth();
-        int newHeight = label.getHeight();
-        BufferedImage resizedImage = UIUtil.createImage(newWidth, newHeight,
-                BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = resizedImage.createGraphics();
-        g.drawImage(image, 0, 0, newWidth, newHeight, null);
-        g.dispose();
-        label.setIcon(new ImageIcon(resizedImage));
-        return resizedImage;
-    }
-
-
     private JComponent getLabel(String text) {
         JBLabel label = new JBLabel(text);
         label.setComponentStyle(UIUtil.ComponentStyle.SMALL);
