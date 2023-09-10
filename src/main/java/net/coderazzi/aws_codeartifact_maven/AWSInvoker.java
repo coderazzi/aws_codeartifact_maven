@@ -95,7 +95,7 @@ class AWSInvoker {
                 // thread interrupted, app being stopped, nothing else to do here
             }
             String read = getRead();
-            return read.length() == 0 ? null : read;
+            return read.isEmpty() ? null : read;
         }
 
         public synchronized String getMfaCodeRequest() {
