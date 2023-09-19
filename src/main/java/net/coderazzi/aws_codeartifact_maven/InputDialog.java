@@ -19,7 +19,6 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
@@ -262,7 +261,7 @@ class InputDialog extends DialogWrapper {
     @Override
     protected void init() {
         super.init();
-        regionsModel.addElement(InputDialogState.NO_REGION);
+        regionsModel.addElement(InputDialogState.DEFAULT_PROFILE_REGION);
         state.getValidRegions().forEach(regionsModel::addElement);
         handleTextFieldChange(awsPath, state::updateAwsPath);
         handleTextFieldChange(domainOwner, state::updateDomainOwner);
@@ -356,7 +355,7 @@ class InputDialog extends DialogWrapper {
     }
 
     private boolean checkNonEmpty(JTextField check) {
-        return !check.getText().trim().isEmpty();
+        return !check.getText().isBlank();
     }
 
     private boolean checkHasSelection(ComboBoxWithWidePopup check) {
@@ -365,12 +364,12 @@ class InputDialog extends DialogWrapper {
 
     private String getSelectedRegion() {
         Object ret = region.getSelectedItem();
-        return ret == null ? InputDialogState.NO_REGION : ret.toString();
+        return ret == null ? InputDialogState.DEFAULT_PROFILE_REGION : ret.toString();
     }
 
     private void setSelectedRegion(String s) {
         if (s == null || s == "") {
-            region.setSelectedItem(InputDialogState.NO_REGION);
+            region.setSelectedItem(InputDialogState.DEFAULT_PROFILE_REGION);
         } else {
             region.setSelectedItem(s);
         }
