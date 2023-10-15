@@ -5,7 +5,7 @@
 
 This plugin facilitates accessing and deploying artifacts in CodeArtifact on Maven Intellij Idea projects.
 
-AWS provides very specific [instructions](https://docs.aws.amazon.com/codeartifact/latest/ug/maven-mvn.html) to setup
+AWS provides very specific [instructions](https://docs.aws.amazon.com/codeartifact/latest/ug/maven-mvn.html) to set up
 Maven to support AWS CodeArtifact. Basically, your file ~/.m2/settings.xml must include a server specification such as:
 <pre>
 &lt;settings&gt;  
@@ -29,7 +29,7 @@ environment variable and then launch the IDE. And as the token needs to be refre
 repeat the process every 12 hours. Plus, it is needed to update the environment variable in the same environment where
 the IDE is launched, quite inconvenient if launching the IDE from anywhere except the command line.
 
-Idea allows to setup environment variables for MVN execution (under Settings/Build/Execution/Deployment/Build
+Idea allows to set up environment variables for MVN execution (under Settings/Build/Execution/Deployment/Build
 Tools/Maven/Runner), but this would imply to manually obtaining the token and updating the setting periodically.
 
 A better option for this specific scenario is to automatically update the password in ~/.m2/settings.xml, to reflect the
