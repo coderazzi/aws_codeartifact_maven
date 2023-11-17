@@ -86,7 +86,7 @@ For more information on the distinction between role-based-MFA and user-based-MF
 * Version 3.2.0 : 27th Jul 2023: Quick patch to avoid exception due to change on internal SVGLoader.
 * Version 3.1.0 : 21st Apr 2023: User can optionally specify the target region
 * Version 3.0.0 : 04th Dec 2022: Added support for MFA (role based)
-* Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in Github).
+* Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in GitHub).
 * Version 2.1.1 : 29th Jan 2022: if profile is default, do not include it when getting credentials.
 * Version 2.1.0 : 27th Jan 2022: Added AWS profile management.
 * Version 2.0.1 : 27th Nov 2021: Removed use of deprecated API, improved dialog layout.
