@@ -368,7 +368,7 @@ class InputDialog extends DialogWrapper {
     }
 
     private void setSelectedRegion(String s) {
-        if (s == null || s == "") {
+        if (s == null || s.equals("")) {
             region.setSelectedItem(InputDialogState.DEFAULT_PROFILE_REGION);
         } else {
             region.setSelectedItem(s);
