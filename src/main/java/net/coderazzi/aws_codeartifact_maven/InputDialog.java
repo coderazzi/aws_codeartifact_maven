@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 
 import static com.intellij.util.ui.JBUI.Borders.empty;
 
+@SuppressWarnings("unchecked")
 class InputDialog extends DialogWrapper {
 
     public static final String COMPONENT_TITLE = "CodeArtifact + Maven";
@@ -368,7 +369,7 @@ class InputDialog extends DialogWrapper {
     }
 
     private void setSelectedRegion(String s) {
-        if (s == null || s.equals("")) {
+        if (s == null || s.equals("")           ) {
             region.setSelectedItem(InputDialogState.DEFAULT_PROFILE_REGION);
         } else {
             region.setSelectedItem(s);
