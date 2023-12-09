@@ -92,6 +92,7 @@
 
   <change-notes><![CDATA[
     <ul>
+      <li>Version 3.2.3 : 08th Dec 2023: Make plugin compatible with latest IDE version (2023.3)</li>
       <li>Version 3.2.3 : 19th Sep 2023: Bug using default region for profiles without configured region</li>
       <li>Version 3.2.2 : 29th Jul 2023: SVG correction by Sergio (sfgvieira)</li>
       <li>Version 3.2.1 : 28th Jul 2023: Final solution to avoid exception due to change on internal SVGLoader</li>
