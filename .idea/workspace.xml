@@ -6,12 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="00ec5e31-86b5-4add-a132-bbb908348824" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/AWSInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/AWSInvoker.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialogState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialogState.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/MfaDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/MfaDialog.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,7 +31,12 @@
         </task>
         <projects_view>
           <tree_state>
-            <expand />
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="aws_codeartifact_maven" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
             <select />
           </tree_state>
         </projects_view>
@@ -73,11 +74,16 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Gradle.aws_codeartifact_maven [setupDependencies].executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "WebServerToolWindowFactoryState": "false",
-    "com.google.cloudcode.ide_session_index": "20230918_0000",
+    "com.google.cloudcode.ide_session_index": "20240411_0000",
     "git-widget-placeholder": "main",
+    "go.import.settings.migrated": "true",
+    "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/coderazzi/development/aws_codeartifact_maven",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -134,21 +140,19 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration default="true" type="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-      <option name="AUTO_RESTART" value="false" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.aws_codeartifact_maven [buildPlugin]" />
         <item itemvalue="Gradle.aws_codeartifact_maven [check]" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="jdk-17.0.10-corretto-17.0.10-4caba194b151-53826d6a" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -172,7 +176,8 @@
       <workItem from="1693409312751" duration="707000" />
       <workItem from="1693484050256" duration="108000" />
       <workItem from="1694178280014" duration="991000" />
-      <workItem from="1695066804576" duration="3366000" />
+      <workItem from="1695066804576" duration="4088000" />
+      <workItem from="1712864062169" duration="584000" />
     </task>
     <task id="LOCAL-00001" summary="Corrected default icon, first attempt to correct icon.">
       <option name="closed" value="true" />
@@ -230,7 +235,15 @@
       <option name="project" value="LOCAL" />
       <updated>1694386715332</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Solved bug #10: Error using multiple server/repos: https://github.com/coderazzi/aws_codeartifact_maven/issues/10">
+      <option name="closed" value="true" />
+      <created>1695112376323</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1695112376324</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -290,6 +303,10 @@
     <MESSAGE value="Final field modifications" />
     <MESSAGE value="Removed unused method" />
     <MESSAGE value="Replace length with isEmpty" />
-    <option name="LAST_COMMIT_MESSAGE" value="Replace length with isEmpty" />
+    <MESSAGE value="Solved bug #10: Error using multiple server/repos: https://github.com/coderazzi/aws_codeartifact_maven/issues/10" />
+    <option name="LAST_COMMIT_MESSAGE" value="Solved bug #10: Error using multiple server/repos: https://github.com/coderazzi/aws_codeartifact_maven/issues/10" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
   </component>
 </project>

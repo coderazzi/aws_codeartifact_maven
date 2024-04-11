@@ -336,7 +336,9 @@ class InputDialog extends DialogWrapper {
             if (url != null) {
                 label.setIcon(IconLoader.findIcon(url));
             }
-        } catch (Exception ex){}
+        } catch (Exception ex){
+            // nothing to do here, just a missing icon
+        }
         return label;
     }
 

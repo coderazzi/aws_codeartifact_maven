@@ -50,6 +50,7 @@ class MfaDialog extends DialogWrapper {
                 }
             });
         } catch (InterruptedException ex) {
+            // being terminated, logging anything would help no one...
         }
         return status.code;
     }
