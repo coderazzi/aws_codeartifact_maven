@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "net.coderazzi"
-version = "3.2.3"
+version = "3.2.4"
 
 repositories {
   mavenCentral()
@@ -32,7 +32,7 @@ tasks {
 
   patchPluginXml {
     sinceBuild.set("222")
-    untilBuild.set("232.*")
+    untilBuild.set("")
   }
 
   signPlugin {

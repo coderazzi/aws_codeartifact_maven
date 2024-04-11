@@ -10,7 +10,7 @@
     <p>This plugin facilitates accessing and deploying artifacts in CodeArtifact on Maven Intellij Idea projects.</p>
 
     <p>AWS provides very specific <a href="https://docs.aws.amazon.com/codeartifact/latest/ug/maven-mvn.html">instructions</a>
-     to setup Maven to support AWS CodeArtifact. Basically, your file ~/.m2/settings.xml must include a server
+     to set up Maven to support AWS CodeArtifact. Basically, your file ~/.m2/settings.xml must include a server
      specification such as:</p>
 <pre>
 &lt;settings&gt;
@@ -35,7 +35,7 @@
      environment where the IDE is launched, quite inconvenient if launching the IDE from anywhere except the command line.
     </p>
 
-    <p>Idea allows to setup environment variables for MVN execution
+    <p>Idea allows to set up environment variables for MVN execution
      (under Settings/Build/Execution/Deployment/Build Tools/Maven/Runner),
      but this would imply to manually obtaining the token and updating the setting periodically.</p>
 
@@ -53,7 +53,7 @@
 &lt;/settings&gt;
 </pre>
 
-    <p><b>CodeArtifact-Maven Idea plugin</b> does exactly this simple task. Note that there is a AWS-supported
+    <p><b>CodeArtifact-Maven Idea plugin</b> does exactly this simple task. Note that there is an AWS-supported
     AWS plugin, but it does not cover getting credentials for CodeArtifact</p>
 
    <h2>Installation</h2>
@@ -92,13 +92,14 @@
 
   <change-notes><![CDATA[
     <ul>
+      <li>Version 3.2.3 : 08th Dec 2023: Make plugin compatible with latest IDE version (2023.3)</li>
       <li>Version 3.2.3 : 19th Sep 2023: Bug using default region for profiles without configured region</li>
       <li>Version 3.2.2 : 29th Jul 2023: SVG correction by Sergio (sfgvieira)</li>
       <li>Version 3.2.1 : 28th Jul 2023: Final solution to avoid exception due to change on internal SVGLoader</li>
       <li>Version 3.2.0 : 27th Jul 2023: Quick patch to avoid exception due to change on internal SVGLoader</li>
       <li>Version 3.1.0 : 21st Apr 2023: User can optionally specify the target region</li>
       <li>Version 3.0.0 : 04th Dec 2022: Added support for MFA (role based)</li>
-      <li>Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in Github).</li>
+      <li>Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in GitHub).</li>
       <li>Version 2.1.1 : 29th Jan 2022: if profile is default, do not include it when getting credentials.</li>
       <li>Version 2.1.0 : 27th Jan 2022: Added AWS profile management.</li>
       <li>Version 2.0.1 : 27th Nov 2021: Removed use of deprecated API, improved dialog layout.</li>

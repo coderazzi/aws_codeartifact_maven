@@ -5,7 +5,7 @@
 
 This plugin facilitates accessing and deploying artifacts in CodeArtifact on Maven Intellij Idea projects.
 
-AWS provides very specific [instructions](https://docs.aws.amazon.com/codeartifact/latest/ug/maven-mvn.html) to setup
+AWS provides very specific [instructions](https://docs.aws.amazon.com/codeartifact/latest/ug/maven-mvn.html) to set up
 Maven to support AWS CodeArtifact. Basically, your file ~/.m2/settings.xml must include a server specification such as:
 <pre>
 &lt;settings&gt;  
@@ -29,7 +29,7 @@ environment variable and then launch the IDE. And as the token needs to be refre
 repeat the process every 12 hours. Plus, it is needed to update the environment variable in the same environment where
 the IDE is launched, quite inconvenient if launching the IDE from anywhere except the command line.
 
-Idea allows to setup environment variables for MVN execution (under Settings/Build/Execution/Deployment/Build
+Idea allows to set up environment variables for MVN execution (under Settings/Build/Execution/Deployment/Build
 Tools/Maven/Runner), but this would imply to manually obtaining the token and updating the setting periodically.
 
 A better option for this specific scenario is to automatically update the password in ~/.m2/settings.xml, to reflect the
@@ -80,13 +80,14 @@ For more information on the distinction between role-based-MFA and user-based-MF
 
 ## Versions
 
+* Version 3.2.4 : 08th Dec 2023: Make plugin compatible with latest IDE version (2023.3)
 * Version 3.2.3 : 19th Sep 2023: Bug using default region for profiles without configured region
 * Version 3.2.2 : 29th Jul 2023: SVG correction by Sergio (sfgvieira)
 * Version 3.2.1 : 28th Jul 2023: Final solution to avoid exception due to change on internal SVGLoader.
 * Version 3.2.0 : 27th Jul 2023: Quick patch to avoid exception due to change on internal SVGLoader.
 * Version 3.1.0 : 21st Apr 2023: User can optionally specify the target region
 * Version 3.0.0 : 04th Dec 2022: Added support for MFA (role based)
-* Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in Github).
+* Version 2.2.0 : 06th Nov 2022: Added hint in case of missing region configuration (issue #8 in GitHub).
 * Version 2.1.1 : 29th Jan 2022: if profile is default, do not include it when getting credentials.
 * Version 2.1.0 : 27th Jan 2022: Added AWS profile management.
 * Version 2.0.1 : 27th Nov 2021: Removed use of deprecated API, improved dialog layout.
