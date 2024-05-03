@@ -1,7 +1,5 @@
 package net.coderazzi.aws_codeartifact_maven;
 
-import com.intellij.openapi.project.Project;
-
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Set;
@@ -20,8 +18,8 @@ final public class InputDialogState {
     private final TreeSet<String> allProfiles;
     private final TreeSet<String> validRegions = new TreeSet<>(Arrays.asList(VALID_REGIONS.split(",")));
 
-    public static InputDialogState getInstance(Project project) {
-        return new InputDialogState(PluginState.getInstance(project));
+    public static InputDialogState getInstance() {
+        return new InputDialogState(PluginState.getInstance());
     }
 
     private InputDialogState(PluginState state) {

@@ -2,7 +2,6 @@ package net.coderazzi.aws_codeartifact_maven;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.ColorUtil;
@@ -49,9 +48,9 @@ class InputDialog extends DialogWrapper {
     private Thread loadingServersThread, loadingProfilesThread;
     private final InputDialogState state;
 
-    public InputDialog(Project project) {
+    public InputDialog() {
         super(true); // use current window as parent
-        state = InputDialogState.getInstance(project);
+        state = InputDialogState.getInstance();
         init();
         setTitle("Generate AWS CodeArtifact Credentials");
         setAutoAdjustable(true);

@@ -24,7 +24,7 @@ public class LaunchAction extends AnAction {
     }
 
     private void showDialog(Project project) {
-        final InputDialog dialog = new InputDialog(project);
+        final InputDialog dialog = new InputDialog();
         if (dialog.showAndGet()) {
             ProgressManager.getInstance().runProcessWithProgressSynchronously(
                     () -> {
@@ -81,6 +81,6 @@ public class LaunchAction extends AnAction {
 
     @Override
     public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
+        return ActionUpdateThread.EDT;
     }
 }
