@@ -80,6 +80,7 @@ For more information on the distinction between role-based-MFA and user-based-MF
 
 ## Versions
 
+* Version 3.3.0 : 03rd May 2024: Make plugin compatible with latest IDE version (2024.1)
 * Version 3.2.4 : 08th Dec 2023: Make plugin compatible with latest IDE version (2023.3)
 * Version 3.2.3 : 19th Sep 2023: Bug using default region for profiles without configured region
 * Version 3.2.2 : 29th Jul 2023: SVG correction by Sergio (sfgvieira)

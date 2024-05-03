@@ -2,8 +2,8 @@ package net.coderazzi.aws_codeartifact_maven;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,8 +19,8 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
 
     public static final int CURRENT_VERSION = 4;
 
-    public static PluginState getInstance() {
-        return ServiceManager.getService(PluginState.class).ensureInitialization();
+    public static PluginState getInstance(Project project) {
+        return project.getService(PluginState.class).ensureInitialization();
     }
 
     public int version;

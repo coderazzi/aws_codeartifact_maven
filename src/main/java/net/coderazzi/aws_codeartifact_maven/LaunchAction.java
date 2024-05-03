@@ -1,5 +1,6 @@
 package net.coderazzi.aws_codeartifact_maven;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -23,7 +24,7 @@ public class LaunchAction extends AnAction {
     }
 
     private void showDialog(Project project) {
-        final InputDialog dialog = new InputDialog();
+        final InputDialog dialog = new InputDialog(project);
         if (dialog.showAndGet()) {
             ProgressManager.getInstance().runProcessWithProgressSynchronously(
                     () -> {
@@ -78,4 +79,8 @@ public class LaunchAction extends AnAction {
         return !output.ok;
     }
 
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
+    }
 }

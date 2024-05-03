@@ -2,6 +2,7 @@ package net.coderazzi.aws_codeartifact_maven;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.ColorUtil;
@@ -48,9 +49,9 @@ class InputDialog extends DialogWrapper {
     private Thread loadingServersThread, loadingProfilesThread;
     private final InputDialogState state;
 
-    public InputDialog() {
+    public InputDialog(Project project) {
         super(true); // use current window as parent
-        state = InputDialogState.getInstance();
+        state = InputDialogState.getInstance(project);
         init();
         setTitle("Generate AWS CodeArtifact Credentials");
         setAutoAdjustable(true);
@@ -371,7 +372,7 @@ class InputDialog extends DialogWrapper {
     }
 
     private void setSelectedRegion(String s) {
-        if (s == null || s.equals("")           ) {
+        if (s == null || s.isEmpty()) {
             region.setSelectedItem(InputDialogState.DEFAULT_PROFILE_REGION);
         } else {
             region.setSelectedItem(s);
