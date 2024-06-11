@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00ec5e31-86b5-4add-a132-bbb908348824" name="Changes" comment="Remove usage of deprecated API; ensure better compatiiblity with version 2024.1">
+    <list default="true" id="00ec5e31-86b5-4add-a132-bbb908348824" name="Changes" comment="Update source/target JVM to 17">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialogState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialogState.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/LaunchAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/LaunchAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/PluginState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/PluginState.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,6 +33,17 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="aws_codeartifact_maven" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="aws_codeartifact_maven" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="aws_codeartifact_maven" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="intellij" type="c8890929:TasksNode$1" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
@@ -82,7 +89,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Gradle.Run Plugin.executor": "Run",
-    "Gradle.aws_codeartifact_maven [buildPlugin].executor": "Debug",
+    "Gradle.aws_codeartifact_maven [buildPlugin].executor": "Run",
     "Gradle.aws_codeartifact_maven [setupDependencies].executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -193,7 +200,7 @@
       <workItem from="1694178280014" duration="991000" />
       <workItem from="1695066804576" duration="4088000" />
       <workItem from="1712864062169" duration="584000" />
-      <workItem from="1713758935476" duration="17312000" />
+      <workItem from="1713758935476" duration="21979000" />
     </task>
     <task id="LOCAL-00001" summary="Corrected default icon, first attempt to correct icon.">
       <option name="closed" value="true" />
@@ -283,7 +290,23 @@
       <option name="project" value="LOCAL" />
       <updated>1714723792107</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Use EDT instead of BGT for the launch action.&#10;Access the plugin state via ApplicationManager">
+      <option name="closed" value="true" />
+      <created>1714736532191</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1714736532191</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Update source/target JVM to 17">
+      <option name="closed" value="true" />
+      <created>1714736751847</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1714736751847</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -347,7 +370,9 @@
     <MESSAGE value="Added some catch all exceptions explanations" />
     <MESSAGE value="Merged changes" />
     <MESSAGE value="Remove usage of deprecated API; ensure better compatiiblity with version 2024.1" />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove usage of deprecated API; ensure better compatiiblity with version 2024.1" />
+    <MESSAGE value="Use EDT instead of BGT for the launch action.&#10;Access the plugin state via ApplicationManager" />
+    <MESSAGE value="Update source/target JVM to 17" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update source/target JVM to 17" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
