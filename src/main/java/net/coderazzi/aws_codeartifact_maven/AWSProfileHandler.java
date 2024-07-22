@@ -48,8 +48,9 @@ class AWSProfileHandler {
             files.put(Paths.get(credentialsEnv), credentialsPattern);
         }
         if (home != null) {
-            files.put(Paths.get(home).resolve(".aws").resolve("config"), configPattern);
-            files.put(Paths.get(home).resolve(".aws").resolve("credentials"), credentialsPattern);
+            Path awsPath = Paths.get(home).resolve(".aws");
+            files.put(awsPath.resolve("config"), configPattern);
+            files.put(awsPath.resolve("credentials"), credentialsPattern);
         }
         if (files.isEmpty()) {
             throw new GetProfilesException("Cannot read AWS config or credentials files");

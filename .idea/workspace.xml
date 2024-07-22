@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="00ec5e31-86b5-4add-a132-bbb908348824" name="Changes" comment="Update source/target JVM to 17">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/AWSProfileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/AWSProfileHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,7 +113,7 @@
   },
   "keyToStringList": {
     "kotlin-gradle-user-dirs": [
-      "/Users/coderazzi/.gradle"
+      "/home/coderazzi/.gradle"
     ]
   }
 }]]></component>
@@ -171,8 +172,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9f38398b9061-18abd8497189-intellij.indexing.shared.core-IU-241.14494.240" />
-        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-IU-241.14494.240" />
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.18034.62" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.18034.62" />
       </set>
     </attachedChunks>
   </component>
@@ -201,6 +202,7 @@
       <workItem from="1695066804576" duration="4088000" />
       <workItem from="1712864062169" duration="584000" />
       <workItem from="1713758935476" duration="21979000" />
+      <workItem from="1721622952769" duration="353000" />
     </task>
     <task id="LOCAL-00001" summary="Corrected default icon, first attempt to correct icon.">
       <option name="closed" value="true" />
