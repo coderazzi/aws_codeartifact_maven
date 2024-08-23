@@ -92,6 +92,7 @@
 
   <change-notes><![CDATA[
     <ul>
+      <li>Version 4.0.0 : 23rd Aug 2024: Support multiple repositories at once</li>
       <li>Version 3.3.0 : 03rd May 2024: Make plugin compatible with latest IDE version (2024.1)</li>
       <li>Version 3.2.4 : 08th Dec 2023: Make plugin compatible with latest IDE version (2023.3)</li>
       <li>Version 3.2.3 : 19th Sep 2023: Bug using default region for profiles without configured region</li>
