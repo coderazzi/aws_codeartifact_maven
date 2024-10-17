@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00ec5e31-86b5-4add-a132-bbb908348824" name="Changes" comment="Update source/target JVM to 17">
-      <change afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/ConfigurationDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/AWSInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/AWSInvoker.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialogState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialogState.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/LaunchAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/LaunchAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/PluginState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/PluginState.java" afterDir="false" />
-    </list>
+    <list default="true" id="00ec5e31-86b5-4add-a132-bbb908348824" name="Changes" comment="Initial basic implementation of configurations" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -97,7 +89,7 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "WebServerToolWindowFactoryState": "false",
     "com.google.cloudcode.ide_session_index": "20240422_0000",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "feature/configurations",
     "go.import.settings.migrated": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/coderazzi/development/aws_codeartifact_maven",
@@ -205,7 +197,7 @@
       <workItem from="1723220481594" duration="703000" />
       <workItem from="1724242955264" duration="1721000" />
       <workItem from="1724401292303" duration="2420000" />
-      <workItem from="1728759006484" duration="45336000" />
+      <workItem from="1728759006484" duration="45667000" />
     </task>
     <task id="LOCAL-00001" summary="Corrected default icon, first attempt to correct icon.">
       <option name="closed" value="true" />
@@ -311,7 +303,15 @@
       <option name="project" value="LOCAL" />
       <updated>1714736751847</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Initial basic implementation of configurations">
+      <option name="closed" value="true" />
+      <created>1729162920758</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1729162920759</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -377,7 +377,8 @@
     <MESSAGE value="Remove usage of deprecated API; ensure better compatiiblity with version 2024.1" />
     <MESSAGE value="Use EDT instead of BGT for the launch action.&#10;Access the plugin state via ApplicationManager" />
     <MESSAGE value="Update source/target JVM to 17" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update source/target JVM to 17" />
+    <MESSAGE value="Initial basic implementation of configurations" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initial basic implementation of configurations" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
