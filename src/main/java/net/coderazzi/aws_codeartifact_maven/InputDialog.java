@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.net.URL;
 import java.util.HashSet;
@@ -37,12 +38,19 @@ class InputDialog extends DialogWrapper {
 
     private final JTextField domain = new JTextField(32);
     private final JTextField domainOwner = new JTextField(32);
+    private final DefaultComboBoxModel configurationsModel = new DefaultComboBoxModel();
     private final DefaultComboBoxModel regionsModel = new DefaultComboBoxModel();
-    private final ComboBoxWithWidePopup region = new ComboBoxWithWidePopup(regionsModel);
     private final DefaultComboBoxModel serverIdsModel = new DefaultComboBoxModel();
-    private final ComboBoxWithWidePopup mavenServerId = new ComboBoxWithWidePopup(serverIdsModel);
-    private final DefaultComboBoxModel awsProfileModel = new DefaultComboBoxModel();
-    private final ComboBoxWithWidePopup awsProfile = new ComboBoxWithWidePopup(awsProfileModel);
+    private final DefaultComboBoxModel profileModel = new DefaultComboBoxModel();
+    private final ComboBoxWithWidePopup configurationComboBox = new ComboBoxWithWidePopup(configurationsModel);
+    private final ComboBoxWithWidePopup regionComboBox = new ComboBoxWithWidePopup(regionsModel);
+    private final ComboBoxWithWidePopup serverIdComboBox = new ComboBoxWithWidePopup(serverIdsModel);
+    private final ComboBoxWithWidePopup profileComboBox = new ComboBoxWithWidePopup(profileModel);
+
+    private final JButton configurationCreateButton = new JButton("Create new configuration");
+    private final JBLabel serverWarningLabel, serverWarningEmptyLabel;
+    private final JBLabel profileWarningLabel, profileWarningEmptyLabel;
+
     private final JTextField settingsFile = new JTextField(32);
     private final JTextField awsPath = new JTextField(32);
     private Thread loadingServersThread, loadingProfilesThread;
@@ -51,6 +59,16 @@ class InputDialog extends DialogWrapper {
     public InputDialog() {
         super(true); // use current window as parent
         state = InputDialogState.getInstance();
+        serverWarningLabel = getLabel("invalid server id, not found in settings file");
+        serverWarningEmptyLabel = getLabel("");
+        serverWarningLabel.setIcon(AllIcons.General.Error);
+        serverWarningLabel.setVisible(false);
+        serverWarningEmptyLabel.setVisible(false);
+        profileWarningLabel = getLabel("invalid profile");
+        profileWarningEmptyLabel = getLabel("");
+        profileWarningLabel.setIcon(AllIcons.General.Error);
+        profileWarningLabel.setVisible(false);
+        profileWarningEmptyLabel.setVisible(false);
         init();
         setTitle("Generate AWS CodeArtifact Credentials");
         setAutoAdjustable(true);
@@ -65,17 +83,13 @@ class InputDialog extends DialogWrapper {
      * Called whenever the user changes the maven server id
      */
     private void updatedMavenServerId() {
-        Object s = mavenServerId.getSelectedItem();
+        Object s = serverIdComboBox.getSelectedItem();
         if (s instanceof String) {
-            state.updateMavenServerId((String) s);
-            domain.setText(state.getDomain(domain.getText()));
-            domainOwner.setText(state.getDomainOwner(domainOwner.getText()));
-            setSelectedRegion(state.getRegion(getSelectedRegion()));
-            domain.setEnabled(true);
-            domainOwner.setEnabled(true);
-        } else {
-            domain.setEnabled(false);
-            domainOwner.setEnabled(false);
+            String ss = (String) s;
+            state.updateMavenServerId(ss);
+            boolean bad = !state.getMavenServerIds().contains(ss);
+            serverWarningLabel.setVisible(bad);
+            serverWarningEmptyLabel.setVisible(bad);
         }
     }
 
@@ -83,10 +97,14 @@ class InputDialog extends DialogWrapper {
      * Called whenever the user changes the AWS profile
      */
     private void updatedAwsProfile() {
-        if (awsProfile.isEnabled()) {
-            Object s = awsProfile.getSelectedItem();
+        if (profileComboBox.isEnabled()) {
+            Object s = profileComboBox.getSelectedItem();
             if (s instanceof String) {
-                state.setProfile((String) s);
+                String ss = (String) s;
+                state.updateProfile(ss);
+                boolean bad = !state.getProfiles().contains(ss);
+                profileWarningLabel.setVisible(bad);
+                profileWarningEmptyLabel.setVisible(bad);
             }
         }
     }
@@ -96,12 +114,23 @@ class InputDialog extends DialogWrapper {
      * Called whenever the user changes the region
      */
     private void updatedRegion() {
-        Object s = region.getSelectedItem();
+        Object s = regionComboBox.getSelectedItem();
         if (s != null) {
             state.updateRegion(s instanceof String ? (String) s : "");
         }
     }
 
+    private void updateConfiguration(){
+        Object s = configurationComboBox.getSelectedItem();
+        if (s != null) {
+            state.setCurrentConfiguration((String) s);
+            domain.setText(state.getDomain());
+            domainOwner.setText(state.getDomainOwner());
+            setSelectedRegion(state.getRegion());
+            showRepositoryInformation(false);
+            showProfileInformation();
+        }
+    }
 
     /**
      * Displays all information related to the repository.
@@ -109,6 +138,7 @@ class InputDialog extends DialogWrapper {
      * @param reloadServersIfNeeded set to true to load servers from maven settings file IF there are none yet
      */
     private void showRepositoryInformation(boolean reloadServersIfNeeded) {
+        String current = state.getMavenServerId();
         serverIdsModel.removeAllElements();
         Set<String> serverIds = state.getMavenServerIds();
         if (serverIds.isEmpty()) {
@@ -116,13 +146,22 @@ class InputDialog extends DialogWrapper {
                 reloadServersInBackground();
                 return;
             }
-        } else {
-            String currentId = state.getMavenServerId();
-            serverIds.forEach(serverIdsModel::addElement);
-            serverIdsModel.setSelectedItem(currentId);
         }
-        mavenServerId.setEnabled(true);
+        serverIds.forEach(serverIdsModel::addElement);
+        if (current != null && !current.isEmpty() && !serverIds.contains(current)) {
+            serverIdsModel.addElement(current);
+        }
+        serverIdsModel.setSelectedItem(current);
+        serverIdComboBox.setEnabled(true);
         updateGenerateCredentialsButtonState();
+    }
+
+    private void showConfigurationInformation(boolean reloadServersIfNeeded) {
+        String current = state.getCurrentConfiguration();
+        configurationsModel.removeAllElements();
+        state.getConfigurationNames().forEach(configurationsModel::addElement);
+        configurationsModel.setSelectedItem(current);
+        showRepositoryInformation(reloadServersIfNeeded);
     }
 
     private void showProfileInformation() {
@@ -131,11 +170,14 @@ class InputDialog extends DialogWrapper {
             // next call will always find profiles to show
             reloadProfilesInBackground();
         } else {
-            String profile = state.getProfile();
+            String current = state.getProfile();
             // next call will modify the profile, that is why we store it beforehand
-            profiles.forEach(awsProfileModel::addElement);
-            awsProfile.setEnabled(true);
-            awsProfileModel.setSelectedItem(profile);
+            profiles.forEach(profileModel::addElement);
+            if (!profiles.contains(current)) {
+                profileModel.addElement(current);
+            }
+            profileComboBox.setEnabled(true);
+            profileModel.setSelectedItem(current);
         }
         updateGenerateCredentialsButtonState();
     }
@@ -150,13 +192,13 @@ class InputDialog extends DialogWrapper {
             serverIdsModel.removeAllElements();
             if (!filename.isEmpty()) {
                 serverIdsModel.addElement(LOADING);
-                mavenServerId.setEnabled(false);
+                serverIdComboBox.setEnabled(false);
                 loadingServersThread = new Thread(() -> {
                     try {
-                        updateServersInForeground(
-                                new MavenSettingsFileHandler(filename).getServerIds(MAVEN_SERVER_USERNAME),
-                                null
-                        );
+                        Set<String> ids = new MavenSettingsFileHandler(filename).getServerIds(MAVEN_SERVER_USERNAME);
+                        String error = ids.isEmpty()? "Maven settings file does not define any server with username 'aws'"
+                                : null;
+                        updateServersInForeground(ids, error);
                     } catch (MavenSettingsFileHandler.GetServerIdsException ex) {
                         updateServersInForeground(new HashSet<>(), ex.getMessage());
                     }
@@ -172,9 +214,9 @@ class InputDialog extends DialogWrapper {
      */
     private void reloadProfilesInBackground() {
         if (loadingProfilesThread == null) {
-            awsProfile.setEnabled(false);
-            awsProfileModel.removeAllElements();
-            awsProfileModel.addElement(LOADING);
+            profileComboBox.setEnabled(false);
+            profileModel.removeAllElements();
+            profileModel.addElement(LOADING);
             loadingProfilesThread = new Thread(() -> {
                 Set<String> profiles;
                 String error = null;
@@ -196,10 +238,10 @@ class InputDialog extends DialogWrapper {
     private void updateProfilesInForeground(Set<String> profiles, String error) {
         SwingUtilities.invokeLater(() -> {
             loadingProfilesThread = null;
-            awsProfileModel.removeAllElements();
+            profileModel.removeAllElements();
             state.setProfiles(profiles);
             showProfileInformation();
-            awsProfile.requestFocus();
+            profileComboBox.requestFocus();
             if (error != null) {
                 Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
             }
@@ -214,13 +256,7 @@ class InputDialog extends DialogWrapper {
                 loadingServersThread = null;
                 showRepositoryInformation(false);
                 if (error == null) {
-                    if (serverIds.isEmpty()) {
-                        Messages.showErrorDialog(settingsFile,
-                                "Maven settings file does not define any server with username 'aws'",
-                                COMPONENT_TITLE);
-                    } else {
-                        mavenServerId.requestFocus();
-                    }
+                    serverIdComboBox.requestFocus();
                 } else {
                     Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
                 }
@@ -233,8 +269,8 @@ class InputDialog extends DialogWrapper {
         if (ok != null) {
             ok.setEnabled(checkNonEmpty(domain)
                     && checkNonEmpty(domainOwner)
-                    && checkHasSelection(mavenServerId)
-                    && checkHasSelection(awsProfile)
+                    && checkHasSelection(serverIdComboBox)
+                    && checkHasSelection(profileComboBox)
                     && checkNonEmpty(awsPath)
             );
         }
@@ -267,11 +303,21 @@ class InputDialog extends DialogWrapper {
         handleTextFieldChange(awsPath, state::updateAwsPath);
         handleTextFieldChange(domainOwner, state::updateDomainOwner);
         handleTextFieldChange(domain, state::updateDomain);
-        handleComboBoxChange(mavenServerId, this::updatedMavenServerId);
-        handleComboBoxChange(awsProfile, this::updatedAwsProfile);
-        handleComboBoxChange(region, this::updatedRegion);
+        handleComboBoxChange(serverIdComboBox, this::updatedMavenServerId);
+        handleComboBoxChange(profileComboBox, this::updatedAwsProfile);
+        handleComboBoxChange(regionComboBox, this::updatedRegion);
+        handleComboBoxChange(configurationComboBox, this::updateConfiguration);
+        configurationCreateButton.addActionListener(this::createConfiguration);
+        showConfigurationInformation(true);
         showProfileInformation();
-        showRepositoryInformation(true);
+    }
+
+    private void createConfiguration(ActionEvent actionEvent) {
+        final ConfigurationDialog dialog = new ConfigurationDialog(null, state.getConfigurationNames());
+        if (dialog.showAndGet()) {
+            state.addConfiguration(dialog.getName());
+            showConfigurationInformation(false);
+        }
     }
 
     @Nullable
@@ -281,32 +327,45 @@ class InputDialog extends DialogWrapper {
         TextFieldWithBrowseButton settingsFileBrowser = new TextFieldWithBrowseButton(settingsFile, x -> reloadServersInBackground());
         TextFieldWithBrowseButton awsPathBrowser = new TextFieldWithBrowseButton(awsPath);
         ComponentWithBrowseButton<ComboBoxWithWidePopup> mavenServerIdWrapper =
-                new ComponentWithBrowseButton<>(mavenServerId, x -> reloadServersInBackground());
+                new ComponentWithBrowseButton<>(serverIdComboBox, x -> reloadServersInBackground());
         ComponentWithBrowseButton<ComboBoxWithWidePopup> awsProfileWrapper =
-                new ComponentWithBrowseButton<>(awsProfile, x -> reloadProfilesInBackground());
+                new ComponentWithBrowseButton<>(profileComboBox, x -> reloadProfilesInBackground());
+        ComponentWithBrowseButton<ComboBoxWithWidePopup> configurations =
+                new ComponentWithBrowseButton<>(configurationComboBox, x -> {});
+
+        double labelsWeight = 2.0;
 
         GridBag gridbag = new GridBag()
-                .setDefaultWeightX(10.0)
+                .setDefaultWeightX(labelsWeight * 5)
                 .setDefaultFill(GridBagConstraints.HORIZONTAL)
                 .setDefaultInsets(JBUI.insets(0, 0, AbstractLayout.DEFAULT_VGAP, AbstractLayout.DEFAULT_HGAP));
 
-        JPanel centerPanel = new JPanel(new GridBagLayout());
+        JPanel repositoriesButtonsPanel = new JPanel(new BorderLayout());
+        repositoriesButtonsPanel.add(configurationCreateButton, BorderLayout.EAST);
 
-        centerPanel.add(new TitledSeparator("Repository"), gridbag.nextLine().coverLine());
-        centerPanel.add(getLabel("Domain:"), gridbag.nextLine().next().weightx(2.0));
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.add(new TitledSeparator("Configurations"), gridbag.nextLine().coverLine());
+        centerPanel.add(getLabel("Configuration name:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(configurations, gridbag.next().coverLine());
+        centerPanel.add(repositoriesButtonsPanel, gridbag.nextLine().coverLine());
+        centerPanel.add(new TitledSeparator("Repository Info"), gridbag.nextLine().coverLine());
+        centerPanel.add(getLabel("Domain:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(domain, gridbag.next().coverLine());
-        centerPanel.add(getLabel("Domain owner:"), gridbag.nextLine().next().weightx(2.0));
+        centerPanel.add(getLabel("Domain owner:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(domainOwner, gridbag.next().coverLine());
-        centerPanel.add(getLabel("Maven server id:"), gridbag.nextLine().next().weightx(2.0));
+        centerPanel.add(getLabel("Maven server id:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(mavenServerIdWrapper, gridbag.next().coverLine());
-        centerPanel.add(getLabel("AWS profile:"), gridbag.nextLine().next().weightx(2.0));
+
+        centerPanel.add(serverWarningEmptyLabel, gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(serverWarningLabel, gridbag.next().coverLine());
+        centerPanel.add(getLabel("AWS profile:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(awsProfileWrapper, gridbag.next().coverLine());
-        centerPanel.add(getLabel("Region:"), gridbag.nextLine().next().weightx(2.0));
-        centerPanel.add(region, gridbag.next().coverLine());
+        centerPanel.add(getLabel("Region:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(regionComboBox, gridbag.next().coverLine());
         centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
-        centerPanel.add(getLabel("Maven settings file:"), gridbag.nextLine().next().weightx(2.0));
+        centerPanel.add(getLabel("Maven settings file:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(settingsFileBrowser, gridbag.next().coverLine());
-        centerPanel.add(getLabel("AWS cli path:"), gridbag.nextLine().next().weightx(2.0));
+        centerPanel.add(getLabel("AWS cli path:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(awsPathBrowser, gridbag.next().coverLine());
         centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 24, 0));
 
@@ -320,6 +379,7 @@ class InputDialog extends DialogWrapper {
                 new FileChooserDescriptor(true, false, false, false, false, false));
         mavenServerIdWrapper.setButtonIcon(AllIcons.Actions.Refresh);
         awsProfileWrapper.setButtonIcon(AllIcons.Actions.Refresh);
+        configurations.setButtonIcon(AllIcons.General.Settings);
 
 
         JPanel ret = new JPanel(new BorderLayout(24, 0));
@@ -343,14 +403,14 @@ class InputDialog extends DialogWrapper {
         return label;
     }
 
-    private JComponent getLabel(String text) {
+    private JBLabel getLabel(String text) {
         JBLabel label = new JBLabel(text);
         label.setComponentStyle(UIUtil.ComponentStyle.SMALL);
         label.setFontColor(UIUtil.FontColor.BRIGHTER);
         label.setBorder(empty(0, 5, 2, 0));
         return label;
     }
-
+    
     @Override
     public void doCancelAction() {
         loadingServersThread = null;
@@ -366,15 +426,15 @@ class InputDialog extends DialogWrapper {
     }
 
     private String getSelectedRegion() {
-        Object ret = region.getSelectedItem();
+        Object ret = regionComboBox.getSelectedItem();
         return ret == null ? InputDialogState.DEFAULT_PROFILE_REGION : ret.toString();
     }
 
     private void setSelectedRegion(String s) {
         if (s == null || s.isEmpty()) {
-            region.setSelectedItem(InputDialogState.DEFAULT_PROFILE_REGION);
+            regionComboBox.setSelectedItem(InputDialogState.DEFAULT_PROFILE_REGION);
         } else {
-            region.setSelectedItem(s);
+            regionComboBox.setSelectedItem(s);
         }
     }
 

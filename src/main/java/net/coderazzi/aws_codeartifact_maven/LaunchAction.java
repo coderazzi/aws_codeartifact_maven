@@ -45,7 +45,7 @@ public class LaunchAction extends AnAction {
 
     private OperationOutput launchTasks(String domain, String domainOwner,
                                         String mavenServerId, String mavenSettingsFile,
-                                        String awsPath, String awsProfile, String awsRegion) {
+                                        String awsPath, Object awsProfile, String awsRegion) {
         ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
         progressIndicator.setIndeterminate(true);
         progressIndicator.setText("Checking settings file");
