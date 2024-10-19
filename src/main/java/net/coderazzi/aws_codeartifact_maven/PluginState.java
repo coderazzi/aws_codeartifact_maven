@@ -114,7 +114,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
             regions=null;      // mavenServerId -> region
             domains = null;      // mavenServerId -> domain
             domainOwners = null;
-        } else if (configuration==null) {
+        } else if (!configurations.containsKey(configuration)) {
             configuration = configurations.keySet().iterator().next();
         }
         return this;

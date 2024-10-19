@@ -50,10 +50,6 @@ final public class InputDialogState {
     public void updateMavenServerIds(Set<String> ids) {
         state.allMavenServerIds.clear();
         state.allMavenServerIds.addAll(ids);
-        PluginState.Configuration config = state.getCurrentConfiguration();
-        if (!ids.contains(config.mavenServerId) && !state.allMavenServerIds.isEmpty()) {
-            config.mavenServerId = state.allMavenServerIds.iterator().next();
-        }
     }
 
     public boolean updateMavenSettingsFile(String mavenSettingsFile) {
@@ -153,7 +149,7 @@ final public class InputDialogState {
         state.configuration = name;
     }
 
-    public void renameCurrentConfiguration(String newName) {
+    public void renameConfiguration(String newName) {
         if (!newName.equals(state.configuration)) {
             state.configurations.put(newName, state.configurations.get(state.configuration));
             state.configurations.remove(state.configuration);
@@ -161,7 +157,7 @@ final public class InputDialogState {
         }
     }
 
-    public String deleteCurrentConfiguration(){
+    public String deleteConfiguration(){
         state.configurations.remove(state.configuration);
         state.configuration = state.configurations.keySet().iterator().next();
         return state.configuration;

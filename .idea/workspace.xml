@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00ec5e31-86b5-4add-a132-bbb908348824" name="Changes" comment="Initial basic implementation of configurations" />
+    <list default="true" id="00ec5e31-86b5-4add-a132-bbb908348824" name="Changes" comment="Initial basic implementation of configurations">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialogState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialogState.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/PluginState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/PluginState.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -109,6 +114,23 @@
     </key>
   </component>
   <component name="RunManager" selected="Gradle.Run Plugin">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
     <configuration name="aws_codeartifact_maven [buildPlugin]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -393,8 +415,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java</url>
-          <line>317</line>
-          <option name="timeStamp" value="9" />
+          <line>334</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java</url>
+          <line>124</line>
+          <option name="timeStamp" value="14" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
