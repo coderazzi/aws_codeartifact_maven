@@ -149,12 +149,14 @@ final public class InputDialogState {
         state.configuration = name;
     }
 
-    public void renameConfiguration(String newName) {
-        if (!newName.equals(state.configuration)) {
-            state.configurations.put(newName, state.configurations.get(state.configuration));
-            state.configurations.remove(state.configuration);
-            state.configuration = newName;
+    public boolean renameConfiguration(String newName) {
+        if (newName.equals(state.configuration)) {
+            return false;
         }
+        state.configurations.put(newName, state.configurations.get(state.configuration));
+        state.configurations.remove(state.configuration);
+        state.configuration = newName;
+        return true;
     }
 
     public String deleteConfiguration(){

@@ -1,17 +1,18 @@
 package net.coderazzi.aws_codeartifact_maven;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.IdeCoreBundle;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.vcs.VcsShowConfirmationOption;
 import com.intellij.ui.ColorUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.AbstractLayout;
-import com.intellij.util.ui.GridBag;
-import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.util.ui.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,9 +56,11 @@ class InputDialog extends DialogWrapper {
     private final JTextField awsPath = new JTextField(32);
     private Thread loadingServersThread, loadingProfilesThread;
     private final InputDialogState state;
+    private final Project project;
 
-    public InputDialog() {
+    public InputDialog(Project project) {
         super(true); // use current window as parent
+        this.project = project;
         state = InputDialogState.getInstance();
         serverWarningLabel = getLabel("invalid server id, not found in settings file");
         serverWarningEmptyLabel = getLabel("");
@@ -310,8 +313,19 @@ class InputDialog extends DialogWrapper {
 
     private void renameConfiguration() {
         final ConfigurationDialog dialog = new ConfigurationDialog(state.getCurrentConfiguration(), state.getConfigurationNames());
-        if (dialog.showAndGet()) {
-            state.renameConfiguration(dialog.getName());
+        if (dialog.showAndGet() && state.renameConfiguration(dialog.getName())) {
+            showConfigurationInformation(false);
+        }
+    }
+
+    private void deleteConfiguration(ActionEvent event) {
+        if (ConfirmationDialog.requestForConfirmation(VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION,
+                project,
+                "Are you sure to delete this configuration",
+                "Delete configration",
+                AllIcons.General.QuestionDialog)
+        ) {
+            state.deleteConfiguration();
             showConfigurationInformation(false);
         }
     }
@@ -344,6 +358,8 @@ class InputDialog extends DialogWrapper {
                 new ComponentWithBrowseButton<>(profileComboBox, x -> reloadProfilesInBackground());
         ComponentWithBrowseButton<ComboBoxWithWidePopup> configurations =
                 new ComponentWithBrowseButton<>(configurationComboBox, x -> renameConfiguration());
+        ComponentWithBrowseButton<ComponentWithBrowseButton<ComboBoxWithWidePopup>> configurationsWrapper =
+                new ComponentWithBrowseButton<>(configurations, this::deleteConfiguration);
 
         double labelsWeight = 2.0;
 
@@ -358,7 +374,7 @@ class InputDialog extends DialogWrapper {
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.add(new TitledSeparator("Configurations"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("Configuration name:"), gridbag.nextLine().next().weightx(labelsWeight));
-        centerPanel.add(configurations, gridbag.next().coverLine());
+        centerPanel.add(configurationsWrapper, gridbag.next().coverLine());
         centerPanel.add(repositoriesButtonsPanel, gridbag.nextLine().coverLine());
         centerPanel.add(new TitledSeparator("Repository Info"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("Domain:"), gridbag.nextLine().next().weightx(labelsWeight));
@@ -392,7 +408,7 @@ class InputDialog extends DialogWrapper {
         mavenServerIdWrapper.setButtonIcon(AllIcons.Actions.Refresh);
         awsProfileWrapper.setButtonIcon(AllIcons.Actions.Refresh);
         configurations.setButtonIcon(AllIcons.General.Settings);
-
+        configurationsWrapper.setButtonIcon(AllIcons.General.Remove);
 
         JPanel ret = new JPanel(new BorderLayout(24, 0));
         ret.add(centerPanel, BorderLayout.CENTER);
