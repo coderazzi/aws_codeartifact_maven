@@ -2,6 +2,7 @@ package net.coderazzi.aws_codeartifact_maven;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,32 +28,37 @@ final public class InputDialogState {
         this.state = state;
     }
 
-    public void updateDomain(String domain) {
+    public void setDomain(String domain) {
         state.getCurrentConfiguration().domain = domain;
     }
 
-    public void updateRegion(String region) {
+    public void setRegion(String region) {
         state.getCurrentConfiguration().region = region;
     }
 
-    public void updateDomainOwner(String domainOwner) {
+    public void setDomainOwner(String domainOwner) {
         state.getCurrentConfiguration().domainOwner = domainOwner;
     }
 
-    public void updateAwsPath(String aws) {
+    public void setAwsPath(String aws) {
         state.awsPath = aws;
     }
 
-    public void updateMavenServerId(String id) {
-        state.getCurrentConfiguration().mavenServerId = id;
+    public boolean setMavenServerId(String id) {
+        PluginState.Configuration config = state.getCurrentConfiguration();
+        if (Objects.equals(id, config.mavenServerId)) {
+            return false;
+        }
+        config.mavenServerId = id;
+        return true;
     }
 
-    public void updateMavenServerIds(Set<String> ids) {
+    public void setMavenServerIds(Set<String> ids) {
         state.allMavenServerIds.clear();
         state.allMavenServerIds.addAll(ids);
     }
 
-    public boolean updateMavenSettingsFile(String mavenSettingsFile) {
+    public boolean setMavenSettingsFile(String mavenSettingsFile) {
         if (mavenSettingsFile.equals(state.mavenSettingsFile)) {
             return false;
         }
@@ -109,8 +115,13 @@ final public class InputDialogState {
         return ret == null ? AWSProfileHandler.DEFAULT_PROFILE : ret;
     }
 
-    public void updateProfile(String profile) {
-        state.getCurrentConfiguration().awsProfile = profile;
+    public boolean setProfile(String profile) {
+        PluginState.Configuration config = state.getCurrentConfiguration();
+        if (Objects.equals(profile, config.awsProfile)) {
+            return false;
+        }
+        config.awsProfile = profile;
+        return true;
     }
 
     public Set<String> getProfiles() {
@@ -133,8 +144,12 @@ final public class InputDialogState {
         return state.configuration;
     }
 
-    public void setCurrentConfiguration(String name) {
+    public boolean setCurrentConfiguration(String name) {
+        if (Objects.equals(name, state.configurations)) {
+            return false;
+        }
         state.configuration = name;
+        return true;
     }
 
     public void addConfiguration(String name) {
@@ -142,7 +157,7 @@ final public class InputDialogState {
         PluginState.Configuration conf = new PluginState.Configuration();
         conf.domain = current.domain;
         conf.domainOwner = current.domainOwner;
-        conf.mavenServerId = current.mavenServerId;
+        conf.mavenServerId = null;
         conf.region = current.region;
         conf.awsProfile = current.awsProfile;
         state.configurations.put(name, conf);

@@ -132,7 +132,6 @@ class AWSInvoker {
         private String getRead() {
             try {
                 String ret = byteArrayOutputStream.toString(ENCODING);
-                System.out.println("getRead=" + ret);
                 return ret;
             } catch (UnsupportedEncodingException ex) {
                 LOGGER.error(ex);

@@ -1,7 +1,6 @@
 package net.coderazzi.aws_codeartifact_maven;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.IdeCoreBundle;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
@@ -88,12 +87,13 @@ class InputDialog extends DialogWrapper {
      */
     private void updatedMavenServerId() {
         Object s = serverIdComboBox.getSelectedItem();
-        if (s instanceof String) {
+        if (s==null || s instanceof String) {
             String ss = (String) s;
-            state.updateMavenServerId(ss);
-            boolean bad = !state.getMavenServerIds().contains(ss);
-            serverWarningLabel.setVisible(bad);
-            serverWarningEmptyLabel.setVisible(bad);
+            if (state.setMavenServerId(ss)) {
+                boolean bad = s!=null && !state.getMavenServerIds().contains(ss);
+                serverWarningLabel.setVisible(bad);
+                serverWarningEmptyLabel.setVisible(bad);
+            }
         }
     }
 
@@ -101,11 +101,10 @@ class InputDialog extends DialogWrapper {
      * Called whenever the user changes the AWS profile
      */
     private void updatedAwsProfile() {
-        if (profileComboBox.isEnabled()) {
-            Object s = profileComboBox.getSelectedItem();
-            if (s instanceof String) {
-                String ss = (String) s;
-                state.updateProfile(ss);
+        Object s = profileComboBox.getSelectedItem();
+        if (s instanceof String) {
+            String ss = (String) s;
+            if (state.setProfile(ss)) {
                 boolean bad = !state.getProfiles().contains(ss);
                 profileWarningLabel.setVisible(bad);
                 profileWarningEmptyLabel.setVisible(bad);
@@ -120,14 +119,13 @@ class InputDialog extends DialogWrapper {
     private void updatedRegion() {
         Object s = regionComboBox.getSelectedItem();
         if (s != null) {
-            state.updateRegion(s instanceof String ? (String) s : "");
+            state.setRegion(s instanceof String ? (String) s : "");
         }
     }
 
     private void updateConfiguration(){
         Object s = configurationComboBox.getSelectedItem();
-        if (s != null) {
-            state.setCurrentConfiguration((String) s);
+        if (s != null && state.setCurrentConfiguration((String) s)){
             domain.setText(state.getDomain());
             domainOwner.setText(state.getDomainOwner());
             setSelectedRegion(state.getRegion());
@@ -195,7 +193,8 @@ class InputDialog extends DialogWrapper {
      */
     private void reloadServersInBackground() {
         final String filename = settingsFile.getText().trim();
-        if (state.updateMavenSettingsFile(filename) || loadingServersThread == null) {
+        if (state.setMavenSettingsFile(filename) || loadingServersThread == null) {
+            String current = state.getMavenServerId();
             serverIdsModel.removeAllElements();
             if (!filename.isEmpty()) {
                 serverIdsModel.addElement(LOADING);
@@ -205,9 +204,9 @@ class InputDialog extends DialogWrapper {
                         Set<String> ids = new MavenSettingsFileHandler(filename).getServerIds(MAVEN_SERVER_USERNAME);
                         String error = ids.isEmpty()? "Maven settings file does not define any server with username 'aws'"
                                 : null;
-                        updateServersInForeground(ids, error);
+                        updateServersInForeground(current, ids, error);
                     } catch (MavenSettingsFileHandler.GetServerIdsException ex) {
-                        updateServersInForeground(new HashSet<>(), ex.getMessage());
+                        updateServersInForeground(current, new HashSet<>(), ex.getMessage());
                     }
                 });
                 loadingServersThread.start();
@@ -247,6 +246,7 @@ class InputDialog extends DialogWrapper {
             loadingProfilesThread = null;
             state.setProfiles(profiles);
             showProfileInformation();
+            profileComboBox.setEnabled(true);
             profileComboBox.requestFocus();
             if (error != null) {
                 Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
@@ -254,11 +254,12 @@ class InputDialog extends DialogWrapper {
         });
     }
 
-    private void updateServersInForeground(Set<String> serverIds, String error) {
+    private void updateServersInForeground(String originalSetting, Set<String> serverIds, String error) {
         final Thread thread = Thread.currentThread();
         SwingUtilities.invokeLater(() -> {
             if (thread == loadingServersThread) {
-                state.updateMavenServerIds(serverIds);
+                state.setMavenServerId(originalSetting);
+                state.setMavenServerIds(serverIds);
                 loadingServersThread = null;
                 showRepositoryInformation(false);
                 if (error == null) {
@@ -296,10 +297,8 @@ class InputDialog extends DialogWrapper {
 
     private void handleComboBoxChange(ComboBoxWithWidePopup check, Runnable action) {
         check.addItemListener(x -> {
-            if (x.getStateChange() == ItemEvent.SELECTED) {
-                updateGenerateCredentialsButtonState();
-                action.run();
-            }
+            updateGenerateCredentialsButtonState();
+            action.run();
         });
     }
 
@@ -335,9 +334,9 @@ class InputDialog extends DialogWrapper {
         super.init();
         regionsModel.addElement(InputDialogState.DEFAULT_PROFILE_REGION);
         state.getValidRegions().forEach(regionsModel::addElement);
-        handleTextFieldChange(awsPath, state::updateAwsPath);
-        handleTextFieldChange(domainOwner, state::updateDomainOwner);
-        handleTextFieldChange(domain, state::updateDomain);
+        handleTextFieldChange(awsPath, state::setAwsPath);
+        handleTextFieldChange(domainOwner, state::setDomainOwner);
+        handleTextFieldChange(domain, state::setDomain);
         handleComboBoxChange(serverIdComboBox, this::updatedMavenServerId);
         handleComboBoxChange(profileComboBox, this::updatedAwsProfile);
         handleComboBoxChange(regionComboBox, this::updatedRegion);
