@@ -44,13 +44,8 @@ final public class InputDialogState {
         state.awsPath = aws;
     }
 
-    public boolean setMavenServerId(String id) {
-        PluginState.Configuration config = state.getCurrentConfiguration();
-        if (Objects.equals(id, config.mavenServerId)) {
-            return false;
-        }
-        config.mavenServerId = id;
-        return true;
+    public void setMavenServerId(String id) {
+        state.getCurrentConfiguration().mavenServerId = id;
     }
 
     public void setMavenServerIds(Set<String> ids) {
@@ -115,13 +110,8 @@ final public class InputDialogState {
         return ret == null ? AWSProfileHandler.DEFAULT_PROFILE : ret;
     }
 
-    public boolean setProfile(String profile) {
-        PluginState.Configuration config = state.getCurrentConfiguration();
-        if (Objects.equals(profile, config.awsProfile)) {
-            return false;
-        }
-        config.awsProfile = profile;
-        return true;
+    public void setProfile(String profile) {
+        state.getCurrentConfiguration().awsProfile = profile;
     }
 
     public Set<String> getProfiles() {

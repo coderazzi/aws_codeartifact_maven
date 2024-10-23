@@ -87,14 +87,16 @@ class InputDialog extends DialogWrapper {
      */
     private void updatedMavenServerId() {
         Object s = serverIdComboBox.getSelectedItem();
-        if (s==null || s instanceof String) {
+        boolean bad = false;
+        if (s == null) {
+            state.setMavenServerId(null);
+        } else if (s instanceof String) {
             String ss = (String) s;
-            if (state.setMavenServerId(ss)) {
-                boolean bad = s!=null && !state.getMavenServerIds().contains(ss);
-                serverWarningLabel.setVisible(bad);
-                serverWarningEmptyLabel.setVisible(bad);
-            }
+            state.setMavenServerId(ss);
+            bad = !state.getMavenServerIds().contains(ss);
         }
+        serverWarningLabel.setVisible(bad);
+        serverWarningEmptyLabel.setVisible(bad);
     }
 
     /**
@@ -102,14 +104,14 @@ class InputDialog extends DialogWrapper {
      */
     private void updatedAwsProfile() {
         Object s = profileComboBox.getSelectedItem();
+        boolean bad = false;
         if (s instanceof String) {
             String ss = (String) s;
-            if (state.setProfile(ss)) {
-                boolean bad = !state.getProfiles().contains(ss);
-                profileWarningLabel.setVisible(bad);
-                profileWarningEmptyLabel.setVisible(bad);
-            }
+            state.setProfile(ss);
+            bad = !state.getProfiles().contains(ss);
         }
+        profileWarningLabel.setVisible(bad);
+        profileWarningEmptyLabel.setVisible(bad);
     }
 
 
@@ -151,11 +153,6 @@ class InputDialog extends DialogWrapper {
         }
         serverIdComboBox.setEnabled(false);
         serverIds.forEach(serverIdsModel::addElement);
-        if (current != null && !current.isEmpty() && !serverIds.contains(current)) {
-            serverIdsModel.addElement(current);
-        }
-        serverIdsModel.setSelectedItem(current);
-        serverIdComboBox.setEnabled(true);
         serverIdsModel.setSelectedItem(current);
         serverIdComboBox.setEnabled(true);
         updateGenerateCredentialsButtonState();
@@ -177,11 +174,7 @@ class InputDialog extends DialogWrapper {
         } else {
             String current = state.getProfile();
             profileModel.removeAllElements();
-            // next call will modify the profile, that is why we store it beforehand
             profiles.forEach(profileModel::addElement);
-            if (!profiles.contains(current)) {
-                profileModel.addElement(current);
-            }
             profileModel.setSelectedItem(current);
         }
         updateGenerateCredentialsButtonState();
@@ -353,7 +346,7 @@ class InputDialog extends DialogWrapper {
         TextFieldWithBrowseButton awsPathBrowser = new TextFieldWithBrowseButton(awsPath);
         ComponentWithBrowseButton<ComboBoxWithWidePopup> mavenServerIdWrapper =
                 new ComponentWithBrowseButton<>(serverIdComboBox, x -> reloadServersInBackground());
-        ComponentWithBrowseButton<ComboBoxWithWidePopup> awsProfileWrapper =
+        ComponentWithBrowseButton<ComboBoxWithWidePopup> profileWrapper =
                 new ComponentWithBrowseButton<>(profileComboBox, x -> reloadProfilesInBackground());
         ComponentWithBrowseButton<ComboBoxWithWidePopup> configurations =
                 new ComponentWithBrowseButton<>(configurationComboBox, x -> renameConfiguration());
@@ -386,7 +379,9 @@ class InputDialog extends DialogWrapper {
         centerPanel.add(serverWarningEmptyLabel, gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(serverWarningLabel, gridbag.next().coverLine());
         centerPanel.add(getLabel("AWS profile:"), gridbag.nextLine().next().weightx(labelsWeight));
-        centerPanel.add(awsProfileWrapper, gridbag.next().coverLine());
+        centerPanel.add(profileWrapper, gridbag.next().coverLine());
+        centerPanel.add(profileWarningEmptyLabel, gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(profileWarningLabel, gridbag.next().coverLine());
         centerPanel.add(getLabel("Region:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(regionComboBox, gridbag.next().coverLine());
         centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
@@ -405,7 +400,7 @@ class InputDialog extends DialogWrapper {
         awsPathBrowser.addBrowseFolderListener("aws Executable Location", null, null,
                 new FileChooserDescriptor(true, false, false, false, false, false));
         mavenServerIdWrapper.setButtonIcon(AllIcons.Actions.Refresh);
-        awsProfileWrapper.setButtonIcon(AllIcons.Actions.Refresh);
+        profileWrapper.setButtonIcon(AllIcons.Actions.Refresh);
         configurations.setButtonIcon(AllIcons.General.Settings);
         configurationsWrapper.setButtonIcon(AllIcons.General.Remove);
 
