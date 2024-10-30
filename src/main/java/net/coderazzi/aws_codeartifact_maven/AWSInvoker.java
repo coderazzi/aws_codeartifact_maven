@@ -17,11 +17,11 @@ class AWSInvoker {
     public static OperationOutput getCredentials(String domain,
                                                  String domainOwner,
                                                  String awsPath,
-                                                 String awsProfile,
+                                                 Object awsProfile,
                                                  String awsRegion,
                                                  Cancellable cancellable) {
         // Do not send the profile if awsProfile is null or default
-        String profile = awsProfile == null || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
+        String profile = awsProfile == null || "".equals(awsProfile) || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
                 String.format("--profile %s ", awsProfile);
         String region = awsRegion == null || awsRegion.isBlank() ||
                 awsRegion.equals(InputDialogState.DEFAULT_PROFILE_REGION) ? "" :
@@ -132,7 +132,6 @@ class AWSInvoker {
         private String getRead() {
             try {
                 String ret = byteArrayOutputStream.toString(ENCODING);
-                System.out.println("getRead=" + ret);
                 return ret;
             } catch (UnsupportedEncodingException ex) {
                 LOGGER.error(ex);

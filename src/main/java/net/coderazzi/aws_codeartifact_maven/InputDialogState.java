@@ -2,20 +2,22 @@ package net.coderazzi.aws_codeartifact_maven;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 final public class InputDialogState {
 
     public static final String DEFAULT_AWS_CLI_PATH = "aws";
     public static final String DEFAULT_PROFILE_REGION = "<default profile region>";
-    private static final String VALID_REGIONS = "ap-northeast-1,ap-south-1,ap-southeast-1,ap-southeast-2," +
-            "eu-central-1,eu-north-1,eu-south-1,eu-west-1,eu-west-2,eu-west-3,us-east-1,us-east-2,us-west-2";
+    private static final String VALID_REGIONS = // 13 regions:
+            // https://aws.amazon.com/codeartifact/faq/
+            // https://www.aws-services.info/codeartifact.html
+            "ap-northeast-1,ap-south-1,ap-southeast-1,ap-southeast-2," +
+            "eu-central-1,eu-north-1,eu-south-1,eu-west-1,eu-west-2,eu-west-3," +
+            "us-east-1,us-east-2,us-west-2";
 
     private final PluginState state;
-    private final TreeSet<String> allMavenServerIds;
-    private final TreeSet<String> allProfiles;
     private final TreeSet<String> validRegions = new TreeSet<>(Arrays.asList(VALID_REGIONS.split(",")));
 
     public static InputDialogState getInstance() {
@@ -24,43 +26,34 @@ final public class InputDialogState {
 
     private InputDialogState(PluginState state) {
         this.state = state;
-        // alas, Idea serializes TreeSets as Sets, and loads them as HashSets, so
-        // we just load the state, and convert the set to TreeSet
-        allMavenServerIds = new TreeSet<>(state.allMavenServerIds);
-        state.allMavenServerIds = allMavenServerIds;
-        allProfiles = new TreeSet<>(state.allProfiles);
-        state.allProfiles = allProfiles;
     }
 
-    public void updateDomain(String domain) {
-        state.domains.put(state.mavenServerId, domain);
+    public void setDomain(String domain) {
+        state.getCurrentConfiguration().domain = domain;
     }
 
-    public void updateRegion(String region) {
-        state.regions.put(state.mavenServerId, region);
+    public void setRegion(String region) {
+        state.getCurrentConfiguration().region = region;
     }
 
-    public void updateDomainOwner(String domainOwner) {
-        state.domainOwners.put(state.mavenServerId, domainOwner);
+    public void setDomainOwner(String domainOwner) {
+        state.getCurrentConfiguration().domainOwner = domainOwner;
     }
 
-    public void updateAwsPath(String aws) {
+    public void setAwsPath(String aws) {
         state.awsPath = aws;
     }
 
-    public void updateMavenServerId(String id) {
-        state.mavenServerId = id;
+    public void setMavenServerId(String id) {
+        state.getCurrentConfiguration().mavenServerId = id;
     }
 
-    public void updateMavenServerIds(Set<String> ids) {
-        allMavenServerIds.clear();
-        allMavenServerIds.addAll(ids);
-        if (!ids.contains(state.mavenServerId) && !allMavenServerIds.isEmpty()) {
-            state.mavenServerId = allMavenServerIds.first();
-        }
+    public void setMavenServerIds(Set<String> ids) {
+        state.allMavenServerIds.clear();
+        state.allMavenServerIds.addAll(ids);
     }
 
-    public boolean updateMavenSettingsFile(String mavenSettingsFile) {
+    public boolean setMavenSettingsFile(String mavenSettingsFile) {
         if (mavenSettingsFile.equals(state.mavenSettingsFile)) {
             return false;
         }
@@ -69,21 +62,14 @@ final public class InputDialogState {
     }
 
     public String getDomain() {
-        return getDomain("");
-    }
-
-    public String getDomain(String current) {
-        String ret = state.domains.get(state.mavenServerId);
-        return ret == null ? current : ret;
+        String ret = state.getCurrentConfiguration().domain;
+        return ret == null ? "" : ret;
     }
 
     public String getRegion() {
-        return getRegion(DEFAULT_PROFILE_REGION);
-    }
-
-    public String getRegion(String current) {
-        String ret = state.regions.get(state.mavenServerId);
-        return ret == null || (!ret.equals(DEFAULT_PROFILE_REGION) && !validRegions.contains(ret)) ? current : ret;
+        String ret = state.getCurrentConfiguration().region;
+        return ret == null || (!ret.equals(DEFAULT_PROFILE_REGION) && !validRegions.contains(ret)) ?
+                DEFAULT_PROFILE_REGION : ret;
     }
 
     public Set<String> getValidRegions() {
@@ -91,20 +77,16 @@ final public class InputDialogState {
     }
 
     public String getDomainOwner() {
-        return getDomainOwner("");
-    }
-
-    public String getDomainOwner(String current) {
-        String ret = state.domainOwners.get(state.mavenServerId);
-        return ret == null ? current : ret;
+        String ret = state.getCurrentConfiguration().domainOwner;
+        return ret == null ? "" : ret;
     }
 
     public String getMavenServerId() {
-        return state.mavenServerId;
+        return state.getCurrentConfiguration().mavenServerId;
     }
 
-    public SortedSet<String> getMavenServerIds() {
-        return allMavenServerIds;
+    public Set<String> getMavenServerIds() {
+        return state.allMavenServerIds;
     }
 
     public String getAWSPath() {
@@ -124,28 +106,12 @@ final public class InputDialogState {
     }
 
     public String getProfile() {
-        String ret = state.awsProfile;
-        if (!isValidProfile(ret)) {
-            ret = AWSProfileHandler.DEFAULT_PROFILE;
-            String awsProfile = System.getenv("AWS_PROFILE");
-            if (awsProfile != null) {
-                awsProfile = awsProfile.trim();
-                if (isValidProfile(awsProfile)) {
-                    ret = awsProfile;
-                }
-            }
-        }
-        return isValidProfile(ret) ? ret : null;
-    }
-
-    private boolean isValidProfile(String profile) {
-        return profile != null && allProfiles.contains(profile);
+        String ret = state.getCurrentConfiguration().awsProfile;
+        return ret == null ? AWSProfileHandler.DEFAULT_PROFILE : ret;
     }
 
     public void setProfile(String profile) {
-        if (state.allProfiles != null && state.allProfiles.contains(profile)) {
-            state.awsProfile = profile;
-        }
+        state.getCurrentConfiguration().awsProfile = profile;
     }
 
     public Set<String> getProfiles() {
@@ -153,9 +119,55 @@ final public class InputDialogState {
     }
 
     public void setProfiles(Set<String> profiles) {
-        allProfiles.clear();
-        allProfiles.addAll(profiles);
-        state.allProfiles = allProfiles;
+        state.allProfiles.clear();
+        state.allProfiles.addAll(profiles);
+    }
+
+    public Set<String> getConfigurationNames() {
+        return new TreeSet<>(state.configurations.keySet());
+    }
+
+    /**
+     * Returns the configuration name, or null if none has been defined
+     */
+    public String getCurrentConfiguration() {
+        return state.configuration;
+    }
+
+    public boolean setCurrentConfiguration(String name) {
+        if (Objects.equals(name, state.configurations)) {
+            return false;
+        }
+        state.configuration = name;
+        return true;
+    }
+
+    public void addConfiguration(String name) {
+        PluginState.Configuration current = state.getCurrentConfiguration();
+        PluginState.Configuration conf = new PluginState.Configuration();
+        conf.domain = current.domain;
+        conf.domainOwner = current.domainOwner;
+        conf.mavenServerId = null;
+        conf.region = current.region;
+        conf.awsProfile = current.awsProfile;
+        state.configurations.put(name, conf);
+        state.configuration = name;
+    }
+
+    public boolean renameConfiguration(String newName) {
+        if (newName.equals(state.configuration)) {
+            return false;
+        }
+        state.configurations.put(newName, state.configurations.get(state.configuration));
+        state.configurations.remove(state.configuration);
+        state.configuration = newName;
+        return true;
+    }
+
+    public String deleteConfiguration(){
+        state.configurations.remove(state.configuration);
+        state.configuration = state.configurations.keySet().iterator().next();
+        return state.configuration;
     }
 
 }
