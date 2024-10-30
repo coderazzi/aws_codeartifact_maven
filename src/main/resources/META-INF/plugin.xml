@@ -117,21 +117,28 @@
     ]]>
   </change-notes>
 
-  <idea-version since-build="173"/>
+  <idea-version since-build="223"/>
 
   <depends>com.intellij.modules.platform</depends>
 
   <extensions defaultExtensionNs="com.intellij">
-    <applicationService serviceImplementation="net.coderazzi.aws_codeartifact_maven.PluginState"/>
+    <postStartupActivity implementation="net.coderazzi.aws_codeartifact_maven.actions.StartupAction"/>
+    <applicationService serviceImplementation="net.coderazzi.aws_codeartifact_maven.settings.AppSettings"/>
+    <applicationConfigurable
+            parentId="tools"
+            instance="net.coderazzi.aws_codeartifact_maven.settings.AppSettingsConfigurable"
+            id="net.coderazzi.aws_codeartifact_maven.settings.AppSettingsConfigurable"
+            displayName="AWS CodeArtifact Maven"/>
+    <notificationGroup id="net.coderazzi" displayType="BALLOON"/>
   </extensions>
 
   <actions>
-    <action id="net.coderazzi.aws_codeartifact_maven.LaunchAction" class="net.coderazzi.aws_codeartifact_maven.LaunchAction"
-            text="Generate AWS CodeArtifact Credentials for Maven" description="Generate AWS CodeArtifact credentials for Maven"
+    <action id="net.coderazzi.aws_codeartifact_maven.actions.TriggerAction"
+            class="net.coderazzi.aws_codeartifact_maven.actions.TriggerAction"
+            text="Generate AWS CodeArtifact Credentials for Maven"
+            description="Generate AWS CodeArtifact credentials for Maven"
             icon="AllIcons.Actions.ShowWriteAccess">
       <add-to-group group-id="ToolsMenu" anchor="first"/>
-
     </action>
   </actions>
-
 </idea-plugin>
