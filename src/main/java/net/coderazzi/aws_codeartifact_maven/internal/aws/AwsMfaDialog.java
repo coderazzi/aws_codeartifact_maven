@@ -1,19 +1,19 @@
-package net.coderazzi.aws_codeartifact_maven;
+package net.coderazzi.aws_codeartifact_maven.internal.aws;
 
 import com.intellij.openapi.ui.DialogWrapper;
+import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.swing.*;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.BorderLayout;
-import java.lang.reflect.InvocationTargetException;
+class AwsMfaDialog extends DialogWrapper {
 
-class MfaDialog extends DialogWrapper {
-
-    public static final String TITLE = "AWS input request";
+    public static final String TITLE = "AWS MFA Request";
     private final JTextField mfa = new JTextField(6);
     private final String request;
 
-    public MfaDialog(String awsRequest) {
+    public AwsMfaDialog(String awsRequest) {
         super(true); // use current window as parent
         request = awsRequest;
         init();
@@ -29,34 +29,28 @@ class MfaDialog extends DialogWrapper {
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        JPanel centerPanel = new JPanel(new BorderLayout());
+        var centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(new JLabel(request), BorderLayout.WEST);
         centerPanel.add(mfa, BorderLayout.EAST);
         return centerPanel;
     }
-
 
     public String getMfaCode() {
         return mfa.getText();
     }
 
     public static String getMfaCode(final String request) throws InvocationTargetException {
-        final DialogStatus status = new DialogStatus();
+        var code = new AtomicReference<>("");
         try {
             SwingUtilities.invokeAndWait(() -> {
-                final MfaDialog dialog = new MfaDialog(request);
+                var dialog = new AwsMfaDialog(request);
                 if (dialog.showAndGet()) {
-                    status.code = dialog.getMfaCode();
+                    code.set(dialog.getMfaCode());
                 }
             });
         } catch (InterruptedException ex) {
-            // being terminated, logging anything would help no one...
+            Thread.currentThread().interrupt();
         }
-        return status.code;
+        return code.get();
     }
-
-    private static class DialogStatus {
-        public String code;
-    }
-
 }

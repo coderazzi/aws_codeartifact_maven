@@ -7,8 +7,16 @@ plugins {
 group = "net.coderazzi"
 version = "3.3.0"
 
+val junitVersion = "5.11.3"
+
 repositories {
   mavenCentral()
+}
+
+dependencies {
+  testImplementation(platform("org.junit:junit-bom:$junitVersion"))
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 // Configure Gradle IntelliJ Plugin
@@ -43,5 +51,9 @@ tasks {
 
   publishPlugin {
     token.set(System.getenv("PUBLISH_TOKEN"))
+  }
+
+  test {
+    useJUnitPlatform()
   }
 }
