@@ -9,6 +9,7 @@ import com.intellij.openapi.vcs.VcsShowConfirmationOption;
 import com.intellij.ui.ColorUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.TitledSeparator;
+import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.AbstractLayout;
 import com.intellij.util.ui.*;
@@ -19,15 +20,15 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.intellij.util.ui.JBUI.Borders.empty;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 class InputDialog extends DialogWrapper {
 
     public static final String COMPONENT_TITLE = "CodeArtifact + Maven";
@@ -46,8 +47,8 @@ class InputDialog extends DialogWrapper {
     private final ComboBoxWithWidePopup regionComboBox = new ComboBoxWithWidePopup(regionsModel);
     private final ComboBoxWithWidePopup serverIdComboBox = new ComboBoxWithWidePopup(serverIdsModel);
     private final ComboBoxWithWidePopup profileComboBox = new ComboBoxWithWidePopup(profileModel);
+    private final JBCheckBox generateAllCheckbox = new JBCheckBox("Generate for all enabled configurations");
 
-    private final JButton configurationCreateButton = new JButton("Create new configuration");
     private final JBLabel serverWarningLabel, serverWarningEmptyLabel;
     private final JBLabel profileWarningLabel, profileWarningEmptyLabel;
 
@@ -90,10 +91,9 @@ class InputDialog extends DialogWrapper {
         boolean bad = false;
         if (s == null) {
             state.setMavenServerId(null);
-        } else if (s instanceof String) {
-            String ss = (String) s;
-            state.setMavenServerId(ss);
-            bad = !state.getMavenServerIds().contains(ss);
+        } else if (s instanceof String serverId) {
+            state.setMavenServerId(serverId);
+            bad = !state.getMavenServerIds().contains(serverId);
         }
         serverWarningLabel.setVisible(bad);
         serverWarningEmptyLabel.setVisible(bad);
@@ -105,10 +105,9 @@ class InputDialog extends DialogWrapper {
     private void updatedAwsProfile() {
         Object s = profileComboBox.getSelectedItem();
         boolean bad = false;
-        if (s instanceof String) {
-            String ss = (String) s;
-            state.setProfile(ss);
-            bad = !state.getProfiles().contains(ss);
+        if (s instanceof String profile) {
+            state.setProfile(profile);
+            bad = !state.getProfiles().contains(profile);
         }
         profileWarningLabel.setVisible(bad);
         profileWarningEmptyLabel.setVisible(bad);
@@ -314,7 +313,7 @@ class InputDialog extends DialogWrapper {
         if (ConfirmationDialog.requestForConfirmation(VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION,
                 project,
                 "Are you sure to delete this configuration",
-                "Delete configration",
+                "Delete Configuration",
                 AllIcons.General.QuestionDialog)
         ) {
             state.deleteConfiguration();
@@ -334,9 +333,17 @@ class InputDialog extends DialogWrapper {
         handleComboBoxChange(profileComboBox, this::updatedAwsProfile);
         handleComboBoxChange(regionComboBox, this::updatedRegion);
         handleComboBoxChange(configurationComboBox, this::updateConfiguration);
-        configurationCreateButton.addActionListener(this::createConfiguration);
         showConfigurationInformation(true);
     }
+
+//    protected @NotNull JPanel createButtonsPanel(@NotNull List<? extends JButton> buttons) {
+//        JPanel inherited = super.createButtonsPanel(buttons);
+//        JPanel ret =new JPanel(new BorderLayout(16, 0));
+//        ret.add(inherited, BorderLayout.EAST);
+//        ret.add(generateAllCheckbox, BorderLayout.WEST);
+//        return ret;
+//    }
+
 
     @Nullable
     @Override
@@ -350,8 +357,10 @@ class InputDialog extends DialogWrapper {
                 new ComponentWithBrowseButton<>(profileComboBox, x -> reloadProfilesInBackground());
         ComponentWithBrowseButton<ComboBoxWithWidePopup> configurations =
                 new ComponentWithBrowseButton<>(configurationComboBox, x -> renameConfiguration());
-        ComponentWithBrowseButton<ComponentWithBrowseButton<ComboBoxWithWidePopup>> configurationsWrapper =
+        ComponentWithBrowseButton<ComponentWithBrowseButton> configurationsWithRemove =
                 new ComponentWithBrowseButton<>(configurations, this::deleteConfiguration);
+        ComponentWithBrowseButton<ComponentWithBrowseButton> configurationsWithAdd =
+                new ComponentWithBrowseButton<>(configurationsWithRemove, this::createConfiguration);
 
         double labelsWeight = 2.0;
 
@@ -360,14 +369,10 @@ class InputDialog extends DialogWrapper {
                 .setDefaultFill(GridBagConstraints.HORIZONTAL)
                 .setDefaultInsets(JBUI.insets(0, 0, AbstractLayout.DEFAULT_VGAP, AbstractLayout.DEFAULT_HGAP));
 
-        JPanel repositoriesButtonsPanel = new JPanel(new BorderLayout());
-        repositoriesButtonsPanel.add(configurationCreateButton, BorderLayout.EAST);
-
         JPanel centerPanel = new JPanel(new GridBagLayout());
-        centerPanel.add(new TitledSeparator("Configurations"), gridbag.nextLine().coverLine());
+        centerPanel.add(new TitledSeparator("Repository Configurations"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("Configuration name:"), gridbag.nextLine().next().weightx(labelsWeight));
-        centerPanel.add(configurationsWrapper, gridbag.next().coverLine());
-        centerPanel.add(repositoriesButtonsPanel, gridbag.nextLine().coverLine());
+        centerPanel.add(configurationsWithAdd, gridbag.next().coverLine());
         centerPanel.add(new TitledSeparator("Repository Info"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("Domain:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(domain, gridbag.next().coverLine());
@@ -402,7 +407,11 @@ class InputDialog extends DialogWrapper {
         mavenServerIdWrapper.setButtonIcon(AllIcons.Actions.Refresh);
         profileWrapper.setButtonIcon(AllIcons.Actions.Refresh);
         configurations.setButtonIcon(AllIcons.General.Settings);
-        configurationsWrapper.setButtonIcon(AllIcons.General.Remove);
+        configurations.setToolTipText("Rename configuration");
+        configurationsWithRemove.setButtonIcon(AllIcons.General.Remove);
+        configurations.setToolTipText("Delete configuration (with confirmation)");
+        configurationsWithAdd.setButtonIcon(AllIcons.General.Add);
+        configurations.setToolTipText("Create new configuration");
 
         JPanel ret = new JPanel(new BorderLayout(24, 0));
         ret.add(centerPanel, BorderLayout.CENTER);
@@ -445,11 +454,6 @@ class InputDialog extends DialogWrapper {
 
     private boolean checkHasSelection(ComboBoxWithWidePopup check) {
         return check.isEnabled() && check.getSelectedItem() != null;
-    }
-
-    private String getSelectedRegion() {
-        Object ret = regionComboBox.getSelectedItem();
-        return ret == null ? InputDialogState.DEFAULT_PROFILE_REGION : ret.toString();
     }
 
     private void setSelectedRegion(String s) {
