@@ -9,7 +9,6 @@ import com.intellij.openapi.vcs.VcsShowConfirmationOption;
 import com.intellij.ui.ColorUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.TitledSeparator;
-import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.AbstractLayout;
 import com.intellij.util.ui.*;
@@ -47,7 +46,7 @@ class InputDialog extends DialogWrapper {
     private final ComboBoxWithWidePopup regionComboBox = new ComboBoxWithWidePopup(regionsModel);
     private final ComboBoxWithWidePopup serverIdComboBox = new ComboBoxWithWidePopup(serverIdsModel);
     private final ComboBoxWithWidePopup profileComboBox = new ComboBoxWithWidePopup(profileModel);
-    private final JBCheckBox generateAllCheckbox = new JBCheckBox("Generate for all enabled configurations");
+    private final JButton generateAllButton = new JButton("Generate Tokens for all configurations");
 
     private final JBLabel serverWarningLabel, serverWarningEmptyLabel;
     private final JBLabel profileWarningLabel, profileWarningEmptyLabel;
@@ -73,9 +72,9 @@ class InputDialog extends DialogWrapper {
         profileWarningLabel.setVisible(false);
         profileWarningEmptyLabel.setVisible(false);
         init();
-        setTitle("Generate AWS CodeArtifact Credentials");
+        setTitle("Generate AWS CodeArtifact Auth Tokens");
         setAutoAdjustable(true);
-        setOKButtonText("Generate Credentials");
+        setOKButtonText("Generate Token");
         setCancelButtonText("Close");
     }
 
@@ -340,10 +339,9 @@ class InputDialog extends DialogWrapper {
 //        JPanel inherited = super.createButtonsPanel(buttons);
 //        JPanel ret =new JPanel(new BorderLayout(16, 0));
 //        ret.add(inherited, BorderLayout.EAST);
-//        ret.add(generateAllCheckbox, BorderLayout.WEST);
+//        ret.add(generateAllButton, BorderLayout.WEST);
 //        return ret;
 //    }
-
 
     @Nullable
     @Override

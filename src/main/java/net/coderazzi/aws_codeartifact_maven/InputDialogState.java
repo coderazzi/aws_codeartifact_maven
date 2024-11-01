@@ -150,6 +150,7 @@ final public class InputDialogState {
         conf.mavenServerId = null;
         conf.region = current.region;
         conf.awsProfile = current.awsProfile;
+        conf.enabled = true;
         state.configurations.put(name, conf);
         state.configuration = name;
     }

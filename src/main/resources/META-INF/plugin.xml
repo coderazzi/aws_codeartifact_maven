@@ -5,7 +5,7 @@
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
-    <h1>Support to update AWS CodeArtifact credentials on maven projects.</h1>
+    <h1>Support to update AWS CodeArtifact Auth Token on maven projects.</h1>
 
     <p>This plugin facilitates accessing and deploying artifacts in CodeArtifact on Maven Intellij Idea projects.</p>
 
@@ -54,7 +54,7 @@
 </pre>
 
     <p><b>CodeArtifact-Maven Idea plugin</b> does exactly this simple task. Note that there is an AWS-supported
-    AWS plugin, but it does not cover getting credentials for CodeArtifact</p>
+    AWS plugin, but it does not cover getting auth tokens for CodeArtifact</p>
 
    <h2>Installation</h2>
 
@@ -62,7 +62,7 @@
 
    <h2>Usage</h2>
 
-    <p>After installation, a menu entry appear under Tools: <b>Generate AWS CodeArtifact credentials for Maven</b></p>
+    <p>After installation, a menu entry appear under Tools: <b>Generate AWS CodeArtifact Auth Token for Maven</b></p>
 
     <p>When selected, a window appears to enter the required details:</p>
     <ul>
@@ -70,7 +70,7 @@
      <li><b>Domain Owner</b>: the account owner, something like 023174738914</li>
      <li><b>Maven server id</b>: the server name provided in your maven settings file -as following the instructions from AWS-.
         This is a value obtained already from the maven settings file, using all servers whose username is <b>aws</b></li>
-     <li><b>AWS profile</b>: the profile to use to obtain the credentials, obtained from any of the files
+     <li><b>AWS profile</b>: the profile to use to obtain the auth tokens, read from any of the files
       &lt;USER-HOME&gt;/.aws/config, &lt;USER-HOME&gt;/.aws/credentials, &lt;AWS_CONFIG_FILE&gt;,
       &lt;AWS_SHARED_CREDENTIALS_FILE&gt;</li>
      <li><b>Region</b>: the target region. If specified, it overrides the region given by the profile -if any-</li>
@@ -78,7 +78,7 @@
      <li><b>AWS cli path</b>: where to find the <b>aws</b> executable</li>
     </ul>
 
-    <p>The button Generate credentials will initiate the requests of a token to AWS and its inclusion in the maven settings file</p>
+    <p>The button Generate Auth Token will initiate the requests of a token to AWS and its inclusion in the maven settings file</p>
 
 
     <h2>MFA support</h2>
@@ -127,7 +127,7 @@
 
   <actions>
     <action id="net.coderazzi.aws_codeartifact_maven.LaunchAction" class="net.coderazzi.aws_codeartifact_maven.LaunchAction"
-            text="Generate AWS CodeArtifact Credentials for Maven" description="Generate AWS CodeArtifact credentials for Maven"
+            text="Generate AWS CodeArtifact Auth Tokens for Maven" description="Generate AWS CodeArtifact Auth Tokens for Maven"
             icon="AllIcons.Actions.ShowWriteAccess">
       <add-to-group group-id="ToolsMenu" anchor="first"/>
 

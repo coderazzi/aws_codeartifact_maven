@@ -26,6 +26,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
         public String region;
         public String domain;
         public String domainOwner;
+        public boolean enabled;
     }
 
     public static PluginState getInstance() {
@@ -66,7 +67,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
         if (regions == null) regions = new HashMap<>();
         if (domainOwners == null) domainOwners = new HashMap<>();
         if (version == 0) {
-            // migrating from old PropertiesComponent persistence
+            // migrating from old PropertiesComponent persistence. This is really old, deprecate it??
             PropertiesComponent properties = PropertiesComponent.getInstance();
             mavenSettingsFile = getAndCleanPropertiesComponentProperty(properties, "mavenSettingsFile");
             awsPath = getAndCleanPropertiesComponentProperty(properties, "awsPath");
@@ -86,11 +87,14 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
                 awsProfile = AWSProfileHandler.DEFAULT_PROFILE;
             }
         }
-        version = CURRENT_VERSION;
         if (configurations == null || configurations.isEmpty()) {
+            // migrating from old versions, where configurations where not defined
+            // or new installation
             configurations = new HashMap<>();
             if (allMavenServerIds.isEmpty()){
-                configurations.put(DEFAULT_CONFIGURATION_NAME, new Configuration());
+                Configuration conf = new Configuration();
+                conf.enabled = true;
+                configurations.put(DEFAULT_CONFIGURATION_NAME, conf);
                 configuration = DEFAULT_CONFIGURATION_NAME;
             } else {
                 for (String id : allMavenServerIds) {
@@ -107,6 +111,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
                 } else {
                     configuration = configurations.keySet().iterator().next();
                 }
+                configurations.get(configuration).enabled = true;
             }
             // remove next fields from configuration
             mavenServerId=null;
@@ -117,6 +122,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
         } else if (!configurations.containsKey(configuration)) {
             configuration = configurations.keySet().iterator().next();
         }
+        version = CURRENT_VERSION;
         return this;
     }
 

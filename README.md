@@ -52,7 +52,7 @@ does not cover getting credentials for CodeArtifact
 
 ## Usage
 
-After installation, a menu entry appear under Tools: **Generate AWS CodeArtifact credentials for Maven**
+After installation, a menu entry appear under Tools: **Generate AWS CodeArtifact Auth Token for Maven**
 
 When selected, a window appears to enter the required details:
 
@@ -60,14 +60,14 @@ When selected, a window appears to enter the required details:
 * **Domain Owner**: the account owner, something like 023174738914
 * **Maven server id**: the server name provided in your maven settings file -as following the instructions from AWS-.
   This is a value obtained already from the maven settings file, using all servers whose username is **aws**
-* **AWS profile**: the profile to use to obtain the credentials, obtained from any of the files
+* **AWS profile**: the profile to use to obtain the auth token, read from any of the files
   &lt;USER-HOME&gt;/.aws/config, &lt;USER-HOME&gt;/.aws/credentials, &lt;AWS_CONFIG_FILE&gt;,
   &lt;AWS_SHARED_CREDENTIALS_FILE&gt;
 * **Region**: the target region. If specified, it overrides the region given by the profile -if any-
 * **Maven settings file**: the location of the maven settings file, usually under ~/.m2
 * **AWS cli path**: the location of the aws executable, cabe specified as **aws** if it can be found in the path
 
-The button Generate credentials will initiate the requests of a token to AWS and its inclusion in the maven settings
+The button Generate Auth Token will initiate the requests of a token to AWS and its inclusion in the maven settings
 file
 
 ## MFA support

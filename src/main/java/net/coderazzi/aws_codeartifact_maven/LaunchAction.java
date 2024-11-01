@@ -39,7 +39,7 @@ public class LaunchAction extends AnAction {
                                 }
                             });
                         }
-                    }, "Generating Credentials", true, project);
+                    }, "Generating Auth Token", true, project);
         }
     }
 
@@ -52,7 +52,7 @@ public class LaunchAction extends AnAction {
         MavenSettingsFileHandler mavenSettingsFileHandler = new MavenSettingsFileHandler(mavenSettingsFile);
         OperationOutput taskOutput = mavenSettingsFileHandler.locateServer(mavenServerId);
         if (taskOutput.ok && !progressIndicator.isCanceled()) {
-            progressIndicator.setText("Obtaining AWS credentials");
+            progressIndicator.setText("Obtaining AWS Auth Token");
             taskOutput = AWSInvoker.getCredentials(domain, domainOwner, awsPath, awsProfile, awsRegion,
                     progressIndicator::isCanceled);
             if (taskOutput != null && taskOutput.ok && !progressIndicator.isCanceled()) {
@@ -71,7 +71,7 @@ public class LaunchAction extends AnAction {
      */
     private boolean showResults(Project project, OperationOutput output) {
         if (output.ok) {
-            Messages.showMessageDialog(project, "Credentials updated", InputDialog.COMPONENT_TITLE,
+            Messages.showMessageDialog(project, "Auth token updated", InputDialog.COMPONENT_TITLE,
                     Messages.getInformationIcon());
         } else {
             Messages.showErrorDialog(project, output.output, InputDialog.COMPONENT_TITLE);
