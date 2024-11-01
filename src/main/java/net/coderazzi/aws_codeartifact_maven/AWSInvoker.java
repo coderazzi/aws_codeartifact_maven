@@ -14,12 +14,12 @@ class AWSInvoker {
         boolean isCancelled();
     }
 
-    public static OperationOutput getCredentials(String domain,
-                                                 String domainOwner,
-                                                 String awsPath,
-                                                 Object awsProfile,
-                                                 String awsRegion,
-                                                 Cancellable cancellable) {
+    public static OperationOutput getAuthToken(String domain,
+                                               String domainOwner,
+                                               String awsPath,
+                                               Object awsProfile,
+                                               String awsRegion,
+                                               Cancellable cancellable) {
         // Do not send the profile if awsProfile is null or default
         String profile = awsProfile == null || "".equals(awsProfile) || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
                 String.format("--profile %s ", awsProfile);
@@ -131,8 +131,7 @@ class AWSInvoker {
 
         private String getRead() {
             try {
-                String ret = byteArrayOutputStream.toString(ENCODING);
-                return ret;
+                return byteArrayOutputStream.toString(ENCODING);
             } catch (UnsupportedEncodingException ex) {
                 LOGGER.error(ex);
                 return "";

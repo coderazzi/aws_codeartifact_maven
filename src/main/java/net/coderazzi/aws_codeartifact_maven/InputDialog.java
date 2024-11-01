@@ -9,6 +9,7 @@ import com.intellij.openapi.vcs.VcsShowConfirmationOption;
 import com.intellij.ui.ColorUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.TitledSeparator;
+import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.AbstractLayout;
 import com.intellij.util.ui.*;
@@ -19,8 +20,10 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -52,6 +55,7 @@ class InputDialog extends DialogWrapper {
 
     private final JTextField settingsFile = new JTextField(32);
     private final JTextField awsPath = new JTextField(32);
+    private final JBCheckBox enabledCheckbox = new JBCheckBox();
     private Thread loadingServersThread, loadingProfilesThread;
     private final InputDialogState state;
     private final Project project;
@@ -71,9 +75,9 @@ class InputDialog extends DialogWrapper {
         profileWarningLabel.setVisible(false);
         profileWarningEmptyLabel.setVisible(false);
         init();
-        setTitle("Generate AWS CodeArtifact Auth Tokens");
+        setTitle("AWS CodeArtifact Auth Tokens Generation");
         setAutoAdjustable(true);
-        setOKButtonText("Generate Token");
+        setOKButtonText("Generate Auth Token");
         setCancelButtonText("Close");
     }
 
@@ -124,7 +128,9 @@ class InputDialog extends DialogWrapper {
 
     private void updateConfiguration(){
         Object s = configurationComboBox.getSelectedItem();
-        if (s != null && state.setCurrentConfiguration((String) s)){
+        if (s != null){
+            state.setCurrentConfiguration(s.toString());
+            enabledCheckbox.setSelected(state.isConfigurationEnabled());
             domain.setText(state.getDomain());
             domainOwner.setText(state.getDomainOwner());
             setSelectedRegion(state.getRegion());
@@ -152,7 +158,8 @@ class InputDialog extends DialogWrapper {
         serverIds.forEach(serverIdsModel::addElement);
         serverIdsModel.setSelectedItem(current);
         serverIdComboBox.setEnabled(true);
-        updateGenerateCredentialsButtonState();
+        generateAllButton.setVisible(state.isMultipleGenerationEnabled());
+        updateGenerationButtonState();
     }
 
     private void showConfigurationInformation(boolean reloadServersIfNeeded) {
@@ -174,7 +181,7 @@ class InputDialog extends DialogWrapper {
             profiles.forEach(profileModel::addElement);
             profileModel.setSelectedItem(current);
         }
-        updateGenerateCredentialsButtonState();
+        updateGenerationButtonState();
     }
 
     /**
@@ -261,7 +268,7 @@ class InputDialog extends DialogWrapper {
         });
     }
 
-    private void updateGenerateCredentialsButtonState() {
+    private void updateGenerationButtonState() {
         JButton ok = getButton((getOKAction()));
         if (ok != null) {
             ok.setEnabled(checkNonEmpty(domain)
@@ -279,7 +286,7 @@ class InputDialog extends DialogWrapper {
         check.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent documentEvent) {
-                updateGenerateCredentialsButtonState();
+                updateGenerationButtonState();
                 action.accept(check.getText().trim());
             }
         });
@@ -287,7 +294,7 @@ class InputDialog extends DialogWrapper {
 
     private void handleComboBoxChange(ComboBoxWithWidePopup check, Runnable action) {
         check.addItemListener(x -> {
-            updateGenerateCredentialsButtonState();
+            updateGenerationButtonState();
             action.run();
         });
     }
@@ -331,16 +338,20 @@ class InputDialog extends DialogWrapper {
         handleComboBoxChange(profileComboBox, this::updatedAwsProfile);
         handleComboBoxChange(regionComboBox, this::updatedRegion);
         handleComboBoxChange(configurationComboBox, this::updateConfiguration);
+        enabledCheckbox.addItemListener(this::updateEnableConfiguration);
         showConfigurationInformation(true);
     }
 
-//    protected @NotNull JPanel createButtonsPanel(@NotNull List<? extends JButton> buttons) {
-//        JPanel inherited = super.createButtonsPanel(buttons);
-//        JPanel ret =new JPanel(new BorderLayout(16, 0));
-//        ret.add(inherited, BorderLayout.EAST);
-//        ret.add(generateAllButton, BorderLayout.WEST);
-//        return ret;
-//    }
+    private void updateEnableConfiguration(ItemEvent e) {
+        state.setConfigurationEnabled(enabledCheckbox.isSelected());
+        generateAllButton.setVisible(state.isMultipleGenerationEnabled());
+
+    }
+
+    protected @NotNull JPanel createButtonsPanel(@NotNull List buttons) {
+        buttons.add(0, generateAllButton);
+        return super.createButtonsPanel(buttons);
+    }
 
     @Nullable
     @Override
@@ -368,8 +379,10 @@ class InputDialog extends DialogWrapper {
 
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.add(new TitledSeparator("Repository Configurations"), gridbag.nextLine().coverLine());
-        centerPanel.add(getLabel("Configuration name:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(getLabel("Configuration:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(configurationsWithAdd, gridbag.next().coverLine());
+        centerPanel.add(getLabel("Enabled"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(enabledCheckbox, gridbag.next().coverLine());
         centerPanel.add(new TitledSeparator("Repository Info"), gridbag.nextLine().coverLine());
         centerPanel.add(getLabel("Domain:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(domain, gridbag.next().coverLine());

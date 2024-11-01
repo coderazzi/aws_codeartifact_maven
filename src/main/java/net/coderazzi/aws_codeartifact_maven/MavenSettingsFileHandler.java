@@ -115,12 +115,12 @@ class MavenSettingsFileHandler {
         return ret;
     }
 
-    public OperationOutput setPassword(String awsCredential) {//throws TransformerException, IOException {
+    public OperationOutput setPassword(String authToken) {//throws TransformerException, IOException {
         OperationOutput ret = new OperationOutput();
         if (xmlPasswordElement == null) {
             ret.output = "Cannot replace auth token";
         } else {
-            xmlPasswordElement.setTextContent(awsCredential);
+            xmlPasswordElement.setTextContent(authToken);
 
             TransformerFactory tFactory = TransformerFactory.newInstance();
             try {

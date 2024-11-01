@@ -2,7 +2,6 @@ package net.coderazzi.aws_codeartifact_maven;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -105,6 +104,14 @@ final public class InputDialogState {
         return ret;
     }
 
+    public boolean isConfigurationEnabled() {
+        return Boolean.TRUE.equals(state.getCurrentConfiguration().enabled);
+    }
+
+    public void setConfigurationEnabled(boolean enabled) {
+        state.getCurrentConfiguration().enabled = enabled;
+    }
+
     public String getProfile() {
         String ret = state.getCurrentConfiguration().awsProfile;
         return ret == null ? AWSProfileHandler.DEFAULT_PROFILE : ret;
@@ -127,6 +134,14 @@ final public class InputDialogState {
         return new TreeSet<>(state.configurations.keySet());
     }
 
+    public boolean isMultipleGenerationEnabled() {
+        System.out.println("Asked for isConfigurationEnabled for configuration " + state.configuration + " / " +
+                state.getCurrentConfiguration().enabled + " / " +
+                Boolean.TRUE.equals(state.getCurrentConfiguration().enabled)
+        );
+        return state.configurations.size() > 1 && state.configurations.values().stream().anyMatch(x->x.enabled);
+    }
+
     /**
      * Returns the configuration name, or null if none has been defined
      */
@@ -134,12 +149,8 @@ final public class InputDialogState {
         return state.configuration;
     }
 
-    public boolean setCurrentConfiguration(String name) {
-        if (Objects.equals(name, state.configuration)) {
-            return false;
-        }
+    public void setCurrentConfiguration(String name) {
         state.configuration = name;
-        return true;
     }
 
     public void addConfiguration(String name) {

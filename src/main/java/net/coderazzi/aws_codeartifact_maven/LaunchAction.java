@@ -53,12 +53,11 @@ public class LaunchAction extends AnAction {
         OperationOutput taskOutput = mavenSettingsFileHandler.locateServer(mavenServerId);
         if (taskOutput.ok && !progressIndicator.isCanceled()) {
             progressIndicator.setText("Obtaining AWS Auth Token");
-            taskOutput = AWSInvoker.getCredentials(domain, domainOwner, awsPath, awsProfile, awsRegion,
+            taskOutput = AWSInvoker.getAuthToken(domain, domainOwner, awsPath, awsProfile, awsRegion,
                     progressIndicator::isCanceled);
             if (taskOutput != null && taskOutput.ok && !progressIndicator.isCanceled()) {
                 progressIndicator.setText("Updating settings file");
-                String credentials = taskOutput.output;
-                taskOutput = mavenSettingsFileHandler.setPassword(credentials);
+                taskOutput = mavenSettingsFileHandler.setPassword(taskOutput.output);
             }
         }
         return progressIndicator.isCanceled() ? null : taskOutput;

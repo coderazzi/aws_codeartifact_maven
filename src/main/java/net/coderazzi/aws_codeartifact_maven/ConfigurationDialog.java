@@ -8,8 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 class ConfigurationDialog extends DialogWrapper {
@@ -49,7 +47,7 @@ class ConfigurationDialog extends DialogWrapper {
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        JPanel centerPanel = new JPanel(new BorderLayout(12, 0)); //12 pixels gap
+        JPanel centerPanel = new JPanel(new BorderLayout(12, 0));
         centerPanel.add(new JLabel("Configuration name:"), BorderLayout.WEST);
         centerPanel.add(text, BorderLayout.EAST);
         return centerPanel;

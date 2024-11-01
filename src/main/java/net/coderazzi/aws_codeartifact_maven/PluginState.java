@@ -17,7 +17,7 @@ import java.util.TreeSet;
         storages = @Storage("aws_codeartifact_maven.xml"))//, roamingType = RoamingType.DISABLED))
 final public class PluginState implements PersistentStateComponent<PluginState> {
 
-    public static final int CURRENT_VERSION = 6;
+    public static final int CURRENT_VERSION = 7;
     public static final String DEFAULT_CONFIGURATION_NAME = "main";
 
     public static class Configuration {
@@ -26,7 +26,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
         public String region;
         public String domain;
         public String domainOwner;
-        public boolean enabled;
+        public Boolean enabled;
     }
 
     public static PluginState getInstance() {
