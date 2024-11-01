@@ -135,7 +135,7 @@ final public class InputDialogState {
     }
 
     public boolean setCurrentConfiguration(String name) {
-        if (Objects.equals(name, state.configurations)) {
+        if (Objects.equals(name, state.configuration)) {
             return false;
         }
         state.configuration = name;
@@ -165,10 +165,9 @@ final public class InputDialogState {
         return true;
     }
 
-    public String deleteConfiguration(){
+    public void deleteConfiguration(){
         state.configurations.remove(state.configuration);
         state.configuration = state.configurations.keySet().iterator().next();
-        return state.configuration;
     }
 
 }
