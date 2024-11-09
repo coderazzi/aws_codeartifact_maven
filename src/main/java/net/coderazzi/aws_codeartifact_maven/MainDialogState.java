@@ -94,7 +94,7 @@ final public class MainDialogState {
     }
 
     public boolean isGenerateForAll(){
-        return Boolean.TRUE.equals(state.generateForAll);
+        return state.generateForAll;
     }
 
     public void setGenerateForAll(boolean generateForAll) {
@@ -113,7 +113,7 @@ final public class MainDialogState {
     }
 
     public boolean isConfigurationEnabled() {
-        return Boolean.TRUE.equals(state.getCurrentConfiguration().enabled);
+        return state.getCurrentConfiguration().enabled;
     }
 
     public void setConfigurationEnabled(boolean enabled) {
@@ -151,7 +151,7 @@ final public class MainDialogState {
                 state.getCurrentConfiguration().enabled + " / " +
                 Boolean.TRUE.equals(state.getCurrentConfiguration().enabled)
         );
-        return state.configurations.size() > 1 && state.configurations.values().stream().anyMatch(x->Boolean.TRUE.equals(x.enabled));
+        return state.configurations.size() > 1 && state.configurations.values().stream().anyMatch(x->x.enabled);
     }
 
     /**
