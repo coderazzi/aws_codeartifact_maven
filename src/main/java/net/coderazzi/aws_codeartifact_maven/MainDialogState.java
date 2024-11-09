@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
-final public class InputDialogState {
+final public class MainDialogState {
 
     public static final String DEFAULT_AWS_CLI_PATH = "aws";
     public static final String DEFAULT_PROFILE_REGION = "<default profile region>";
@@ -19,11 +19,11 @@ final public class InputDialogState {
     private final PluginState state;
     private final TreeSet<String> validRegions = new TreeSet<>(Arrays.asList(VALID_REGIONS.split(",")));
 
-    public static InputDialogState getInstance() {
-        return new InputDialogState(PluginState.getInstance());
+    public static MainDialogState getInstance() {
+        return new MainDialogState(PluginState.getInstance());
     }
 
-    private InputDialogState(PluginState state) {
+    private MainDialogState(PluginState state) {
         this.state = state;
     }
 
@@ -91,6 +91,14 @@ final public class InputDialogState {
     public String getAWSPath() {
         String ret = state.awsPath;
         return ret.trim().isEmpty() ? DEFAULT_AWS_CLI_PATH : ret;
+    }
+
+    public boolean isGenerateForAll(){
+        return Boolean.TRUE.equals(state.generateForAll);
+    }
+
+    public void setGenerateForAll(boolean generateForAll) {
+        state.generateForAll = generateForAll;
     }
 
     public String getMavenServerSettingsFile() {

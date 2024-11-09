@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 import static com.intellij.util.ui.JBUI.Borders.empty;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-class InputDialog extends DialogWrapper {
+class MainDialog extends DialogWrapper {
 
     public static final String COMPONENT_TITLE = "CodeArtifact + Maven";
     private static final String MAVEN_SERVER_USERNAME = "aws";
@@ -48,7 +48,7 @@ class InputDialog extends DialogWrapper {
     private final ComboBoxWithWidePopup regionComboBox = new ComboBoxWithWidePopup(regionsModel);
     private final ComboBoxWithWidePopup serverIdComboBox = new ComboBoxWithWidePopup(serverIdsModel);
     private final ComboBoxWithWidePopup profileComboBox = new ComboBoxWithWidePopup(profileModel);
-    private final JButton generateAllButton = new JButton("Generate Tokens for all configurations");
+    private final JBCheckBox generateAllCheckBox = new JBCheckBox("Generate Tokens for all configurations");
 
     private final JBLabel serverWarningLabel, serverWarningEmptyLabel;
     private final JBLabel profileWarningLabel, profileWarningEmptyLabel;
@@ -57,15 +57,15 @@ class InputDialog extends DialogWrapper {
     private final JTextField awsPath = new JTextField(32);
     private final JBCheckBox enabledCheckbox = new JBCheckBox();
     private Thread loadingServersThread, loadingProfilesThread;
-    private final InputDialogState state;
+    private final MainDialogState state;
     private final Project project;
 
     private ComponentWithBrowseButton<ComponentWithBrowseButton> removeConfigurationsComponent;
 
-    public InputDialog(Project project) {
+    public MainDialog(Project project) {
         super(true); // use current window as parent
         this.project = project;
-        state = InputDialogState.getInstance();
+        state = MainDialogState.getInstance();
         serverWarningLabel = getLabel("invalid server id, not found in settings file");
         serverWarningEmptyLabel = getLabel("");
         serverWarningLabel.setIcon(AllIcons.General.Error);
@@ -83,8 +83,11 @@ class InputDialog extends DialogWrapper {
         setCancelButtonText("Close");
     }
 
-    public InputDialogState getState() {
-        return state;
+    @Override
+    protected void doOKAction() {
+        if (this.getOKAction().isEnabled()) {
+            new GenerationDialog(project, state, true).show();
+        }
     }
 
     /**
@@ -116,7 +119,6 @@ class InputDialog extends DialogWrapper {
         profileWarningLabel.setVisible(bad);
         profileWarningEmptyLabel.setVisible(bad);
     }
-
 
     /**
      * Called whenever the user changes the region
@@ -160,7 +162,7 @@ class InputDialog extends DialogWrapper {
         serverIds.forEach(serverIdsModel::addElement);
         serverIdsModel.setSelectedItem(current);
         serverIdComboBox.setEnabled(true);
-        generateAllButton.setVisible(state.isMultipleGenerationEnabled());
+        generateAllCheckBox.setEnabled(state.isMultipleGenerationEnabled());
         removeConfigurationsComponent.setButtonEnabled(state.hasMultipleConfigurations());
         updateGenerationButtonState();
     }
@@ -332,7 +334,7 @@ class InputDialog extends DialogWrapper {
     @Override
     protected void init() {
         super.init();
-        regionsModel.addElement(InputDialogState.DEFAULT_PROFILE_REGION);
+        regionsModel.addElement(MainDialogState.DEFAULT_PROFILE_REGION);
         state.getValidRegions().forEach(regionsModel::addElement);
         handleTextFieldChange(awsPath, state::setAwsPath);
         handleTextFieldChange(domainOwner, state::setDomainOwner);
@@ -342,18 +344,26 @@ class InputDialog extends DialogWrapper {
         handleComboBoxChange(regionComboBox, this::updatedRegion);
         handleComboBoxChange(configurationComboBox, this::updateConfiguration);
         enabledCheckbox.addItemListener(this::updateEnableConfiguration);
+        generateAllCheckBox.addItemListener(x->{state.setGenerateForAll(generateAllCheckBox.isSelected());});
         showConfigurationInformation(true);
     }
 
     private void updateEnableConfiguration(ItemEvent e) {
         state.setConfigurationEnabled(enabledCheckbox.isSelected());
-        generateAllButton.setVisible(state.isMultipleGenerationEnabled());
-
+        generateAllCheckBox.setEnabled(state.isMultipleGenerationEnabled());
     }
 
-    protected @NotNull JPanel createButtonsPanel(@NotNull List buttons) {
-        buttons.add(0, generateAllButton);
-        return super.createButtonsPanel(buttons);
+
+    @Override
+    protected JComponent createSouthPanel() {
+        JComponent parent = super.createSouthPanel();
+        JPanel wrapped = new JPanel(new BorderLayout(12, 0));
+        wrapped.add(generateAllCheckBox, BorderLayout.WEST);
+        wrapped.add(parent, BorderLayout.EAST);
+        generateAllCheckBox.setSelected(state.isGenerateForAll());
+        JPanel ret = new JPanel(new BorderLayout());
+        ret.add(wrapped, BorderLayout.EAST);
+        return ret;
     }
 
     @Nullable
@@ -471,7 +481,7 @@ class InputDialog extends DialogWrapper {
 
     private void setSelectedRegion(String s) {
         if (s == null || s.isEmpty()) {
-            regionComboBox.setSelectedItem(InputDialogState.DEFAULT_PROFILE_REGION);
+            regionComboBox.setSelectedItem(MainDialogState.DEFAULT_PROFILE_REGION);
         } else {
             regionComboBox.setSelectedItem(s);
         }

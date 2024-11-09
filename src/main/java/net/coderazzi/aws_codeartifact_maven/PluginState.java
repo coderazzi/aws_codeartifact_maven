@@ -37,6 +37,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
     public int version;
     public String mavenSettingsFile;
     public String awsPath;
+    public Boolean generateForAll;
 
     public Set<String> allProfiles;
     public Set<String> allMavenServerIds;
