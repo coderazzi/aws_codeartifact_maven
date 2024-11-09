@@ -1,23 +1,9 @@
 package net.coderazzi.aws_codeartifact_maven;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
-import com.intellij.openapi.util.IconLoader;
-import com.intellij.openapi.vcs.VcsShowConfirmationOption;
-import com.intellij.ui.ColorUtil;
-import com.intellij.ui.DocumentAdapter;
-import com.intellij.ui.TitledSeparator;
-import com.intellij.ui.components.JBCheckBox;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.uiDesigner.core.AbstractLayout;
-import com.intellij.util.ui.ConfirmationDialog;
-import com.intellij.util.ui.GridBag;
-import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +22,7 @@ import java.util.function.Consumer;
 
 import static com.intellij.util.ui.JBUI.Borders.empty;
 
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"unchecked"})
 class GenerationDialog extends DialogWrapper {
 
 

@@ -23,7 +23,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -344,7 +343,7 @@ class MainDialog extends DialogWrapper {
         handleComboBoxChange(regionComboBox, this::updatedRegion);
         handleComboBoxChange(configurationComboBox, this::updateConfiguration);
         enabledCheckbox.addItemListener(this::updateEnableConfiguration);
-        generateAllCheckBox.addItemListener(x->{state.setGenerateForAll(generateAllCheckBox.isSelected());});
+        generateAllCheckBox.addItemListener(x-> state.setGenerateForAll(generateAllCheckBox.isSelected()));
         showConfigurationInformation(true);
     }
 
