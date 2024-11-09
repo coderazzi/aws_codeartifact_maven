@@ -60,6 +60,8 @@ class InputDialog extends DialogWrapper {
     private final InputDialogState state;
     private final Project project;
 
+    private ComponentWithBrowseButton<ComponentWithBrowseButton> removeConfigurationsComponent;
+
     public InputDialog(Project project) {
         super(true); // use current window as parent
         this.project = project;
@@ -159,6 +161,7 @@ class InputDialog extends DialogWrapper {
         serverIdsModel.setSelectedItem(current);
         serverIdComboBox.setEnabled(true);
         generateAllButton.setVisible(state.isMultipleGenerationEnabled());
+        removeConfigurationsComponent.setButtonEnabled(state.hasMultipleConfigurations());
         updateGenerationButtonState();
     }
 
@@ -365,10 +368,9 @@ class InputDialog extends DialogWrapper {
                 new ComponentWithBrowseButton<>(profileComboBox, x -> reloadProfilesInBackground());
         ComponentWithBrowseButton<ComboBoxWithWidePopup> configurations =
                 new ComponentWithBrowseButton<>(configurationComboBox, x -> renameConfiguration());
-        ComponentWithBrowseButton<ComponentWithBrowseButton> configurationsWithRemove =
-                new ComponentWithBrowseButton<>(configurations, this::deleteConfiguration);
+        removeConfigurationsComponent = new ComponentWithBrowseButton<>(configurations, this::deleteConfiguration);
         ComponentWithBrowseButton<ComponentWithBrowseButton> configurationsWithAdd =
-                new ComponentWithBrowseButton<>(configurationsWithRemove, this::createConfiguration);
+                new ComponentWithBrowseButton<>(removeConfigurationsComponent, this::createConfiguration);
 
         double labelsWeight = 2.0;
 
@@ -418,7 +420,8 @@ class InputDialog extends DialogWrapper {
         profileWrapper.setButtonIcon(AllIcons.Actions.Refresh);
         configurations.setButtonIcon(AllIcons.General.Settings);
         configurations.setToolTipText("Rename configuration");
-        configurationsWithRemove.setButtonIcon(AllIcons.General.Remove);
+        removeConfigurationsComponent.setButtonIcon(AllIcons.General.Remove);
+        removeConfigurationsComponent.setButtonEnabled(false);
         configurations.setToolTipText("Delete configuration (with confirmation)");
         configurationsWithAdd.setButtonIcon(AllIcons.General.Add);
         configurations.setToolTipText("Create new configuration");

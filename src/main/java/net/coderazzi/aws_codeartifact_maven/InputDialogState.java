@@ -134,12 +134,16 @@ final public class InputDialogState {
         return new TreeSet<>(state.configurations.keySet());
     }
 
+    public boolean hasMultipleConfigurations() {
+        return state.configurations.size() > 1;
+    }
+
     public boolean isMultipleGenerationEnabled() {
         System.out.println("Asked for isConfigurationEnabled for configuration " + state.configuration + " / " +
                 state.getCurrentConfiguration().enabled + " / " +
                 Boolean.TRUE.equals(state.getCurrentConfiguration().enabled)
         );
-        return state.configurations.size() > 1 && state.configurations.values().stream().anyMatch(x->x.enabled);
+        return state.configurations.size() > 1 && state.configurations.values().stream().anyMatch(x->Boolean.TRUE.equals(x.enabled));
     }
 
     /**
