@@ -10,13 +10,13 @@ import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.util.Set;
 
-class ConfigurationDialog extends DialogWrapper {
+class ConfigurationNameDialog extends DialogWrapper {
 
     private final JTextField text = new JTextField(20);
     private final String name;
     private final Set<String> usedNames;
 
-    public ConfigurationDialog(String name, Set<String> usedNames) {
+    public ConfigurationNameDialog(String name, Set<String> usedNames) {
         super(true); // use current window as parent
         this.name = name;
         this.usedNames = usedNames;

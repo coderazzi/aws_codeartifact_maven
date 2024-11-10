@@ -307,7 +307,7 @@ class MainDialog extends DialogWrapper {
     }
 
     private void createConfiguration(ActionEvent actionEvent) {
-        final ConfigurationDialog dialog = new ConfigurationDialog(null, state.getConfigurationNames());
+        final ConfigurationNameDialog dialog = new ConfigurationNameDialog(null, state.getConfigurationNames());
         if (dialog.showAndGet()) {
             state.addConfiguration(dialog.getName());
             showConfigurationInformation(false);
@@ -315,7 +315,7 @@ class MainDialog extends DialogWrapper {
     }
 
     private void renameConfiguration() {
-        final ConfigurationDialog dialog = new ConfigurationDialog(state.configuration, state.getConfigurationNames());
+        final ConfigurationNameDialog dialog = new ConfigurationNameDialog(state.configuration, state.getConfigurationNames());
         if (dialog.showAndGet() && state.renameConfiguration(dialog.getName())) {
             showConfigurationInformation(false);
         }
@@ -337,7 +337,7 @@ class MainDialog extends DialogWrapper {
     protected void init() {
         super.init();
         regionsModel.addElement(PluginState.DEFAULT_PROFILE_REGION);
-        state.getValidRegions().forEach(regionsModel::addElement);
+        Configuration.getValidRegions().forEach(regionsModel::addElement);
         handleTextFieldChange(awsPath, x -> state.awsPath = x);
         handleTextFieldChange(domainOwner, x -> state.getCurrentConfiguration().domainOwner = x);
         handleTextFieldChange(domain, x -> state.getCurrentConfiguration().domain = x);

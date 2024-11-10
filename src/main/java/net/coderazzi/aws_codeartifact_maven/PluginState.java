@@ -17,43 +17,13 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
     public static final String DEFAULT_PROFILE_REGION = "<default profile region>";
     private static final String DEFAULT_CONFIGURATION_NAME = "main";
     private static final int VERSION_20241109 = 7;
-    private static final String VALID_REGIONS = // 13 regions:
-            // https://aws.amazon.com/codeartifact/faq/
-            // https://www.aws-services.info/codeartifact.html
-            "ap-northeast-1,ap-south-1,ap-southeast-1,ap-southeast-2," +
-            "eu-central-1,eu-north-1,eu-south-1,eu-west-1,eu-west-2,eu-west-3," +
-            "us-east-1,us-east-2,us-west-2";
-    private static final TreeSet<String> validRegions =
-            new TreeSet<>(Arrays.asList(VALID_REGIONS.split(",")));
-
-    public static class Configuration {
-        public String mavenServerId;
-        public String awsProfile;
-        public String region;
-        public String domain;
-        public String domainOwner;
-        public boolean enabled;
-        public String getDomain() {
-            return domain == null ? "" : domain;
-        }
-        public String getRegion() {
-            return region == null || (!region.equals(DEFAULT_PROFILE_REGION) && !validRegions.contains(region)) ?
-                    DEFAULT_PROFILE_REGION : region;
-        }
-        public String getDomainOwner() {
-            return domainOwner == null ? "" : domainOwner;
-        }
-        public String getProfile() {
-            return awsProfile == null ? AWSProfileHandler.DEFAULT_PROFILE : awsProfile;
-        }
-    }
 
     public static PluginState getInstance() {
         return ApplicationManager.getApplication()
                 .getService(PluginState.class).ensureInitialization();
     }
 
-    public int version;
+    private int version;
     public String mavenSettingsFile;
     public String awsPath;
     public boolean generateForAll;
@@ -147,10 +117,6 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
         return configurations.size() > 1 && configurations.values().stream().anyMatch(x->x.enabled);
     }
 
-    public Set<String> getValidRegions() {
-        return validRegions;
-    }
-
     public String getAWSPath() {
         String ret = awsPath;
         return ret == null || ret.trim().isEmpty() ? DEFAULT_AWS_CLI_PATH : ret;
@@ -168,8 +134,8 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
     }
 
     public void addConfiguration(String name) {
-        PluginState.Configuration current = getCurrentConfiguration();
-        PluginState.Configuration conf = new PluginState.Configuration();
+        Configuration current = getCurrentConfiguration();
+        Configuration conf = new Configuration();
         conf.domain = current.domain;
         conf.domainOwner = current.domainOwner;
         conf.mavenServerId = null;
