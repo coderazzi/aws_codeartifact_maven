@@ -8,26 +8,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-
-import static com.intellij.util.ui.JBUI.Borders.empty;
 
 @SuppressWarnings({"unchecked"})
 class GenerationDialog extends DialogWrapper {
 
 
     public GenerationDialog(final Project project,
-                            final MainDialogState state,
+                            final PluginState state,
                             final boolean usePresentConfigurationOnly) {
         super(true); // use current window as parent
         getWindow().addWindowListener(new WindowAdapter() {
@@ -39,12 +30,17 @@ class GenerationDialog extends DialogWrapper {
     }
 
     private void launch(final Project project,
-                        final MainDialogState state,
+                        final PluginState state,
                         final boolean usePresentConfigurationOnlye){
         ProgressManager.getInstance().runProcessWithProgressSynchronously( () -> {
-            final OperationOutput to = launchTasks(state.getDomain(), state.getDomainOwner(),
-                    state.getMavenServerId(), state.getMavenServerSettingsFile(),
-                    state.getAWSPath(), state.getProfile(), state.getRegion());
+            final OperationOutput to = launchTasks(
+                    state.getCurrentConfiguration().getDomain(),
+                    state.getCurrentConfiguration().getDomainOwner(),
+                    state.getCurrentConfiguration().mavenServerId,
+                    state.getMavenServerSettingsFile(),
+                    state.getAWSPath(),
+                    state.getCurrentConfiguration().getProfile(),
+                    state.getCurrentConfiguration().getRegion());
 //            if (to != null) {
 //                SwingUtilities.invokeLater(() -> {
 //                    if (showResults(project, to)) {

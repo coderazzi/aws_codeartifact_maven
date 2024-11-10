@@ -24,7 +24,7 @@ class AWSInvoker {
         String profile = awsProfile == null || "".equals(awsProfile) || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
                 String.format("--profile %s ", awsProfile);
         String region = awsRegion == null || awsRegion.isBlank() ||
-                awsRegion.equals(MainDialogState.DEFAULT_PROFILE_REGION) ? "" :
+                awsRegion.equals(PluginState.DEFAULT_PROFILE_REGION) ? "" :
                 String.format("--region %s ", awsRegion);
         String command = String.format(
                 "%s codeartifact get-authorization-token %s%s--domain %s --domain-owner %s --query authorizationToken --output text",
