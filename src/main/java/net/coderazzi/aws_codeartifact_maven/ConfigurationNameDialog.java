@@ -22,10 +22,10 @@ class ConfigurationNameDialog extends DialogWrapper {
         this.usedNames = usedNames;
         init();
         if (name == null) {
-            setTitle("Create new configuration");
+            setTitle("Create New Configuration");
             setOKButtonText("Create");
         } else {
-            setTitle("Rename configuration");
+            setTitle("Rename Configuration");
             text.setText(name);
             setOKButtonText("Rename");
         }
