@@ -1,6 +1,5 @@
 package net.coderazzi.aws_codeartifact_maven;
 
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.Storage;
@@ -14,17 +13,16 @@ import java.util.*;
         name = "aws_codeartifact_maven.state",
         storages = @Storage("aws_codeartifact_maven.xml"))//, roamingType = RoamingType.DISABLED))
 final public class PluginState implements PersistentStateComponent<PluginState> {
-
-    public static final int VERSION_20241109 = 7;
     public static final String DEFAULT_AWS_CLI_PATH = "aws";
-    public static final String DEFAULT_CONFIGURATION_NAME = "main";
     public static final String DEFAULT_PROFILE_REGION = "<default profile region>";
+    private static final String DEFAULT_CONFIGURATION_NAME = "main";
+    private static final int VERSION_20241109 = 7;
     private static final String VALID_REGIONS = // 13 regions:
             // https://aws.amazon.com/codeartifact/faq/
             // https://www.aws-services.info/codeartifact.html
             "ap-northeast-1,ap-south-1,ap-southeast-1,ap-southeast-2," +
-                    "eu-central-1,eu-north-1,eu-south-1,eu-west-1,eu-west-2,eu-west-3," +
-                    "us-east-1,us-east-2,us-west-2";
+            "eu-central-1,eu-north-1,eu-south-1,eu-west-1,eu-west-2,eu-west-3," +
+            "us-east-1,us-east-2,us-west-2";
     private static final TreeSet<String> validRegions =
             new TreeSet<>(Arrays.asList(VALID_REGIONS.split(",")));
 
@@ -88,18 +86,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
         if (domains == null) domains = new HashMap<>();
         if (regions == null) regions = new HashMap<>();
         if (domainOwners == null) domainOwners = new HashMap<>();
-        if (version == 0) {
-            // migrating from old PropertiesComponent persistence. This is really old, deprecate it??
-            PropertiesComponent properties = PropertiesComponent.getInstance();
-            mavenSettingsFile = getAndCleanPropertiesComponentProperty(properties, "mavenSettingsFile");
-            awsPath = getAndCleanPropertiesComponentProperty(properties, "awsPath");
-            mavenServerId = getAndCleanPropertiesComponentProperty(properties, "mavenServerId");
-            if (!mavenServerId.isEmpty()) {
-                // allMavenServerIds.add(mavenServerId); // do not load this, so that the maven settings file is read
-                domains.put(mavenServerId, getAndCleanPropertiesComponentProperty(properties, "domain"));
-                domainOwners.put(mavenServerId, getAndCleanPropertiesComponentProperty(properties, "domainOwner"));
-            }
-        }
+        if (mavenSettingsFile == null) mavenSettingsFile = "";
         if (awsProfile == null || awsProfile.isEmpty()) {
             String envAwsProfile = System.getenv("AWS_PROFILE");
             if (envAwsProfile != null) {
@@ -136,10 +123,10 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
                 configurations.get(configuration).enabled = true;
             }
             // remove next fields from configuration
-            mavenServerId=null;
-            awsProfile=null;
-            regions=null;      // mavenServerId -> region
-            domains = null;      // mavenServerId -> domain
+            mavenServerId = null;
+            awsProfile = null;
+            regions = null;
+            domains = null;
             domainOwners = null;
         } else if (!configurations.containsKey(configuration)) {
             configuration = configurations.keySet().iterator().next();
@@ -166,7 +153,7 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
 
     public String getAWSPath() {
         String ret = awsPath;
-        return ret.trim().isEmpty() ? DEFAULT_AWS_CLI_PATH : ret;
+        return ret == null || ret.trim().isEmpty() ? DEFAULT_AWS_CLI_PATH : ret;
     }
 
     public String getMavenServerSettingsFile() {
@@ -206,14 +193,6 @@ final public class PluginState implements PersistentStateComponent<PluginState> 
     public void deleteConfiguration(){
         configurations.remove(configuration);
         configuration = configurations.keySet().iterator().next();
-    }
-
-
-    private String getAndCleanPropertiesComponentProperty(PropertiesComponent properties, String name) {
-        String key = String.format("net.coderazzi.aws_codeartifact_maven.%s", name);
-        String ret = properties.getValue(key, "");
-        properties.unsetValue(key);
-        return ret;
     }
 
 }
