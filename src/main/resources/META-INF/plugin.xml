@@ -122,7 +122,7 @@
   <depends>com.intellij.modules.platform</depends>
 
   <extensions defaultExtensionNs="com.intellij">
-    <applicationService serviceImplementation="net.coderazzi.aws_codeartifact_maven.PluginState"/>
+    <applicationService serviceImplementation="net.coderazzi.aws_codeartifact_maven.state.PersistentState"/>
   </extensions>
 
   <actions>

@@ -13,6 +13,7 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.AbstractLayout;
 import com.intellij.util.ui.*;
+import net.coderazzi.aws_codeartifact_maven.state.Configuration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,14 +58,14 @@ class MainDialog extends DialogWrapper {
     private final JBCheckBox enabledCheckbox = new JBCheckBox();
     private Thread loadingServersThread, loadingProfilesThread;
     private final Project project;
-    private final PluginState state;
+    private final Configuration state;
 
     private ComponentWithBrowseButton<ComponentWithBrowseButton> removeConfigurationsComponent;
 
     public MainDialog(Project project) {
         super(true); // use current window as parent
         this.project = project;
-        state = PluginState.getInstance();
+        state = new Configuration();
         serverWarningLabel = getLabel("invalid server id, not found in settings file");
         serverWarningEmptyLabel = getLabel("");
         serverWarningLabel.setIcon(AllIcons.General.Error);
@@ -99,7 +100,7 @@ class MainDialog extends DialogWrapper {
             state.getCurrentConfiguration().mavenServerId=null;
         } else if (s instanceof String serverId) {
             state.getCurrentConfiguration().mavenServerId=serverId;
-            bad = !state.allMavenServerIds.contains(serverId);
+            bad = !state.isDefinedMavenServerId(serverId);
         }
         serverWarningLabel.setVisible(bad);
         serverWarningEmptyLabel.setVisible(bad);
@@ -112,8 +113,8 @@ class MainDialog extends DialogWrapper {
         Object s = profileComboBox.getSelectedItem();
         boolean bad = false;
         if (s instanceof String profile) {
-            state.getCurrentConfiguration().awsProfile=profile;
-            bad = !state.allProfiles.contains(profile);
+            state.getCurrentConfiguration().profile =profile;
+            bad = !state.isValidProfileName(profile);
         }
         profileWarningLabel.setVisible(bad);
         profileWarningEmptyLabel.setVisible(bad);
@@ -132,11 +133,11 @@ class MainDialog extends DialogWrapper {
     private void updateConfiguration(){
         Object s = configurationComboBox.getSelectedItem();
         if (s != null){
-            state.configuration=s.toString();
+            state.setConfigurationName(s.toString());
             enabledCheckbox.setSelected(state.getCurrentConfiguration().enabled);
-            domain.setText(state.getCurrentConfiguration().getDomain());
-            domainOwner.setText(state.getCurrentConfiguration().getDomainOwner());
-            setSelectedRegion(state.getCurrentConfiguration().getRegion());
+            domain.setText(state.getCurrentConfiguration().domain);
+            domainOwner.setText(state.getCurrentConfiguration().domainOwner);
+            setSelectedRegion(state.getCurrentConfiguration().region);
             showRepositoryInformation(false);
             showProfileInformation();
         }
@@ -150,7 +151,7 @@ class MainDialog extends DialogWrapper {
     private void showRepositoryInformation(boolean reloadServersIfNeeded) {
         String current = state.getCurrentConfiguration().mavenServerId;
         serverIdsModel.removeAllElements();
-        Set<String> serverIds = state.allMavenServerIds;
+        Set<String> serverIds = state.getDefinedMavenServerIds();
         if (serverIds.isEmpty()) {
             if (reloadServersIfNeeded) {
                 reloadServersInBackground();
@@ -162,12 +163,12 @@ class MainDialog extends DialogWrapper {
         serverIdsModel.setSelectedItem(current);
         serverIdComboBox.setEnabled(true);
         generateAllCheckBox.setEnabled(state.isMultipleGenerationEnabled());
-        removeConfigurationsComponent.setButtonEnabled(state.configurations.size()>1);
+        removeConfigurationsComponent.setButtonEnabled(state.hasMultipleConfigurationsDefined());
         updateGenerationButtonState();
     }
 
     private void showConfigurationInformation(boolean reloadServersIfNeeded) {
-        String current = state.configuration;
+        String current = state.getConfigurationName();
         configurationsModel.removeAllElements();
         state.getConfigurationNames().forEach(configurationsModel::addElement);
         configurationsModel.setSelectedItem(current);
@@ -175,12 +176,12 @@ class MainDialog extends DialogWrapper {
     }
 
     private void showProfileInformation() {
-        Set<String> profiles = state.allProfiles;
+        Set<String> profiles = state.getProfileNames();
         if (profiles.isEmpty()) {
             // next call will always find profiles to show
             reloadProfilesInBackground();
         } else {
-            String current = state.getCurrentConfiguration().getProfile();
+            String current = state.getCurrentConfiguration().profile;
             profileModel.removeAllElements();
             profiles.forEach(profileModel::addElement);
             profileModel.setSelectedItem(current);
@@ -194,8 +195,8 @@ class MainDialog extends DialogWrapper {
      */
     private void reloadServersInBackground() {
         final String filename = settingsFile.getText().trim();
-        if (!filename.equals(state.mavenSettingsFile)  || loadingServersThread == null) {
-            state.mavenSettingsFile = filename;
+        if (!filename.equals(state.getMavenServerSettingsFile())  || loadingServersThread == null) {
+            state.setMavenSettingsFile(filename);
             String current = state.getCurrentConfiguration().mavenServerId;
             serverIdsModel.removeAllElements();
             if (!filename.isEmpty()) {
@@ -246,8 +247,7 @@ class MainDialog extends DialogWrapper {
     private void updateProfilesInForeground(Set<String> profiles, String error) {
         SwingUtilities.invokeLater(() -> {
             loadingProfilesThread = null;
-            state.allProfiles.clear();
-            state.allProfiles.addAll(profiles);
+            state.setProfileNames(profiles);
             showProfileInformation();
             profileComboBox.setEnabled(true);
             profileComboBox.requestFocus();
@@ -262,8 +262,7 @@ class MainDialog extends DialogWrapper {
         SwingUtilities.invokeLater(() -> {
             if (thread == loadingServersThread) {
                 state.getCurrentConfiguration().mavenServerId=originalSetting;
-                state.allMavenServerIds.clear();
-                state.allMavenServerIds.addAll(serverIds);
+                state.setDefinedMavenServerIds(serverIds);
                 loadingServersThread = null;
                 showRepositoryInformation(false);
                 if (error == null) {
@@ -315,7 +314,7 @@ class MainDialog extends DialogWrapper {
     }
 
     private void renameConfiguration() {
-        final ConfigurationNameDialog dialog = new ConfigurationNameDialog(state.configuration, state.getConfigurationNames());
+        final ConfigurationNameDialog dialog = new ConfigurationNameDialog(state.getConfigurationName(), state.getConfigurationNames());
         if (dialog.showAndGet() && state.renameConfiguration(dialog.getName())) {
             showConfigurationInformation(false);
         }
@@ -336,9 +335,9 @@ class MainDialog extends DialogWrapper {
     @Override
     protected void init() {
         super.init();
-        regionsModel.addElement(PluginState.DEFAULT_PROFILE_REGION);
+        regionsModel.addElement(Configuration.DEFAULT_PROFILE_REGION);
         Configuration.getValidRegions().forEach(regionsModel::addElement);
-        handleTextFieldChange(awsPath, x -> state.awsPath = x);
+        handleTextFieldChange(awsPath, state::setAwsPath);
         handleTextFieldChange(domainOwner, x -> state.getCurrentConfiguration().domainOwner = x);
         handleTextFieldChange(domain, x -> state.getCurrentConfiguration().domain = x);
         handleComboBoxChange(serverIdComboBox, this::updatedMavenServerId);
@@ -346,7 +345,7 @@ class MainDialog extends DialogWrapper {
         handleComboBoxChange(regionComboBox, this::updatedRegion);
         handleComboBoxChange(configurationComboBox, this::updateConfiguration);
         enabledCheckbox.addItemListener(this::updateEnableConfiguration);
-        generateAllCheckBox.addItemListener(x-> state.generateForAll=generateAllCheckBox.isSelected());
+        generateAllCheckBox.addItemListener(x-> state.setGenerateForAll(generateAllCheckBox.isSelected()));
         showConfigurationInformation(true);
     }
 
@@ -362,7 +361,7 @@ class MainDialog extends DialogWrapper {
         JPanel wrapped = new JPanel(new BorderLayout(12, 0));
         wrapped.add(generateAllCheckBox, BorderLayout.WEST);
         wrapped.add(parent, BorderLayout.EAST);
-        generateAllCheckBox.setSelected(state.generateForAll);
+        generateAllCheckBox.setSelected(state.isGenerateForAll());
         JPanel ret = new JPanel(new BorderLayout());
         ret.add(wrapped, BorderLayout.EAST);
         return ret;
@@ -482,8 +481,8 @@ class MainDialog extends DialogWrapper {
     }
 
     private void setSelectedRegion(String s) {
-        if (s == null || s.isEmpty()) {
-            regionComboBox.setSelectedItem(PluginState.DEFAULT_PROFILE_REGION);
+        if (s == null || !Configuration.getValidRegions().contains(s)) {
+            regionComboBox.setSelectedItem(Configuration.DEFAULT_PROFILE_REGION);
         } else {
             regionComboBox.setSelectedItem(s);
         }

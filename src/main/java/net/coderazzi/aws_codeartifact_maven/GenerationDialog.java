@@ -4,6 +4,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
+import net.coderazzi.aws_codeartifact_maven.state.Configuration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +19,7 @@ class GenerationDialog extends DialogWrapper {
 
 
     public GenerationDialog(final Project project,
-                            final PluginState state,
+                            final Configuration state,
                             final boolean usePresentConfigurationOnly) {
         super(true); // use current window as parent
         getWindow().addWindowListener(new WindowAdapter() {
@@ -30,17 +31,17 @@ class GenerationDialog extends DialogWrapper {
     }
 
     private void launch(final Project project,
-                        final PluginState state,
+                        final Configuration state,
                         final boolean usePresentConfigurationOnlye){
         ProgressManager.getInstance().runProcessWithProgressSynchronously( () -> {
             final OperationOutput to = launchTasks(
-                    state.getCurrentConfiguration().getDomain(),
-                    state.getCurrentConfiguration().getDomainOwner(),
+                    state.getCurrentConfiguration().domain,
+                    state.getCurrentConfiguration().domainOwner,
                     state.getCurrentConfiguration().mavenServerId,
                     state.getMavenServerSettingsFile(),
                     state.getAWSPath(),
-                    state.getCurrentConfiguration().getProfile(),
-                    state.getCurrentConfiguration().getRegion());
+                    state.getCurrentConfiguration().profile,
+                    state.getCurrentConfiguration().region);
 //            if (to != null) {
 //                SwingUtilities.invokeLater(() -> {
 //                    if (showResults(project, to)) {

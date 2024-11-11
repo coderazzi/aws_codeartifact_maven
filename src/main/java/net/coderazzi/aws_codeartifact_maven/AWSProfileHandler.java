@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 // https://docs.aws.amazon.com/sdkref/latest/guide/file-location.html
-class AWSProfileHandler {
+public class AWSProfileHandler {
 
     public static final String DEFAULT_PROFILE = "default";
     // https://docs.aws.amazon.com/IAM/latest/APIReference/API_CreateInstanceProfile.html
@@ -82,7 +82,7 @@ class AWSProfileHandler {
         return true;
     }
 
-    static class GetProfilesException extends Exception {
+    public static class GetProfilesException extends Exception {
         GetProfilesException(String ex) {
             super(ex);
         }
