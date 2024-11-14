@@ -1,0 +1,6 @@
+--2024-11-14 12:04:56--  https://plugins.jetbrains.com/plugin/download?rel=true
+Resolving plugins.jetbrains.com (plugins.jetbrains.com)... 18.154.48.69, 18.154.48.116, 18.154.48.55, ...
+Connecting to plugins.jetbrains.com (plugins.jetbrains.com)|18.154.48.69|:443... connected.
+HTTP request sent, awaiting response... 400 Bad Request
+2024-11-14 12:04:56 ERROR 400: Bad Request.
+

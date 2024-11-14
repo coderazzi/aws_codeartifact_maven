@@ -43,7 +43,7 @@ class GenerationDialog extends DialogWrapper {
                     state.getCurrentConfiguration().profile,
                     state.getCurrentConfiguration().region);
 //            if (to != null) {
-//                SwingUtilities.invokeLater(() -> {
+//                ApplicationManager.getApplication().invokeLater(() -> {
 //                    if (showResults(project, to)) {
 //                        showDialog(project);
 //                    }

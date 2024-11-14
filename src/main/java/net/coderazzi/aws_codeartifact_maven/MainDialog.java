@@ -1,6 +1,7 @@
 package net.coderazzi.aws_codeartifact_maven;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
@@ -245,7 +246,7 @@ class MainDialog extends DialogWrapper {
      * Displays the information for the aws profiles, once loaded in the background
      */
     private void updateProfilesInForeground(Set<String> profiles, String error) {
-        SwingUtilities.invokeLater(() -> {
+        ApplicationManager.getApplication().invokeLater(() -> {
             loadingProfilesThread = null;
             state.setProfileNames(profiles);
             showProfileInformation();
@@ -259,7 +260,7 @@ class MainDialog extends DialogWrapper {
 
     private void updateServersInForeground(String originalSetting, Set<String> serverIds, String error) {
         final Thread thread = Thread.currentThread();
-        SwingUtilities.invokeLater(() -> {
+        ApplicationManager.getApplication().invokeLater(() -> {
             if (thread == loadingServersThread) {
                 state.getCurrentConfiguration().mavenServerId=originalSetting;
                 state.setDefinedMavenServerIds(serverIds);

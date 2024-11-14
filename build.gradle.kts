@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "net.coderazzi"
-version = "3.3.0"
+version = "4.0.0"
 
 repositories {
   mavenCentral()
