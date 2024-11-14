@@ -79,7 +79,8 @@ For more information on the distinction between role-based-MFA and user-based-MF
 [https://coderazzi.net/cloud/aws/mfa](https://coderazzi.net/cloud/aws/mfa)
 
 ## Versions
-* Version 4.0.0 : 23rd Aug 2024: Support multiple repositories at once
+* Version 3.3.1 : 14th Nov 2024: Make plugin compatible with latest IDE version (2024.3).
+  It solves an exception requesting that Access is allowed from write thread only
 * Version 3.3.0 : 03rd May 2024: Make plugin compatible with latest IDE version (2024.1)
 * Version 3.2.4 : 08th Dec 2023: Make plugin compatible with latest IDE version (2023.3)
 * Version 3.2.3 : 19th Sep 2023: Bug using default region for profiles without configured region

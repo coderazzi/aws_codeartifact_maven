@@ -1,5 +1,6 @@
 package net.coderazzi.aws_codeartifact_maven;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,16 +43,12 @@ class MfaDialog extends DialogWrapper {
 
     public static String getMfaCode(final String request) throws InvocationTargetException {
         final DialogStatus status = new DialogStatus();
-        try {
-            SwingUtilities.invokeAndWait(() -> {
-                final MfaDialog dialog = new MfaDialog(request);
-                if (dialog.showAndGet()) {
-                    status.code = dialog.getMfaCode();
-                }
-            });
-        } catch (InterruptedException ex) {
-            // being terminated, logging anything would help no one...
-        }
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            final MfaDialog dialog = new MfaDialog(request);
+            if (dialog.showAndGet()) {
+                status.code = dialog.getMfaCode();
+            }
+        });
         return status.code;
     }
 

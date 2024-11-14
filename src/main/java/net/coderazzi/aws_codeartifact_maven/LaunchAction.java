@@ -3,6 +3,8 @@ package net.coderazzi.aws_codeartifact_maven;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
@@ -33,7 +35,7 @@ public class LaunchAction extends AnAction {
                                 state.getMavenServerId(), state.getMavenServerSettingsFile(),
                                 state.getAWSPath(), state.getProfile(), state.getRegion());
                         if (to != null) {
-                            SwingUtilities.invokeLater(() -> {
+                            ApplicationManager.getApplication().invokeLater(() -> {
                                 if (showResults(project, to)) {
                                     showDialog(project);
                                 }
