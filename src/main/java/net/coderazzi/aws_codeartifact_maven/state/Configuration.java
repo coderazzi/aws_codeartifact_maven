@@ -1,6 +1,6 @@
 package net.coderazzi.aws_codeartifact_maven.state;
 
-import net.coderazzi.aws_codeartifact_maven.AWSProfileHandler;
+import net.coderazzi.aws_codeartifact_maven.utils.AWSProfileHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Paths;

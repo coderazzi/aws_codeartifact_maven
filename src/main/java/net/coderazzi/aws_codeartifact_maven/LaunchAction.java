@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import net.coderazzi.aws_codeartifact_maven.gui.MainDialog;
 import org.jetbrains.annotations.NotNull;
 
 public class LaunchAction extends AnAction {

@@ -1,6 +1,6 @@
 package net.coderazzi.aws_codeartifact_maven.state;
 
-import net.coderazzi.aws_codeartifact_maven.AWSProfileHandler;
+import net.coderazzi.aws_codeartifact_maven.utils.AWSProfileHandler;
 
 public class AWS_Configuration {
     public String mavenServerId;

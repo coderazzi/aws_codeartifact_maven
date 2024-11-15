@@ -1,4 +1,4 @@
-package net.coderazzi.aws_codeartifact_maven;
+package net.coderazzi.aws_codeartifact_maven.utils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

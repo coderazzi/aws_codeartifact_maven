@@ -1,4 +1,4 @@
-package net.coderazzi.aws_codeartifact_maven;
+package net.coderazzi.aws_codeartifact_maven.gui;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.BorderLayout;
 import java.lang.reflect.InvocationTargetException;
 
-class MfaDialog extends DialogWrapper {
+public class MfaDialog extends DialogWrapper {
 
     public static final String TITLE = "AWS input request";
     private final JTextField mfa = new JTextField(6);

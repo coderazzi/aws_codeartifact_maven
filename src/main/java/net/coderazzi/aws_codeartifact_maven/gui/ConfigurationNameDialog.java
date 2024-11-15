@@ -1,4 +1,4 @@
-package net.coderazzi.aws_codeartifact_maven;
+package net.coderazzi.aws_codeartifact_maven.gui;
 
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.DocumentAdapter;

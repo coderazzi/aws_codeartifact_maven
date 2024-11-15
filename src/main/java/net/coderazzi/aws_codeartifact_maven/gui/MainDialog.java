@@ -1,4 +1,4 @@
-package net.coderazzi.aws_codeartifact_maven;
+package net.coderazzi.aws_codeartifact_maven.gui;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
@@ -14,6 +14,8 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.AbstractLayout;
 import com.intellij.util.ui.*;
+import net.coderazzi.aws_codeartifact_maven.utils.AWSProfileHandler;
+import net.coderazzi.aws_codeartifact_maven.utils.MavenSettingsFileHandler;
 import net.coderazzi.aws_codeartifact_maven.state.Configuration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +33,7 @@ import java.util.function.Consumer;
 import static com.intellij.util.ui.JBUI.Borders.empty;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-class MainDialog extends DialogWrapper {
+public class MainDialog extends DialogWrapper {
 
     public static final String COMPONENT_TITLE = "CodeArtifact + Maven";
     private static final String MAVEN_SERVER_USERNAME = "aws";

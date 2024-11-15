@@ -1,4 +1,4 @@
-package net.coderazzi.aws_codeartifact_maven;
+package net.coderazzi.aws_codeartifact_maven.utils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,9 +25,9 @@ import java.util.TreeSet;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-class MavenSettingsFileHandler {
+public class MavenSettingsFileHandler {
 
-    static class GetServerIdsException extends Exception {
+    public static class GetServerIdsException extends Exception {
         GetServerIdsException(String ex) {
             super(ex);
         }
