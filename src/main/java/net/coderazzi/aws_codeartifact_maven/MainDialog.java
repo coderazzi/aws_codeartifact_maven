@@ -49,24 +49,25 @@ class MainDialog extends DialogWrapper {
     private final ComboBoxWithWidePopup regionComboBox = new ComboBoxWithWidePopup(regionsModel);
     private final ComboBoxWithWidePopup serverIdComboBox = new ComboBoxWithWidePopup(serverIdsModel);
     private final ComboBoxWithWidePopup profileComboBox = new ComboBoxWithWidePopup(profileModel);
-    private final JBCheckBox generateAllCheckBox = new JBCheckBox("Generate Tokens for all configurations");
 
     private final JBLabel serverWarningLabel, serverWarningEmptyLabel;
     private final JBLabel profileWarningLabel, profileWarningEmptyLabel;
 
     private final JTextField settingsFile = new JTextField(32);
     private final JTextField awsPath = new JTextField(32);
+
+    private final JBCheckBox generateAllCheckBox = new JBCheckBox("Generate Tokens for all configurations");
     private final JBCheckBox enabledCheckbox = new JBCheckBox();
+
     private Thread loadingServersThread, loadingProfilesThread;
     private final Project project;
-    private final Configuration state;
+    private final Configuration state = new Configuration();
 
     private ComponentWithBrowseButton<ComponentWithBrowseButton> removeConfigurationsComponent;
 
     public MainDialog(Project project) {
         super(true); // use current window as parent
         this.project = project;
-        state = new Configuration();
         serverWarningLabel = getLabel("invalid server id, not found in settings file");
         serverWarningEmptyLabel = getLabel("");
         serverWarningLabel.setIcon(AllIcons.General.Error);
@@ -94,7 +95,7 @@ class MainDialog extends DialogWrapper {
     /**
      * Called whenever the user changes the maven server id
      */
-    private void updatedMavenServerId() {
+    private void handleMavenServerIdChange() {
         Object s = serverIdComboBox.getSelectedItem();
         boolean bad = false;
         if (s == null) {
@@ -110,7 +111,7 @@ class MainDialog extends DialogWrapper {
     /**
      * Called whenever the user changes the AWS profile
      */
-    private void updatedAwsProfile() {
+    private void handleProfileChange() {
         Object s = profileComboBox.getSelectedItem();
         boolean bad = false;
         if (s instanceof String profile) {
@@ -124,7 +125,7 @@ class MainDialog extends DialogWrapper {
     /**
      * Called whenever the user changes the region
      */
-    private void updatedRegion() {
+    private void handleRegionChange() {
         Object s = regionComboBox.getSelectedItem();
         if (s != null) {
             state.getCurrentConfiguration().region = s instanceof String ? (String) s : "";
@@ -163,8 +164,8 @@ class MainDialog extends DialogWrapper {
         serverIds.forEach(serverIdsModel::addElement);
         serverIdsModel.setSelectedItem(current);
         serverIdComboBox.setEnabled(true);
-        generateAllCheckBox.setEnabled(state.isMultipleGenerationEnabled());
-        removeConfigurationsComponent.setButtonEnabled(state.hasMultipleConfigurationsDefined());
+        generateAllCheckBox.setEnabled(state.hasMultipleConfigurations());
+        removeConfigurationsComponent.setButtonEnabled(state.hasMultipleConfigurations());
         updateGenerationButtonState();
     }
 
@@ -278,14 +279,17 @@ class MainDialog extends DialogWrapper {
     private void updateGenerationButtonState() {
         JButton ok = getButton((getOKAction()));
         if (ok != null) {
-            ok.setEnabled(checkNonEmpty(domain)
-                    && checkNonEmpty(domainOwner)
-                    && checkHasSelection(serverIdComboBox)
-                    && checkHasSelection(profileComboBox)
-                    && checkNonEmpty(awsPath)
-                    && !serverWarningLabel.isVisible()
-                    && !profileWarningLabel.isVisible()
-            );
+            ok.setEnabled(
+                    (generateAllCheckBox.isEnabled()
+                            && generateAllCheckBox.isSelected())
+                    ||
+                    (checkNonEmpty(domain)
+                            && checkNonEmpty(domainOwner)
+                            && checkHasSelection(serverIdComboBox)
+                            && checkHasSelection(profileComboBox)
+                            && checkNonEmpty(awsPath)
+                            && !serverWarningLabel.isVisible()
+                            && !profileWarningLabel.isVisible()));
         }
     }
 
@@ -341,18 +345,22 @@ class MainDialog extends DialogWrapper {
         handleTextFieldChange(awsPath, state::setAwsPath);
         handleTextFieldChange(domainOwner, x -> state.getCurrentConfiguration().domainOwner = x);
         handleTextFieldChange(domain, x -> state.getCurrentConfiguration().domain = x);
-        handleComboBoxChange(serverIdComboBox, this::updatedMavenServerId);
-        handleComboBoxChange(profileComboBox, this::updatedAwsProfile);
-        handleComboBoxChange(regionComboBox, this::updatedRegion);
+        handleComboBoxChange(serverIdComboBox, this::handleMavenServerIdChange);
+        handleComboBoxChange(profileComboBox, this::handleProfileChange);
+        handleComboBoxChange(regionComboBox, this::handleRegionChange);
         handleComboBoxChange(configurationComboBox, this::updateConfiguration);
-        enabledCheckbox.addItemListener(this::updateEnableConfiguration);
-        generateAllCheckBox.addItemListener(x-> state.setGenerateForAll(generateAllCheckBox.isSelected()));
+        enabledCheckbox.addItemListener(this::handleEnableConfigurationChange);
+        generateAllCheckBox.addItemListener(this::handleGenerateAllChange);
         showConfigurationInformation(true);
     }
 
-    private void updateEnableConfiguration(ItemEvent e) {
+    private void handleGenerateAllChange(ItemEvent e) {
+        state.setGenerateForAll(generateAllCheckBox.isSelected());
+        updateGenerationButtonState();
+    }
+
+    private void handleEnableConfigurationChange(ItemEvent e) {
         state.getCurrentConfiguration().enabled = enabledCheckbox.isSelected();
-        generateAllCheckBox.setEnabled(state.isMultipleGenerationEnabled());
     }
 
 

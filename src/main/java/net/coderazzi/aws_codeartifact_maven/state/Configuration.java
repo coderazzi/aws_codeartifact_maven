@@ -111,10 +111,6 @@ final public class Configuration {
         state.configuration = configuration;
     }
 
-    public boolean isMultipleGenerationEnabled() {
-        return state.awsConfigurations.size() > 1 && state.awsConfigurations.values().stream().anyMatch(x->x.enabled);
-    }
-
     public String getAWSPath() {
         return state.awsPath;
     }
@@ -157,7 +153,7 @@ final public class Configuration {
         return state.allMavenServerIds.contains(mavenServerId);
     }
 
-    public boolean hasMultipleConfigurationsDefined() {
+    public boolean hasMultipleConfigurations() {
         return state.awsConfigurations.size() > 1;
     }
 
