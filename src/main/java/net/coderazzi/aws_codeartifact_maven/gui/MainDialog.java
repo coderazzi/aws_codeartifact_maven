@@ -251,7 +251,8 @@ public class MainDialog extends DialogWrapper {
      * Displays the information for the aws profiles, once loaded in the background
      */
     private void updateProfilesInForeground(Set<String> profiles, String error) {
-        ApplicationManager.getApplication().invokeLater(() -> {
+        //Canmot use here ApplicationManager.getApplication().invokeLater
+        SwingUtilities.invokeLater(() -> {
             loadingProfilesThread = null;
             state.setProfileNames(profiles);
             showProfileInformation();
@@ -265,7 +266,7 @@ public class MainDialog extends DialogWrapper {
 
     private void updateServersInForeground(String originalSetting, Set<String> serverIds, String error) {
         final Thread thread = Thread.currentThread();
-        ApplicationManager.getApplication().invokeLater(() -> {
+        SwingUtilities.invokeLater(() -> {
             if (thread == loadingServersThread) {
                 state.getCurrentConfiguration().mavenServerId=originalSetting;
                 state.setDefinedMavenServerIds(serverIds);
