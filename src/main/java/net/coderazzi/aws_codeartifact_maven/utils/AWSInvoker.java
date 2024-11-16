@@ -16,12 +16,12 @@ public class AWSInvoker {
         boolean isCancelled();
     }
 
-    public static OperationOutput getAuthToken(String domain,
-                                               String domainOwner,
-                                               String awsPath,
-                                               Object awsProfile,
-                                               String awsRegion,
-                                               Cancellable cancellable) {
+    public static String getAuthToken(String domain,
+                                      String domainOwner,
+                                      String awsPath,
+                                      Object awsProfile,
+                                      String awsRegion,
+                                      Cancellable cancellable) throws OperationException {
         // Do not send the profile if awsProfile is null or default
         String profile = awsProfile == null || "".equals(awsProfile) || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
                 String.format("--profile %s ", awsProfile);
@@ -31,7 +31,6 @@ public class AWSInvoker {
         String command = String.format(
                 "%s codeartifact get-authorization-token %s%s--domain %s --domain-owner %s --query authorizationToken --output text",
                 awsPath, profile, region, domain, domainOwner);
-        OperationOutput ret = new OperationOutput();
         try {
             LOGGER.debug(command);
             Process process = Runtime.getRuntime().exec(command);
@@ -53,30 +52,30 @@ public class AWSInvoker {
                     process.getOutputStream().flush();
                 }
             }
-            if (0 == process.exitValue()) {
-                ret.output = inputReader.getOutput();
-                if (ret.output == null) {
-                    ret.output = "No output collected from AWS command";
-                } else {
-                    ret.ok = true;
+            if (process.exitValue() == 0) {
+                String ret = inputReader.getOutput();
+                if (ret == null) {
+                    throw new OperationException("No output collected from AWS command");
                 }
+                return ret;
+            }
+            String error = outputReader.getOutput();
+            if (error == null) {
+                error = "Auth token request failed without additional information";
             } else {
-                ret.output = outputReader.getOutput();
-                if (ret.output != null) {
-                    ret.output = ret.output.trim();
+                error = error.trim();
+                if (!profile.isEmpty() && error.contains("aws configure")) {
+                    error += "\n\n You could also consider \"aws configure " + profile.trim() + "\"";
                 }
             }
+            throw new OperationException(error);
         } catch (InvocationTargetException ex) {
             LOGGER.error(ex);
-            ret.output = "Internal plugin error";
+            throw new OperationException("Internal plugin error");
 
         } catch (Exception ex) {
-            ret.output = "Error executing aws:" + ex.getMessage();
+            throw new OperationException("Error executing aws:" + ex.getMessage());
         }
-        if (!profile.isEmpty() && ret.output.contains("aws configure")) {
-            ret.output += "\n\n You could also consider \"aws configure " + profile.trim() + "\"";
-        }
-        return ret;
     }
 
     private static class ProcessReader implements Runnable {

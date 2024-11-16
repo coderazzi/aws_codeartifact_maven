@@ -62,13 +62,13 @@ final public class Configuration {
             // or new installation
             state.awsConfigurations = new HashMap<>();
             if (state.allMavenServerIds.isEmpty()){
-                AWS_Configuration conf = new AWS_Configuration();
+                AwsConfiguration conf = new AwsConfiguration();
                 conf.enabled = true;
                 state.awsConfigurations.put(DEFAULT_CONFIGURATION_NAME, conf);
                 state.configuration = DEFAULT_CONFIGURATION_NAME;
             } else {
                 for (String id : state.allMavenServerIds) {
-                    AWS_Configuration conf = new AWS_Configuration();
+                    AwsConfiguration conf = new AwsConfiguration();
                     conf.profile = state.awsProfile;
                     conf.mavenServerId = id;
                     conf.domain = state.domains.get(id);
@@ -95,8 +95,12 @@ final public class Configuration {
         state.version = VERSION_2024NOV09;
     }
 
-    public AWS_Configuration getCurrentConfiguration() {
+    public AwsConfiguration getCurrentConfiguration() {
         return state.awsConfigurations.get(state.configuration);
+    }
+
+    public AwsConfiguration getConfiguration(String configurationName) {
+        return state.awsConfigurations.get(configurationName);
     }
 
     public Set<String> getConfigurationNames() {
@@ -167,8 +171,8 @@ final public class Configuration {
 
 
     public void addConfiguration(String name) {
-        AWS_Configuration current = getCurrentConfiguration();
-        AWS_Configuration conf = new AWS_Configuration();
+        AwsConfiguration current = getCurrentConfiguration();
+        AwsConfiguration conf = new AwsConfiguration();
         conf.domain = current.domain;
         conf.domainOwner = current.domainOwner;
         conf.mavenServerId = null;

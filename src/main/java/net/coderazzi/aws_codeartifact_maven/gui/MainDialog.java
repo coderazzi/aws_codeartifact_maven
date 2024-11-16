@@ -14,6 +14,7 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.AbstractLayout;
 import com.intellij.util.ui.*;
+import net.coderazzi.aws_codeartifact_maven.state.AwsConfiguration;
 import net.coderazzi.aws_codeartifact_maven.utils.AWSProfileHandler;
 import net.coderazzi.aws_codeartifact_maven.utils.MavenSettingsFileHandler;
 import net.coderazzi.aws_codeartifact_maven.state.Configuration;
@@ -70,13 +71,13 @@ public class MainDialog extends DialogWrapper {
     public MainDialog(Project project) {
         super(true); // use current window as parent
         this.project = project;
-        serverWarningLabel = getLabel("invalid server id, not found in settings file");
-        serverWarningEmptyLabel = getLabel("");
+        serverWarningLabel = createLabel("invalid server id, not found in settings file");
+        serverWarningEmptyLabel = createLabel("");
         serverWarningLabel.setIcon(AllIcons.General.Error);
         serverWarningLabel.setVisible(false);
         serverWarningEmptyLabel.setVisible(false);
-        profileWarningLabel = getLabel("invalid profile");
-        profileWarningEmptyLabel = getLabel("");
+        profileWarningLabel = createLabel("invalid profile");
+        profileWarningEmptyLabel = createLabel("");
         profileWarningLabel.setIcon(AllIcons.General.Error);
         profileWarningLabel.setVisible(false);
         profileWarningEmptyLabel.setVisible(false);
@@ -89,8 +90,8 @@ public class MainDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        if (this.getOKAction().isEnabled()) {
-            new GenerationDialog(project, state, true).show();
+        if (this.getOKAction().isEnabled() && new GenerationDialog(project, state).showAndGet()) {
+            super.doOKAction();
         }
     }
 
@@ -138,10 +139,11 @@ public class MainDialog extends DialogWrapper {
         Object s = configurationComboBox.getSelectedItem();
         if (s != null){
             state.setConfigurationName(s.toString());
-            enabledCheckbox.setSelected(state.getCurrentConfiguration().enabled);
-            domain.setText(state.getCurrentConfiguration().domain);
-            domainOwner.setText(state.getCurrentConfiguration().domainOwner);
-            setSelectedRegion(state.getCurrentConfiguration().region);
+            AwsConfiguration current = state.getCurrentConfiguration();
+            enabledCheckbox.setSelected(current.enabled);
+            domain.setText(current.domain);
+            domainOwner.setText(current.domainOwner);
+            setSelectedRegion(current.region);
             showRepositoryInformation(false);
             showProfileInformation();
         }
@@ -282,16 +284,18 @@ public class MainDialog extends DialogWrapper {
         JButton ok = getButton((getOKAction()));
         if (ok != null) {
             ok.setEnabled(
-                    (generateAllCheckBox.isEnabled()
+                    checkNonEmpty(awsPath)
+                    && checkNonEmpty(settingsFile)
+                    && (  (
+                            generateAllCheckBox.isEnabled()
                             && generateAllCheckBox.isSelected())
-                    ||
-                    (checkNonEmpty(domain)
+                       || (
+                            checkNonEmpty(domain)
                             && checkNonEmpty(domainOwner)
                             && checkHasSelection(serverIdComboBox)
                             && checkHasSelection(profileComboBox)
-                            && checkNonEmpty(awsPath)
                             && !serverWarningLabel.isVisible()
-                            && !profileWarningLabel.isVisible()));
+                            && !profileWarningLabel.isVisible())));
         }
     }
 
@@ -403,30 +407,30 @@ public class MainDialog extends DialogWrapper {
 
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.add(new TitledSeparator("Repository Configurations"), gridbag.nextLine().coverLine());
-        centerPanel.add(getLabel("Configuration:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(createLabel("Configuration:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(configurationsWithAdd, gridbag.next().coverLine());
-        centerPanel.add(getLabel("Enabled"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(createLabel("Enabled"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(enabledCheckbox, gridbag.next().coverLine());
         centerPanel.add(new TitledSeparator("Repository Info"), gridbag.nextLine().coverLine());
-        centerPanel.add(getLabel("Domain:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(createLabel("Domain:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(domain, gridbag.next().coverLine());
-        centerPanel.add(getLabel("Domain owner:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(createLabel("Domain owner:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(domainOwner, gridbag.next().coverLine());
-        centerPanel.add(getLabel("Maven server id:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(createLabel("Maven server id:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(mavenServerIdWrapper, gridbag.next().coverLine());
 
         centerPanel.add(serverWarningEmptyLabel, gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(serverWarningLabel, gridbag.next().coverLine());
-        centerPanel.add(getLabel("AWS profile:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(createLabel("AWS profile:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(profileWrapper, gridbag.next().coverLine());
         centerPanel.add(profileWarningEmptyLabel, gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(profileWarningLabel, gridbag.next().coverLine());
-        centerPanel.add(getLabel("Region:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(createLabel("Region:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(regionComboBox, gridbag.next().coverLine());
         centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
-        centerPanel.add(getLabel("Maven settings file:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(createLabel("Maven settings file:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(settingsFileBrowser, gridbag.next().coverLine());
-        centerPanel.add(getLabel("AWS cli path:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(createLabel("AWS cli path:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(awsPathBrowser, gridbag.next().coverLine());
         centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 24, 0));
 
@@ -469,7 +473,7 @@ public class MainDialog extends DialogWrapper {
         return label;
     }
 
-    private JBLabel getLabel(String text) {
+    private JBLabel createLabel(String text) {
         JBLabel label = new JBLabel(text);
         label.setComponentStyle(UIUtil.ComponentStyle.SMALL);
         label.setFontColor(UIUtil.FontColor.BRIGHTER);

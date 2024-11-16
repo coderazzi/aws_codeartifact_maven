@@ -21,7 +21,7 @@ final class PersistentState implements PersistentStateComponent<PersistentState>
 
     public Set<String> allProfiles;
     public Set<String> allMavenServerIds;
-    public Map<String, AWS_Configuration> awsConfigurations;
+    public Map<String, AwsConfiguration> awsConfigurations;
 
     //next fields are obsolete since version 7 (2024Nov09)
     public String mavenServerId;
