@@ -79,6 +79,8 @@ For more information on the distinction between role-based-MFA and user-based-MF
 [https://coderazzi.net/cloud/aws/mfa](https://coderazzi.net/cloud/aws/mfa)
 
 ## Versions
+* Version 3.3.2 : 16th Nov 2024: Revert partially changes in version 3.3.1, MFA and reload
+                  of profiles / maven server ids not working on 3.3.1
 * Version 3.3.1 : 14th Nov 2024: Make plugin compatible with latest IDE version (2024.3).
   It solves an exception requesting that Access is allowed from write thread only
 * Version 3.3.0 : 03rd May 2024: Make plugin compatible with latest IDE version (2024.1)

@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/coderazzi/aws_codeartifact_maven">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>3.3.1</version>
+  <version>3.3.2</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -92,6 +92,8 @@
 
   <change-notes><![CDATA[
     <ul>
+      <li>Version 3.3.2 : 16th Nov 2024: Revert partially changes in version 3.3.1, MFA and reload
+                          of profiles / maven server ids not working on 3.3.1</li>
       <li>Version 3.3.1 : 14th Nov 2024: Make plugin compatible with latest IDE version (2024.3).
                           It solves an exception requesting that Access is allowed from write thread only</li>
       <li>Version 3.3.0 : 03rd May 2024: Make plugin compatible with latest IDE version (2024.1)</li>

@@ -5,12 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00ec5e31-86b5-4add-a132-bbb908348824" name="Changes" comment="Refactoring of the Persistence classes">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/InputDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/LaunchAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/LaunchAction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/MfaDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/coderazzi/aws_codeartifact_maven/MfaDialog.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
     </list>
@@ -50,18 +49,12 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="aws_codeartifact_maven" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="aws_codeartifact_maven" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="intellij" type="c8890929:TasksNode$1" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="aws_codeartifact_maven" type="f1a62948:ProjectNode" />
-                <item name="Run Configurations" type="7b0102dc:RunConfigurationsNode" />
+                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
               </path>
             </expand>
             <select />
@@ -99,34 +92,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Gradle.Run Plugin.executor": "Debug",
-    "Gradle.aws_codeartifact_maven [buildPlugin].executor": "Run",
-    "Gradle.aws_codeartifact_maven [build].executor": "Run",
-    "Gradle.aws_codeartifact_maven [setupDependencies].executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "com.google.cloudcode.ide_session_index": "20240422_0000",
-    "git-widget-placeholder": "main",
-    "go.import.settings.migrated": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/coderazzi/development/aws_codeartifact_maven",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.Run Plugin.executor&quot;: &quot;Debug&quot;,
+    &quot;Gradle.aws_codeartifact_maven [buildPlugin].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.aws_codeartifact_maven [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.aws_codeartifact_maven [setupDependencies].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;com.google.cloudcode.ide_session_index&quot;: &quot;20240422_0000&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/coderazzi/development/aws_codeartifact_maven&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager" selected="Gradle.aws_codeartifact_maven [build]">
+}</component>
+  <component name="RunManager" selected="Gradle.aws_codeartifact_maven [buildPlugin]">
     <configuration name="aws_codeartifact_maven [buildPlugin]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -195,8 +188,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.aws_codeartifact_maven [build]" />
         <item itemvalue="Gradle.aws_codeartifact_maven [buildPlugin]" />
+        <item itemvalue="Gradle.aws_codeartifact_maven [build]" />
         <item itemvalue="Gradle.aws_codeartifact_maven [check]" />
       </list>
     </recent_temporary>
@@ -239,6 +232,7 @@
       <workItem from="1724242955264" duration="1721000" />
       <workItem from="1724401292303" duration="1095000" />
       <workItem from="1731581775833" duration="9000" />
+      <workItem from="1731764314072" duration="233000" />
     </task>
     <task id="LOCAL-00001" summary="Corrected default icon, first attempt to correct icon.">
       <option name="closed" value="true" />
@@ -410,7 +404,8 @@
     <MESSAGE value="Remove usage of deprecated API; ensure better compatiiblity with version 2024.1" />
     <MESSAGE value="Use EDT instead of BGT for the launch action.&#10;Access the plugin state via ApplicationManager" />
     <MESSAGE value="Update source/target JVM to 17" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update source/target JVM to 17" />
+    <MESSAGE value="Need to use SwingUtilities.invokeLater" />
+    <option name="LAST_COMMIT_MESSAGE" value="Need to use SwingUtilities.invokeLater" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

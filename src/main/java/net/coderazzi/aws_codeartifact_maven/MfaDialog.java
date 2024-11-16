@@ -41,7 +41,8 @@ class MfaDialog extends DialogWrapper {
         return mfa.getText();
     }
 
-    public static String getMfaCode(final String request) throws InvocationTargetException {
+    public static String getMfaCode(final String request)
+            throws InvocationTargetException{
         final DialogStatus status = new DialogStatus();
         ApplicationManager.getApplication().invokeAndWait(() -> {
             final MfaDialog dialog = new MfaDialog(request);
