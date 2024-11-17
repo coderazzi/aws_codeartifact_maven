@@ -1,6 +1,7 @@
 package net.coderazzi.aws_codeartifact_maven.gui;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
@@ -61,14 +62,15 @@ public class MainDialog extends DialogWrapper {
     private final JBCheckBox generateAllCheckBox = new JBCheckBox("Generate Tokens for all configurations");
     private final JBCheckBox enabledCheckbox = new JBCheckBox();
 
-    private Thread loadingServersThread, loadingProfilesThread;
+    private boolean loadingProfiles;
+    private Thread loadingServersThread;
     private final Project project;
     private final Configuration state = new Configuration();
 
     private ComponentWithBrowseButton<ComponentWithBrowseButton> removeConfigurationsComponent;
 
     public MainDialog(Project project) {
-        super(true); // use current window as parent
+        super(project, true); // use current window as parent
         this.project = project;
         serverWarningLabel = createLabel("invalid server id, not found in settings file");
         serverWarningEmptyLabel = createLabel("");
@@ -134,7 +136,7 @@ public class MainDialog extends DialogWrapper {
         }
     }
 
-    private void updateConfiguration(){
+    private void handleConfigurationUpdate(){
         Object s = configurationComboBox.getSelectedItem();
         if (s != null){
             state.setConfigurationName(s.toString());
@@ -227,11 +229,12 @@ public class MainDialog extends DialogWrapper {
      * It does nothing if there is already a reload in progress
      */
     private void reloadProfilesInBackground() {
-        if (loadingProfilesThread == null) {
+        if (!loadingProfiles) {
+            loadingProfiles = true;
             profileComboBox.setEnabled(false);
             profileModel.removeAllElements();
             profileModel.addElement(LOADING);
-            loadingProfilesThread = new Thread(() -> {
+            ApplicationManager.getApplication().executeOnPooledThread(() -> {
                 Set<String> profiles;
                 String error = null;
                 try {
@@ -242,7 +245,6 @@ public class MainDialog extends DialogWrapper {
                 }
                 updateProfilesInForeground(profiles, error);
             });
-            loadingProfilesThread.start();
         }
     }
 
@@ -250,13 +252,13 @@ public class MainDialog extends DialogWrapper {
      * Displays the information for the aws profiles, once loaded in the background
      */
     private void updateProfilesInForeground(Set<String> profiles, String error) {
-        //Canmot use here ApplicationManager.getApplication().invokeLater
+        //Cannot use here ApplicationManager.getApplication().invokeLater
         SwingUtilities.invokeLater(() -> {
-            loadingProfilesThread = null;
+            loadingProfiles = false;
             state.setProfileNames(profiles);
-            showProfileInformation();
             profileComboBox.setEnabled(true);
             profileComboBox.requestFocus();
+            showProfileInformation();
             if (error != null) {
                 Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
             }
@@ -354,7 +356,7 @@ public class MainDialog extends DialogWrapper {
         handleComboBoxChange(serverIdComboBox, this::handleMavenServerIdChange);
         handleComboBoxChange(profileComboBox, this::handleProfileChange);
         handleComboBoxChange(regionComboBox, this::handleRegionChange);
-        handleComboBoxChange(configurationComboBox, this::updateConfiguration);
+        handleComboBoxChange(configurationComboBox, this::handleConfigurationUpdate);
         enabledCheckbox.addItemListener(this::handleEnableConfigurationChange);
         generateAllCheckBox.addItemListener(this::handleGenerateAllChange);
         showConfigurationInformation(true);

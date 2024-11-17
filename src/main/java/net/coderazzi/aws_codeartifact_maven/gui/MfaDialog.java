@@ -1,12 +1,11 @@
 package net.coderazzi.aws_codeartifact_maven.gui;
 
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.BorderLayout;
-import java.lang.reflect.InvocationTargetException;
 
 public class MfaDialog extends DialogWrapper {
 
@@ -14,8 +13,8 @@ public class MfaDialog extends DialogWrapper {
     private final JTextField mfa = new JTextField(6);
     private final String request;
 
-    public MfaDialog(String awsRequest) {
-        super(true); // use current window as parent
+    public MfaDialog(Project project, String awsRequest) {
+        super(project, true); // use current window as parent
         request = awsRequest;
         init();
         setTitle(TITLE);
@@ -39,21 +38,6 @@ public class MfaDialog extends DialogWrapper {
 
     public String getMfaCode() {
         return mfa.getText();
-    }
-
-    public static String getMfaCode(final String request) throws InvocationTargetException {
-        final DialogStatus status = new DialogStatus();
-        ApplicationManager.getApplication().invokeAndWait(() -> {
-            final MfaDialog dialog = new MfaDialog(request);
-            if (dialog.showAndGet()) {
-                status.code = dialog.getMfaCode();
-            }
-        });
-        return status.code;
-    }
-
-    private static class DialogStatus {
-        public String code;
     }
 
 }

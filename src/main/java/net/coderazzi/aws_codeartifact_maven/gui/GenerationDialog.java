@@ -2,6 +2,7 @@ package net.coderazzi.aws_codeartifact_maven.gui;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
 import com.intellij.ui.components.JBLabel;
@@ -20,6 +21,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -27,12 +29,7 @@ import java.util.TreeMap;
 import static com.intellij.util.ui.JBUI.Borders.empty;
 
 @SuppressWarnings({"unchecked"})
-class GenerationDialog extends DialogWrapper implements AWSInvoker.Cancellable{
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
+class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundController {
 
     private static class ConfigurationRow {
         AwsConfiguration configuration;
@@ -40,6 +37,7 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.Cancellable{
         ConfigurationRow(AwsConfiguration configuration) { this.configuration = configuration; }
     }
 
+    final private static Logger LOGGER = Logger.getInstance(AWSInvoker.class);
     final private static int MAX_ERROR_MESSAGE = 32;
     final private static long ARTIFICIAL_WAIT_MS = 100;
     private final Project project;
@@ -52,7 +50,7 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.Cancellable{
 
     public GenerationDialog(final Project project,
                             final Configuration state) {
-        super(true); // use current window as parent
+        super(project, true); // use current window as parent
         this.project = project;
         mavenSettingsFile = state.getMavenServerSettingsFile();
         awsPath=state.getAWSPath();
@@ -66,7 +64,6 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.Cancellable{
         setTitle("Generating AWS Auth Tokens");
         setAutoAdjustable(true);
         setOKButtonText("Close");
-        setCancelButtonText("Back");
 
         getWindow().addWindowListener(new WindowAdapter() {
             @Override
@@ -96,7 +93,7 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.Cancellable{
 
     private void generationComplete(final boolean withErrors){
         SwingUtilities.invokeLater(()->{
-            setCancelButtonText("Ok");
+            setCancelButtonText("Back");
             getCancelAction().setEnabled(true);
             if (withErrors) {
                 // if there are errors, just for one configuration, the error is shown directly
@@ -144,8 +141,10 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.Cancellable{
 
     private void setMessage(JLabel label, TaskState taskState, String message) {
         // cannot use here ApplicationManager.getApplication().invokeLater, does nothing
+        LOGGER.info("Ready to show message " + message);
         try {
             SwingUtilities.invokeLater(() -> {
+                LOGGER.info("Showing message " + message);
                 label.setText(message.length() > MAX_ERROR_MESSAGE?
                         message.substring(0, MAX_ERROR_MESSAGE) + "..." : message);
                 if (taskState.icon != label.getIcon()) {
@@ -170,7 +169,7 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.Cancellable{
 
     protected @NotNull JPanel createButtonsPanel(@NotNull List buttons) {
         JPanel ret = super.createButtonsPanel(buttons);
-        getOKAction().setEnabled(false);
+//        getOKAction().setEnabled(false);
         return ret;
     }
 
@@ -246,6 +245,30 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.Cancellable{
                 cancelAction.setEnabled(false);
             }
         }
+    }
+
+    @Override
+    public String requestMfaCode(String request)  throws OperationException{
+        final String ret[] = new String[1];
+        try {
+            SwingUtilities.invokeAndWait(() -> {
+                MfaDialog dialog = new MfaDialog(project, request);
+                if (dialog.showAndGet()) {
+                    ret[0] = dialog.getMfaCode();
+                }
+            });
+        } catch(Exception iex) {
+            throw new OperationException("Internal plugin error");
+        }
+        if (ret[0] == null || ret[0].isEmpty()) {
+            throw new OperationException("No MFA code provided");
+        }
+        return ret[0];
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
     }
 
     private static void checkNotEmptyString(String text, String description) throws OperationException {

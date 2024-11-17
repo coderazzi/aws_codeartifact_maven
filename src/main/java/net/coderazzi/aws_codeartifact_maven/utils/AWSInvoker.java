@@ -12,8 +12,9 @@ import java.util.regex.Pattern;
 
 public class AWSInvoker {
 
-    public interface Cancellable {
+    public interface BackgroundController {
         boolean isCancelled();
+        String requestMfaCode(String request) throws OperationException;
     }
 
     public static String getAuthToken(String domain,
@@ -21,7 +22,7 @@ public class AWSInvoker {
                                       String awsPath,
                                       Object awsProfile,
                                       String awsRegion,
-                                      Cancellable cancellable) throws OperationException {
+                                      BackgroundController controller) throws OperationException {
         // Do not send the profile if awsProfile is null or default
         String profile = awsProfile == null || "".equals(awsProfile) || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
                 String.format("--profile %s ", awsProfile);
@@ -37,13 +38,13 @@ public class AWSInvoker {
             ProcessReader inputReader = new ProcessReader(process.getInputStream());
             ProcessReader outputReader = new ProcessReader(process.getErrorStream());
             while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
-                if (cancellable.isCancelled()) {
+                if (controller.isCancelled()) {
                     process.destroy();
                     return null;
                 }
                 String mfaRequest = outputReader.getMfaCodeRequest();
                 if (mfaRequest != null) {
-                    String mfaCode = MfaDialog.getMfaCode(mfaRequest);
+                    String mfaCode = controller.requestMfaCode(mfaRequest);
                     if (mfaCode == null) {
                         process.destroy();
                         return null;
@@ -69,10 +70,8 @@ public class AWSInvoker {
                 }
             }
             throw new OperationException(error);
-        } catch (InvocationTargetException ex) {
-            LOGGER.error(ex);
-            throw new OperationException("Internal plugin error");
-
+        } catch (OperationException oex) {
+            throw oex;
         } catch (Exception ex) {
             throw new OperationException("Error executing aws:" + ex.getMessage());
         }
