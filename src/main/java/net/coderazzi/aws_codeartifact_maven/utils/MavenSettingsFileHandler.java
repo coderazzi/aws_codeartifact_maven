@@ -1,4 +1,4 @@
-package net.coderazzi.aws_codeartifact_maven;
+package net.coderazzi.aws_codeartifact_maven.utils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,9 +25,9 @@ import java.util.TreeSet;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-class MavenSettingsFileHandler {
+public class MavenSettingsFileHandler {
 
-    static class GetServerIdsException extends Exception {
+    public static class GetServerIdsException extends Exception {
         GetServerIdsException(String ex) {
             super(ex);
         }
@@ -79,8 +79,7 @@ class MavenSettingsFileHandler {
         throw new IOException(String.format("Cannot read file '%s'", this.settingsPath));
     }
 
-    public OperationOutput locateServer(String serverId) {
-        OperationOutput ret = new OperationOutput();
+    public void locateServer(String serverId) throws OperationException{
         xmlPasswordElement = null;
         try {
             Document input = getDocument();
@@ -92,35 +91,31 @@ class MavenSettingsFileHandler {
                 nodes = parent.getElementsByTagName(PASSWORD);
                 if (nodes.getLength() == 1) {
                     xmlPasswordElement = (Element) nodes.item(0);
-                    ret.ok = true;
                 } else if (nodes.getLength() == 0) {
                     xmlPasswordElement = input.createElement(PASSWORD);
                     parent.appendChild(xmlPasswordElement);
-                    ret.ok = true;
                 } else {
-                    ret.output = String.format("Unexpected: many password tags for server '%s' in settings file %s",
+                    throw new OperationException("Unexpected: many password tags for server '%s' in settings file %s",
                             serverId, this.settingsPath);
                 }
             } else {
-                ret.output = String.format("Cannot find a server '%s' in settings file '%s'",
+                throw new OperationException("Cannot find a server '%s' in settings file '%s'",
                         serverId, this.settingsPath);
             }
         } catch (ParserConfigurationException | SAXException ex) {
-            ret.output = String.format("XML parsing error in settings file %s: %s", this.settingsPath, ex.getMessage());
+            throw new OperationException("XML parsing error in settings file %s: %s", this.settingsPath, ex.getMessage());
         } catch (XPathExpressionException ex) {
-            ret.output = String.format("XPath error, invalid maven server id(%s)", serverId);
+            throw new OperationException("XPath error, invalid maven server id(%s)", serverId);
         } catch (IOException ex) {
-            ret.output = String.format("Error accessing settings file: %s", ex.getMessage());
+            throw new OperationException("Error accessing settings file: %s", ex.getMessage());
         }
-        return ret;
     }
 
-    public OperationOutput setPassword(String awsCredential) {//throws TransformerException, IOException {
-        OperationOutput ret = new OperationOutput();
+    public void setPassword(String authToken) throws OperationException{
         if (xmlPasswordElement == null) {
-            ret.output = "Cannot replace credentials";
+            throw new OperationException("Cannot replace auth token");
         } else {
-            xmlPasswordElement.setTextContent(awsCredential);
+            xmlPasswordElement.setTextContent(authToken);
 
             TransformerFactory tFactory = TransformerFactory.newInstance();
             try {
@@ -134,16 +129,14 @@ class MavenSettingsFileHandler {
                     StreamResult output = new StreamResult(temp);
                     transformer.transform(new DOMSource(xmlPasswordElement.getOwnerDocument()), output);
                     Files.move(temp.toPath(), settings.toPath(), REPLACE_EXISTING);
-                    ret.ok = true;
                 } finally {
                     temp.delete();
                 }
             } catch (TransformerException tex) {
-                ret.output = "Unexpected XML error: " + tex.getMessage();
+                throw new OperationException("Unexpected XML error: " + tex.getMessage());
             } catch (IOException ex) {
-                ret.output = "Could not update settings file: " + ex.getMessage();
+                throw new OperationException("Could not update settings file: " + ex.getMessage());
             }
         }
-        return ret;
     }
 }

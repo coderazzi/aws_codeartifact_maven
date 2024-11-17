@@ -1,48 +1,48 @@
-package net.coderazzi.aws_codeartifact_maven;
+package net.coderazzi.aws_codeartifact_maven.utils;
 
 import com.intellij.openapi.diagnostic.Logger;
+import net.coderazzi.aws_codeartifact_maven.state.Configuration;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class AWSInvoker {
+public class AWSInvoker {
 
-    public interface Cancellable {
+    public interface BackgroundController {
         boolean isCancelled();
+        String requestMfaCode(String request) throws OperationException;
     }
 
-    public static OperationOutput getCredentials(String domain,
-                                                 String domainOwner,
-                                                 String awsPath,
-                                                 String awsProfile,
-                                                 String awsRegion,
-                                                 Cancellable cancellable) {
+    public static String getAuthToken(String domain,
+                                      String domainOwner,
+                                      String awsPath,
+                                      Object awsProfile,
+                                      String awsRegion,
+                                      BackgroundController controller) throws OperationException {
         // Do not send the profile if awsProfile is null or default
-        String profile = awsProfile == null || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
+        String profile = awsProfile == null || "".equals(awsProfile) || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
                 String.format("--profile %s ", awsProfile);
         String region = awsRegion == null || awsRegion.isBlank() ||
-                awsRegion.equals(InputDialogState.DEFAULT_PROFILE_REGION) ? "" :
+                awsRegion.equals(Configuration.DEFAULT_PROFILE_REGION) ? "" :
                 String.format("--region %s ", awsRegion);
         String command = String.format(
                 "%s codeartifact get-authorization-token %s%s--domain %s --domain-owner %s --query authorizationToken --output text",
                 awsPath, profile, region, domain, domainOwner);
-        OperationOutput ret = new OperationOutput();
         try {
             LOGGER.debug(command);
             Process process = Runtime.getRuntime().exec(command);
             ProcessReader inputReader = new ProcessReader(process.getInputStream());
             ProcessReader outputReader = new ProcessReader(process.getErrorStream());
             while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
-                if (cancellable.isCancelled()) {
+                if (controller.isCancelled()) {
                     process.destroy();
                     return null;
                 }
                 String mfaRequest = outputReader.getMfaCodeRequest();
                 if (mfaRequest != null) {
-                    String mfaCode = MfaDialog.getMfaCode(mfaRequest);
+                    String mfaCode = controller.requestMfaCode(mfaRequest);
                     if (mfaCode == null) {
                         process.destroy();
                         return null;
@@ -51,30 +51,28 @@ class AWSInvoker {
                     process.getOutputStream().flush();
                 }
             }
-            if (0 == process.exitValue()) {
-                ret.output = inputReader.getOutput();
-                if (ret.output == null) {
-                    ret.output = "No output collected from AWS command";
-                } else {
-                    ret.ok = true;
+            if (process.exitValue() == 0) {
+                String ret = inputReader.getOutput();
+                if (ret == null) {
+                    throw new OperationException("No output collected from AWS command");
                 }
+                return ret;
+            }
+            String error = outputReader.getOutput();
+            if (error == null) {
+                error = "Auth token request failed without additional information";
             } else {
-                ret.output = outputReader.getOutput();
-                if (ret.output != null) {
-                    ret.output = ret.output.trim();
+                error = error.trim();
+                if (!profile.isEmpty() && error.contains("aws configure")) {
+                    error += "\n\n You could also consider \"aws configure " + profile.trim() + "\"";
                 }
             }
-        } catch (InvocationTargetException ex) {
-            LOGGER.error(ex);
-            ret.output = "Internal plugin error";
-
+            throw new OperationException(error);
+        } catch (OperationException oex) {
+            throw oex;
         } catch (Exception ex) {
-            ret.output = "Error executing aws:" + ex.getMessage();
+            throw new OperationException("Error executing aws:" + ex.getMessage());
         }
-        if (!profile.isEmpty() && ret.output.contains("aws configure")) {
-            ret.output += "\n\n You could also consider \"aws configure " + profile.trim() + "\"";
-        }
-        return ret;
     }
 
     private static class ProcessReader implements Runnable {
@@ -131,9 +129,7 @@ class AWSInvoker {
 
         private String getRead() {
             try {
-                String ret = byteArrayOutputStream.toString(ENCODING);
-                System.out.println("getRead=" + ret);
-                return ret;
+                return byteArrayOutputStream.toString(ENCODING);
             } catch (UnsupportedEncodingException ex) {
                 LOGGER.error(ex);
                 return "";
