@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
@@ -318,7 +316,7 @@ public class MainDialog extends DialogWrapper {
         });
     }
 
-    private void createConfiguration(ActionEvent actionEvent) {
+    private void createConfiguration() {
         final ConfigurationNameDialog dialog = new ConfigurationNameDialog(null, state.getConfigurationNames());
         if (dialog.showAndGet()) {
             state.addConfiguration(dialog.getName());
@@ -333,7 +331,7 @@ public class MainDialog extends DialogWrapper {
         }
     }
 
-    private void deleteConfiguration(ActionEvent event) {
+    private void deleteConfiguration() {
         if (ConfirmationDialog.requestForConfirmation(VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION,
                 project,
                 "Are you sure to delete this configuration",
@@ -357,17 +355,17 @@ public class MainDialog extends DialogWrapper {
         handleComboBoxChange(profileComboBox, this::handleProfileChange);
         handleComboBoxChange(regionComboBox, this::handleRegionChange);
         handleComboBoxChange(configurationComboBox, this::handleConfigurationUpdate);
-        enabledCheckbox.addItemListener(this::handleEnableConfigurationChange);
-        generateAllCheckBox.addItemListener(this::handleGenerateAllChange);
+        enabledCheckbox.addItemListener(x->handleEnableConfigurationChange());
+        generateAllCheckBox.addItemListener(x->handleGenerateAllChange());
         showConfigurationInformation(true);
     }
 
-    private void handleGenerateAllChange(ItemEvent e) {
+    private void handleGenerateAllChange() {
         state.setGenerateForAll(generateAllCheckBox.isSelected());
         updateGenerationButtonState();
     }
 
-    private void handleEnableConfigurationChange(ItemEvent e) {
+    private void handleEnableConfigurationChange() {
         state.getCurrentConfiguration().enabled = enabledCheckbox.isSelected();
     }
 
@@ -396,9 +394,9 @@ public class MainDialog extends DialogWrapper {
                 new ComponentWithBrowseButton<>(profileComboBox, x -> reloadProfilesInBackground());
         ComponentWithBrowseButton<ComboBoxWithWidePopup> configurations =
                 new ComponentWithBrowseButton<>(configurationComboBox, x -> renameConfiguration());
-        removeConfigurationsComponent = new ComponentWithBrowseButton<>(configurations, this::deleteConfiguration);
+        removeConfigurationsComponent = new ComponentWithBrowseButton<>(configurations, x -> deleteConfiguration());
         ComponentWithBrowseButton<ComponentWithBrowseButton> configurationsWithAdd =
-                new ComponentWithBrowseButton<>(removeConfigurationsComponent, this::createConfiguration);
+                new ComponentWithBrowseButton<>(removeConfigurationsComponent, x -> createConfiguration());
 
         double labelsWeight = 2.0;
 

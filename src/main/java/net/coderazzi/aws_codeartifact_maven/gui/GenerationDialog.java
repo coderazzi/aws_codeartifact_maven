@@ -32,7 +32,7 @@ import static com.intellij.util.ui.JBUI.Borders.empty;
 class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundController {
 
     private static class ConfigurationRow {
-        AwsConfiguration configuration;
+        final AwsConfiguration configuration;
         JBLabel message;
         ConfigurationRow(AwsConfiguration configuration) { this.configuration = configuration; }
     }
@@ -169,7 +169,7 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
 
     protected @NotNull JPanel createButtonsPanel(@NotNull List buttons) {
         JPanel ret = super.createButtonsPanel(buttons);
-//        getOKAction().setEnabled(false);
+        getOKAction().setEnabled(false);
         return ret;
     }
 
@@ -249,7 +249,7 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
 
     @Override
     public String requestMfaCode(String request)  throws OperationException{
-        final String ret[] = new String[1];
+        final String []ret = new String[1];
         try {
             SwingUtilities.invokeAndWait(() -> {
                 Messages.InputDialog dialog = new Messages.InputDialog(project, request, "AWS input request", null, "", new MfaCodeValidator());
