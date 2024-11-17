@@ -10,6 +10,7 @@ import com.intellij.util.ui.UIUtil;
 import net.coderazzi.aws_codeartifact_maven.state.AwsConfiguration;
 import net.coderazzi.aws_codeartifact_maven.utils.AWSInvoker;
 import net.coderazzi.aws_codeartifact_maven.utils.MavenSettingsFileHandler;
+import net.coderazzi.aws_codeartifact_maven.utils.MfaCodeValidator;
 import net.coderazzi.aws_codeartifact_maven.utils.OperationException;
 import net.coderazzi.aws_codeartifact_maven.state.Configuration;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +22,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -252,9 +252,9 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
         final String ret[] = new String[1];
         try {
             SwingUtilities.invokeAndWait(() -> {
-                MfaDialog dialog = new MfaDialog(project, request);
+                Messages.InputDialog dialog = new Messages.InputDialog(project, request, "AWS input request", null, "", new MfaCodeValidator());
                 if (dialog.showAndGet()) {
-                    ret[0] = dialog.getMfaCode();
+                    ret[0] = dialog.getInputString();
                 }
             });
         } catch(Exception iex) {

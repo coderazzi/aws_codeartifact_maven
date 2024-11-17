@@ -1,11 +1,9 @@
 package net.coderazzi.aws_codeartifact_maven.utils;
 
 import com.intellij.openapi.diagnostic.Logger;
-import net.coderazzi.aws_codeartifact_maven.gui.MfaDialog;
 import net.coderazzi.aws_codeartifact_maven.state.Configuration;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
