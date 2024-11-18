@@ -214,7 +214,7 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
     }
 
     private JBLabel createLabel(String text) {
-        JBLabel label = new JBLabel(text);
+        JBLabel label = new JBLabel(text==null? "" : text);
         label.setComponentStyle(UIUtil.ComponentStyle.LARGE);
         label.setFontColor(UIUtil.FontColor.BRIGHTER);
         label.setBorder(empty(0, 5, 2, 0));
@@ -238,9 +238,15 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
             if (cancelAction.isEnabled()) {
                 cancelled = true;
                 getButton(cancelAction).setText("Cancelling....");
+                getOKAction().setEnabled(true);
                 cancelAction.setEnabled(false);
             }
         }
+    }
+
+    @Override
+    public boolean isOK() {
+        return super.isOK() && completed;
     }
 
     @Override
