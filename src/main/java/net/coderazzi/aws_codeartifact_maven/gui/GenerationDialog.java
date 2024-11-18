@@ -36,7 +36,7 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
         ConfigurationRow(AwsConfiguration configuration) { this.configuration = configuration; }
     }
 
-    final private static int MAX_ERROR_MESSAGE = 32;
+    final private static int MAX_ERROR_MESSAGE = 34;
     final private static long ARTIFICIAL_WAIT_MS = 100;
     private final Project project;
     private final String mavenSettingsFile;
@@ -44,7 +44,6 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
     private final Map<String, ConfigurationRow> configurations = new TreeMap<>();
     private final boolean isGenerateForAll;
     private boolean cancelled, completed, closeDialog;
-
 
     public GenerationDialog(final Project project,
                             final Configuration state) {
@@ -209,6 +208,30 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
             centerPanel.add(row.message = createLabel(text), c);
             row.message.setIconWithAlignment(icon, SwingConstants.LEFT, SwingConstants.CENTER);
             row.message.setCopyable(false);
+        }
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        double maxWidth = screenSize.getWidth() -64, maxHeight = screenSize.getHeight() - 128;
+        Dimension size = centerPanel.getMinimumSize();
+        if (size.getHeight() > maxHeight || size.getWidth() > maxWidth) {
+            JScrollPane scroll = new JScrollPane(centerPanel,
+                    JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+                    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            scroll.setBorder(null);
+            Dimension sizeScrollNoBar = scroll.getPreferredSize();
+            scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+            scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+            Dimension sizeScrollBar = scroll.getPreferredSize();
+            scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            size.setSize(
+                    Math.min(maxWidth, size.getWidth() + sizeScrollBar.getWidth() - sizeScrollNoBar.getWidth()),
+                    Math.min(maxHeight, size.getHeight() + sizeScrollBar.getHeight() - sizeScrollNoBar.getHeight())
+            );
+            JPanel wrapper = new JPanel(new BorderLayout());
+            wrapper.add(scroll, BorderLayout.CENTER);
+            wrapper.setPreferredSize(size);
+            return wrapper;
         }
         return centerPanel;
     }
