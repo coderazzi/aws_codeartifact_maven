@@ -23,9 +23,12 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
+import javax.swing.plaf.SeparatorUI;
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -39,6 +42,8 @@ public class MainDialog extends DialogWrapper {
 
     private final static String DARK_ICON = "META-INF/pluginIcon_dark.svg";
     private final static String LIGHT_ICON = "META-INF/pluginIcon.svg";
+    public static final int LOAD_MESSAGE_SUCCESS_TIMEOUT_MS = 1500;
+    public static final Color LIGHT_SEPARATOR_COLOR = Color.LIGHT_GRAY;
 
     private final JTextField domain = new JTextField(32);
     private final JTextField domainOwner = new JTextField(32);
@@ -212,6 +217,11 @@ public class MainDialog extends DialogWrapper {
                         Set<String> ids = new MavenSettingsFileHandler(filename).getServerIds(MAVEN_SERVER_USERNAME);
                         String error = ids.isEmpty() ? "Maven settings file does not define any server with username 'aws'"
                                 : null;
+                        if (error == null) {
+                            setTooltipOnCombobox(serverIdsModel,
+                                    String.format("Loaded %d server id%s", ids.size(), ids.size()>1 ? "s" : ""),
+                                    loadingServersThread);
+                        }
                         updateServersInForeground(current, ids, error);
                     } catch (MavenSettingsFileHandler.GetServerIdsException ex) {
                         updateServersInForeground(current, new HashSet<>(), ex.getMessage());
@@ -237,6 +247,9 @@ public class MainDialog extends DialogWrapper {
                 String error = null;
                 try {
                     profiles = AWSProfileHandler.getProfiles();
+                    setTooltipOnCombobox(profileModel,
+                            String.format("Loaded %d profile%s", profiles.size(), profiles.size()>1 ? "s" : ""),
+                            null);
                 } catch (AWSProfileHandler.GetProfilesException ex) {
                     profiles = AWSProfileHandler.getDefaultProfiles();
                     error = ex.getMessage();
@@ -261,6 +274,21 @@ public class MainDialog extends DialogWrapper {
                 Messages.showErrorDialog(settingsFile, error, COMPONENT_TITLE);
             }
         });
+    }
+
+    private void setTooltipOnCombobox(DefaultComboBoxModel model, String message, Thread checkThread) {
+        final Thread thread = Thread.currentThread();
+        try {
+            SwingUtilities.invokeAndWait(() -> {
+                if (checkThread == null || checkThread == thread) {
+                    model.removeAllElements();
+                    model.addElement(getTooltipObject(message));
+                }
+            });
+            Thread.sleep(LOAD_MESSAGE_SUCCESS_TIMEOUT_MS);
+        } catch(InterruptedException | InvocationTargetException ex) {
+            // nothing to do
+        }
     }
 
     private void updateServersInForeground(String originalSetting, Set<String> serverIds, String error) {
@@ -406,12 +434,12 @@ public class MainDialog extends DialogWrapper {
                 .setDefaultInsets(JBUI.insets(0, 0, AbstractLayout.DEFAULT_VGAP, AbstractLayout.DEFAULT_HGAP));
 
         JPanel centerPanel = new JPanel(new GridBagLayout());
-        centerPanel.add(new TitledSeparator("Repository Configurations"), gridbag.nextLine().coverLine());
+        centerPanel.add(createTitledSeparator("Repository Configurations"), gridbag.nextLine().coverLine());
         centerPanel.add(createLabel("Configuration:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(configurationsWithAdd, gridbag.next().coverLine());
         centerPanel.add(createLabel("Enabled"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(enabledCheckbox, gridbag.next().coverLine());
-        centerPanel.add(new TitledSeparator("Repository Info"), gridbag.nextLine().coverLine());
+        centerPanel.add(createTitledSeparator("Repository Info"), gridbag.nextLine().coverLine());
         centerPanel.add(createLabel("Domain:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(domain, gridbag.next().coverLine());
         centerPanel.add(createLabel("Domain owner:"), gridbag.nextLine().next().weightx(labelsWeight));
@@ -427,7 +455,7 @@ public class MainDialog extends DialogWrapper {
         centerPanel.add(profileWarningLabel, gridbag.next().coverLine());
         centerPanel.add(createLabel("Region:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(regionComboBox, gridbag.next().coverLine());
-        centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
+        centerPanel.add(createTitledSeparator("Locations"), gridbag.nextLine().coverLine());
         centerPanel.add(createLabel("Maven settings file:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(settingsFileBrowser, gridbag.next().coverLine());
         centerPanel.add(createLabel("AWS cli path:"), gridbag.nextLine().next().weightx(labelsWeight));
@@ -460,17 +488,17 @@ public class MainDialog extends DialogWrapper {
     }
 
     private JComponent getIconPanel() {
-        JLabel label = new JLabel();
+        JLabel icon = new JLabel();
         try {
             String resource = ColorUtil.isDark(getOwner().getBackground()) ? DARK_ICON : LIGHT_ICON;
             URL url = getClass().getClassLoader().getResource(resource);
             if (url != null) {
-                label.setIcon(IconLoader.findIcon(url));
+                icon.setIcon(IconLoader.findIcon(url));
             }
         } catch (Exception ex){
             // nothing to do here, just a missing icon
         }
-        return label;
+        return icon;
     }
 
     private JBLabel createLabel(String text) {
@@ -479,6 +507,16 @@ public class MainDialog extends DialogWrapper {
         label.setFontColor(UIUtil.FontColor.BRIGHTER);
         label.setBorder(empty(0, 5, 2, 0));
         return label;
+    }
+
+    private TitledSeparator createTitledSeparator(String text) {
+        TitledSeparator ret = new TitledSeparator(text);
+//        if (!ColorUtil.isDark(getOwner().getBackground())) {
+//            ret.setBackground(LIGHT_SEPARATOR_COLOR);
+//        }
+//        ret.setBackground(LIGHT_SEPARATOR_COLOR);
+        ret.getSeparator().setForeground(LIGHT_SEPARATOR_COLOR);
+        return ret;
     }
     
     @Override
@@ -503,11 +541,13 @@ public class MainDialog extends DialogWrapper {
         }
     }
 
-    private static final Object LOADING = new Object() {
-        @Override
-        public String toString() {
-            return "Loading ...";
-        }
-    };
-
+    private static final Object getTooltipObject(final String message){
+        return new Object() {
+            @Override
+            public String toString() {
+                return message;
+            }
+        };
+    }
+    private static final Object LOADING = getTooltipObject("Loading ...");
 }

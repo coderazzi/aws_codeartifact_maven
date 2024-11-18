@@ -1,7 +1,8 @@
-<idea-plugin url="https://github.com/coderazzi/aws_codeartifact_maven">
+<idea-plugin url="https://github.com/coderazzi/aws_codeartifact_maven"
+             require-restart="false">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>4.0.0</version>
+  <version>4.0.1</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -92,7 +93,7 @@
 
   <change-notes><![CDATA[
     <ul>
-      <li>Version 4.0.0 : 23rd Aug 2024: Support multiple repositories at once</li>
+      <li>Version 4.0.0 : 17th Nov 2024: Support multiple repositories at once</li>
       <li>Version 3.3.2 : 16th Nov 2024: Revert partially changes in version 3.3.1, MFA and reload
 *                         of profiles / maven server ids not working on 3.3.1</li>
       <li>Version 3.3.1 : 14th Nov 2024: Make plugin compatible with latest IDE version (2024.3).
@@ -130,9 +131,12 @@
   </extensions>
 
   <actions>
-    <action id="net.coderazzi.aws_codeartifact_maven.LaunchAction" class="net.coderazzi.aws_codeartifact_maven.LaunchAction"
-            text="Generate AWS CodeArtifact Auth Tokens for Maven" description="Generate AWS CodeArtifact Auth Tokens for Maven"
+    <action id="net.coderazzi.aws_codeartifact_maven.LaunchAction"
+            class="net.coderazzi.aws_codeartifact_maven.LaunchAction"
+            text="Generate AWS CodeArtifact Auth Tokens for Maven"
+            description="Generate AWS CodeArtifact Auth Tokens for Maven"
             icon="AllIcons.Actions.ShowWriteAccess">
+
       <add-to-group group-id="ToolsMenu" anchor="first"/>
 
     </action>

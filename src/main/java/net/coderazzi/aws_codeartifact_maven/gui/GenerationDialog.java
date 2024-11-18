@@ -37,7 +37,6 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
         ConfigurationRow(AwsConfiguration configuration) { this.configuration = configuration; }
     }
 
-    final private static Logger LOGGER = Logger.getInstance(AWSInvoker.class);
     final private static int MAX_ERROR_MESSAGE = 32;
     final private static long ARTIFICIAL_WAIT_MS = 100;
     private final Project project;
@@ -141,10 +140,8 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
 
     private void setMessage(JLabel label, TaskState taskState, String message) {
         // cannot use here ApplicationManager.getApplication().invokeLater, does nothing
-        LOGGER.info("Ready to show message " + message);
         try {
             SwingUtilities.invokeLater(() -> {
-                LOGGER.info("Showing message " + message);
                 label.setText(message.length() > MAX_ERROR_MESSAGE?
                         message.substring(0, MAX_ERROR_MESSAGE) + "..." : message);
                 if (taskState.icon != label.getIcon()) {
