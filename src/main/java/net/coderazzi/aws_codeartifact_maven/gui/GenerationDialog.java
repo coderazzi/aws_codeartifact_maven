@@ -30,6 +30,8 @@ import static com.intellij.util.ui.JBUI.Borders.empty;
 @SuppressWarnings({"unchecked"})
 class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundController {
 
+    public static final String BACK_TEXT = "Back";
+
     private static class ConfigurationRow {
         final AwsConfiguration configuration;
         JBLabel message;
@@ -90,7 +92,7 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
 
     private void generationComplete(final boolean withErrors){
         SwingUtilities.invokeLater(()->{
-            setCancelButtonText("Back");
+            setCancelButtonText(BACK_TEXT);
             getCancelAction().setEnabled(true);
             if (withErrors) {
                 // if there are errors, just for one configuration, the error is shown directly
@@ -254,16 +256,11 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
 
     @Override
     public void doCancelAction() {
-        if (completed) {
+        if (completed || cancelled) {
             super.doCancelAction();
         } else {
-            Action cancelAction = getCancelAction();
-            if (cancelAction.isEnabled()) {
-                cancelled = true;
-                getButton(cancelAction).setText("Cancelling....");
-                getOKAction().setEnabled(true);
-                cancelAction.setEnabled(false);
-            }
+            cancelled = true;
+            getButton(getCancelAction()).setText(BACK_TEXT);
         }
     }
 
