@@ -2,7 +2,6 @@ package net.coderazzi.aws_codeartifact_maven.gui;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
 import com.intellij.ui.components.JBLabel;

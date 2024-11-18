@@ -23,12 +23,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import javax.swing.plaf.SeparatorUI;
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -541,7 +539,7 @@ public class MainDialog extends DialogWrapper {
         }
     }
 
-    private static final Object getTooltipObject(final String message){
+    private static Object getTooltipObject(final String message){
         return new Object() {
             @Override
             public String toString() {
