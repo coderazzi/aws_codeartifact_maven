@@ -67,8 +67,15 @@ When selected, a window appears to enter the required details:
 * **Maven settings file**: the location of the maven settings file, usually under ~/.m2
 * **AWS cli path**: the location of the aws executable, cabe specified as **aws** if it can be found in the path
 
-The button Generate Auth Token will initiate the requests of a token to AWS and its inclusion in the maven settings
-file
+The first five settings above can be defined multiple times, using different configurations.
+A configuration is defined using the fields:
+* **Configuration**: any unique non, empty name provided by the user.
+* **Enabled**: Whether to use this configuration when generating multiple tokens at once.
+
+The button **Generate Auth Token** will initiate the requests of a token to AWS and its inclusion in the maven settings
+file. If there are multiple configurations defined, the user can update the state of checkbox
+**Generate Tokens for all configurations**; if selected, a token will be generated for each 
+enabled configuration.
 
 ## MFA support
 
@@ -79,9 +86,11 @@ For more information on the distinction between role-based-MFA and user-based-MF
 [https://coderazzi.net/cloud/aws/mfa](https://coderazzi.net/cloud/aws/mfa)
 
 ## Versions
+* Version 4.0.2 : 5th Dec 2024: Improved documentation, released as non beta
+* Version 4.0.1 : 18th Nov 2024: Handle properly a generation dialog too big
 * Version 4.0.0 : 17th Nov 2024: Support multiple repositories at once
 * Version 3.3.2 : 16th Nov 2024: Revert partially changes in version 3.3.1, MFA and reload 
-*                 of profiles / maven server ids not working on 3.3.1
+                  of profiles / maven server ids not working on 3.3.1
 * Version 3.3.1 : 14th Nov 2024: Make plugin compatible with latest IDE version (2024.3). 
                   It solves an exception requesting that Access is allowed from write thread only
 * Version 3.3.0 : 03rd May 2024: Make plugin compatible with latest IDE version (2024.1)

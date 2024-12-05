@@ -512,8 +512,6 @@ public class MainDialog extends DialogWrapper {
 //        if (!ColorUtil.isDark(getOwner().getBackground())) {
 //            ret.setBackground(LIGHT_SEPARATOR_COLOR);
 //        }
-//        ret.setBackground(LIGHT_SEPARATOR_COLOR);
-        ret.getSeparator().setForeground(LIGHT_SEPARATOR_COLOR);
         return ret;
     }
     

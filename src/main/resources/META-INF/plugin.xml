@@ -2,7 +2,7 @@
              require-restart="false">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>4.0.1</version>
+  <version>4.0.2</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -79,7 +79,18 @@
      <li><b>AWS cli path</b>: where to find the <b>aws</b> executable</li>
     </ul>
 
-    <p>The button Generate Auth Token will initiate the requests of a token to AWS and its inclusion in the maven settings file</p>
+  <p> The first five settings above can be defined multiple times, using different configurations.
+  A configuration is defined using the fields:</p>
+  <ul>
+    <li><b>Configuration</b>: any unique non, empty name provided by the user.</li>
+    <li><b>Enabled</b>: Whether to use this configuration when generating multiple tokens at once.</li>
+  </ul>
+
+  <p>The button <b>Generate Auth Token</b> will initiate the requests of a token to AWS and
+  its inclusion in the maven settings file.
+  If there are multiple configurations defined, the user can update the state of the checkbox
+  <b>Generate Tokens for all configurations</b>; if selected, a token will be generated for each
+  enabled configuration.</p>
 
 
     <h2>MFA support</h2>
@@ -93,6 +104,8 @@
 
   <change-notes><![CDATA[
     <ul>
+      <li>Version 4.0.2 : 5th Dec 2024: Improved documentation, released as non beta</li>
+      <li>Version 4.0.1 : 18th Nov 2024: Handle properly a generation dialog too big</li>
       <li>Version 4.0.0 : 17th Nov 2024: Support multiple repositories at once</li>
       <li>Version 3.3.2 : 16th Nov 2024: Revert partially changes in version 3.3.1, MFA and reload
 *                         of profiles / maven server ids not working on 3.3.1</li>
