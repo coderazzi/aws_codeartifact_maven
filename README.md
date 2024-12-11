@@ -86,7 +86,7 @@ For more information on the distinction between role-based-MFA and user-based-MF
 [https://coderazzi.net/cloud/aws/mfa](https://coderazzi.net/cloud/aws/mfa)
 
 ## Versions
-* Version 4.0.2 : 5th Dec 2024: Improved documentation, released as non beta
+* Version 4.0.2 : 05th Dec 2024: Improved documentation, released as non beta
 * Version 4.0.1 : 18th Nov 2024: Handle properly a generation dialog too big
 * Version 4.0.0 : 17th Nov 2024: Support multiple repositories at once
 * Version 3.3.2 : 16th Nov 2024: Revert partially changes in version 3.3.1, MFA and reload 
