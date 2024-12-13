@@ -8,77 +8,98 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AWSInvoker {
+public class AWSInvoker  {
+
+    private final static Logger LOGGER = Logger.getInstance(AWSInvoker.class);
+    private final static String ENCODING = "UTF-8"; // python 3 (aws cli) encoding
 
     private final InvokerController controller;
+    private final String command, profile;
 
-    public AWSInvoker(InvokerController controller) {
+    public AWSInvoker(InvokerController controller,
+                      String domain,
+                      String domainOwner,
+                      String awsPath,
+                      Object awsProfile,
+                      String awsRegion) {
         this.controller = controller;
-    }
-
-    public String getAuthToken(String domain,
-                                      String domainOwner,
-                                      String awsPath,
-                                      Object awsProfile,
-                                      String awsRegion) throws OperationException {
-        // Do not send the profile if awsProfile is null or default
-        String profile = awsProfile == null || "".equals(awsProfile) || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
-                String.format("--profile %s ", awsProfile);
         String region = awsRegion == null || awsRegion.isBlank() ||
                 awsRegion.equals(Configuration.DEFAULT_PROFILE_REGION) ? "" :
                 String.format("--region %s ", awsRegion);
-        String command = String.format(
-                "%s codeartifact get-authorization-token %s%s--domain %s --domain-owner %s --query authorizationToken --output text",
-                awsPath, profile, region, domain, domainOwner);
-        String ret = invoke(command, profile, true);
+        // Do not send the profile if awsProfile is null or default
+        this.profile = awsProfile == null || "".equals(awsProfile) || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
+                String.format(" --profile %s ", awsProfile);
+        this.command = String.format(
+                "%s codeartifact get-authorization-token %s--domain %s --domain-owner %s --query authorizationToken --output text%s",
+                awsPath, region, domain, domainOwner, profile);
+    }
+
+    public String getAuthToken() throws OperationException {
+        String ret = invoke(command, this::handleMfaRequest, this::handleSsoError);
         if (ret == null) {
             throw new OperationException("No output collected from AWS command");
         }
         return ret;
     }
 
-    private void doSsoLogin(String profile) throws OperationException
-    {
-        String command = "aws sso login";
-        if (!profile.isBlank()) {
-            command += " " + profile;
+    private boolean handleSsoRequest(Process process,
+                                     ProcessReader inputReader,
+                                     ProcessReader outputReader)
+            throws OperationException {
+        String ssoCode = inputReader.getSsoCheckingCode();
+        if (ssoCode != null) {
+            controller.showMessage("SSO login: code " + ssoCode);
         }
-        try {
-            String ret = invoke(command, profile, false);
-            System.out.println("Output is >" + ret + "<");
-        } catch (OperationException oex) {
-            throw new OperationException("SSO login: " + oex.getMessage());
-        }
+        return false;
     }
 
-    private String invoke(String command,
-                          String profile,
-                          boolean attemptSooLogin) throws OperationException {
+    private boolean handleMfaRequest(Process process,
+                                     ProcessReader inputReader,
+                                     ProcessReader outputReader)
+            throws OperationException, IOException {
+        String mfaRequest = outputReader.getMfaCodeRequest();
+        if (mfaRequest != null) {
+            String mfaCode = controller.requestMfaCode(mfaRequest);
+            if (mfaCode == null) {
+                process.destroy();
+                return true;
+            }
+            process.getOutputStream().write((mfaCode + "\n").getBytes(ENCODING));
+            process.getOutputStream().flush();
+        }
+        return false;
+    }
+
+
+    private String handleSsoError(String error) throws OperationException{
+        if ((error.startsWith("Error loading SSO Token")
+                || error.startsWith("Error when retrieving token from sso"))
+                && !controller.isCancelled()) {
+            try {
+                invoke("aws sso login" + profile, this::handleSsoRequest, null);
+            } catch (OperationException oex) {
+                throw new OperationException("SSO login: " + oex.getMessage());
+            }
+            if (!controller.isCancelled()) {
+                return invoke(command, null, null);
+            }
+        }
+        return null;
+    }
+
+    private String invoke(String command, RequestHandler requestHandler, ErrorHandler errorHandler) throws OperationException {
         try {
             LOGGER.debug(command);
             Process process = Runtime.getRuntime().exec(command);
             ProcessReader inputReader = new ProcessReader(process.getInputStream());
             ProcessReader outputReader = new ProcessReader(process.getErrorStream());
-//            while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
-            while (!process.waitFor(5000, TimeUnit.MILLISECONDS)) {
+            while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
                 if (controller.isCancelled()) {
                     process.destroy();
                     return null;
                 }
-                String mfaRequest = outputReader.getMfaCodeRequest();
-                if (mfaRequest != null) {
-                    String mfaCode = controller.requestMfaCode(mfaRequest);
-                    if (mfaCode == null) {
-                        process.destroy();
-                        return null;
-                    }
-                    process.getOutputStream().write((mfaCode + "\n").getBytes(ENCODING));
-                    process.getOutputStream().flush();
-                }
-                // sso check comes in inputReader, no output one!
-                String ssoCode = inputReader.getSsoCheckingCode();
-                if (ssoCode != null) {
-                    controller.showMessage("SSO login: code " + ssoCode);
+                if (requestHandler !=null && requestHandler.handle(process, inputReader, outputReader)) {
+                    return null;
                 }
             }
             if (process.exitValue() == 0) {
@@ -89,10 +110,9 @@ public class AWSInvoker {
                 error = "Auth token request failed without additional information";
             } else {
                 error = error.trim();
-                if ((error.startsWith("Error loading SSO Token") || error.startsWith("Error when retrieving token from sso"))
-                        && !controller.isCancelled()) {
-                    doSsoLogin(profile);
-                    return invoke(command, profile, false);
+                String ret = errorHandler==null? null : errorHandler.handle(error);
+                if (ret != null) {
+                    return ret;
                 }
                 if (!profile.isEmpty() && error.contains("aws configure")) {
                     error += "\n\n You could also consider \"aws configure " + profile.trim() + "\"";
@@ -106,8 +126,7 @@ public class AWSInvoker {
         }
     }
 
-
-    private static class ProcessReader implements Runnable {
+    static class ProcessReader implements Runnable {
         private final InputStream inputStream;
         private final Thread thread;
         private final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -178,7 +197,17 @@ public class AWSInvoker {
             }
         }
     }
-    private final static Logger LOGGER = Logger.getInstance(AWSInvoker.class);
-    private final static String ENCODING = "UTF-8"; // python 3 (aws cli) encoding
+
+    interface RequestHandler {
+        boolean handle(Process process,
+                       ProcessReader inputReader,
+                       ProcessReader outputReader)
+                throws OperationException, IOException;
+    }
+
+    interface ErrorHandler {
+        String handle(String error) throws OperationException;
+    }
+
 
 }
