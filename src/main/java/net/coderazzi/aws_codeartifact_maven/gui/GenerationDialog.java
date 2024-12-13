@@ -7,10 +7,7 @@ import com.intellij.openapi.ui.*;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.UIUtil;
 import net.coderazzi.aws_codeartifact_maven.state.AwsConfiguration;
-import net.coderazzi.aws_codeartifact_maven.utils.AWSInvoker;
-import net.coderazzi.aws_codeartifact_maven.utils.MavenSettingsFileHandler;
-import net.coderazzi.aws_codeartifact_maven.utils.MfaCodeValidator;
-import net.coderazzi.aws_codeartifact_maven.utils.OperationException;
+import net.coderazzi.aws_codeartifact_maven.utils.*;
 import net.coderazzi.aws_codeartifact_maven.state.Configuration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +25,7 @@ import java.util.TreeMap;
 import static com.intellij.util.ui.JBUI.Borders.empty;
 
 @SuppressWarnings({"unchecked"})
-class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundController {
+public class GenerationDialog extends DialogWrapper {
 
     public static final String BACK_TEXT = "Back";
 
@@ -45,7 +42,8 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
     private final String awsPath;
     private final Map<String, ConfigurationRow> configurations = new TreeMap<>();
     private final boolean isGenerateForAll;
-    private boolean cancelled, completed, closeDialog;
+    private boolean completed, closeDialog;
+    private volatile boolean cancelled;
 
     public GenerationDialog(final Project project,
                             final Configuration state) {
@@ -79,6 +77,14 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
                 }
             }
         });
+    }
+
+    public boolean isCancelled(){
+        return cancelled;
+    }
+
+    public Project getProject() {
+        return project;
     }
 
     private void launch(){
@@ -118,8 +124,16 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
                     mavenSettingsFileHandler.locateServer(configuration.mavenServerId);
                     if (!cancelled) {
                         setMessage(messageField, state, "Obtaining AWS Auth Token");
-                        String token = AWSInvoker.getAuthToken(configuration.domain, configuration.domainOwner,
-                                awsPath, configuration.profile, configuration.region, this);
+                        InvokerController controller = new InvokerController(this) {
+                            @Override
+                            public void showMessage(String message) {
+                                if (!cancelled) {
+                                    setMessage(messageField, TaskState.RUNNING, message);
+                                }
+                            }
+                        };
+                        String token = new AWSInvoker(controller).getAuthToken(configuration.domain, configuration.domainOwner,
+                                awsPath, configuration.profile, configuration.region);
                         if (!cancelled) {
                             setMessage(messageField, state, "Updating settings file");
                             mavenSettingsFileHandler.setPassword(token);
@@ -267,30 +281,6 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
     @Override
     public boolean isOK() {
         return super.isOK() && completed;
-    }
-
-    @Override
-    public String requestMfaCode(String request)  throws OperationException{
-        final String []ret = new String[1];
-        try {
-            SwingUtilities.invokeAndWait(() -> {
-                Messages.InputDialog dialog = new Messages.InputDialog(project, request, "AWS input request", null, "", new MfaCodeValidator());
-                if (dialog.showAndGet()) {
-                    ret[0] = dialog.getInputString();
-                }
-            });
-        } catch(Exception iex) {
-            throw new OperationException("Internal plugin error");
-        }
-        if (ret[0] == null || ret[0].isEmpty()) {
-            throw new OperationException("No MFA code provided");
-        }
-        return ret[0];
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
     }
 
     private static void checkNotEmptyString(String text, String description) throws OperationException {
