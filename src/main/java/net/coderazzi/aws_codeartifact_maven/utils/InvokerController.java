@@ -20,7 +20,7 @@ public abstract class InvokerController {
     public abstract void showMessage(String message);
 
     public String requestMfaCode(String request) throws OperationException {
-        final String []ret = new String[1];
+        final String []hold = new String[1];
         try {
             SwingUtilities.invokeAndWait(() -> {
                 Messages.InputDialog dialog = new Messages.InputDialog(
@@ -31,15 +31,12 @@ public abstract class InvokerController {
                         "",
                         new MfaCodeValidator());
                 if (dialog.showAndGet()) {
-                    ret[0] = dialog.getInputString();
+                    hold[0] = dialog.getInputString();
                 }
             });
         } catch(Exception iex) {
             throw new OperationException("Internal plugin error");
         }
-        if (ret[0] == null || ret[0].isEmpty()) {
-            throw new OperationException("No MFA code provided");
-        }
-        return ret[0];
+        return hold[0];
     }
 }
