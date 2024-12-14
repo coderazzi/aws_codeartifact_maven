@@ -14,8 +14,7 @@ public class AWSInvoker  {
     private final static Logger LOGGER = Logger.getInstance(AWSInvoker.class);
     private final static String ENCODING = "UTF-8"; // python 3 (aws cli) encoding
     private final Pattern MFA_PATTERN = Pattern.compile(".*?(Enter MFA code for \\S+\\s)$", Pattern.DOTALL);
-    private final Pattern ssoPattern = Pattern.compile(".*SSO authorization.*enter the code:\\s+(\\S+)\\s.*", Pattern.DOTALL);
-
+    private final Pattern ssoPattern = Pattern.compile(".*SSO authorization.*URL:\\s*(\\S+)\\s*.*enter the code:\\s+(\\S+)\\s.*", Pattern.DOTALL);
     private final InvokerController controller;
     private final String command, profile;
 
@@ -58,7 +57,7 @@ public class AWSInvoker  {
         Matcher m = ssoPattern.matcher(inputReader.read());
         if (m.matches()) {
             inputReader.reset();
-            controller.showMessage("SSO login: code " + m.group(1));
+            controller.showMessage("<html>SSO login: code " + m.group(2) + "<br>URL: " + m.group(1) + "</html>");
         }
     }
 
