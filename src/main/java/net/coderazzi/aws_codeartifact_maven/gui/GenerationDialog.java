@@ -18,6 +18,8 @@ import java.awt.event.*;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.intellij.util.ui.JBUI.Borders.empty;
 
@@ -28,6 +30,7 @@ public class GenerationDialog extends DialogWrapper {
 
     final private static int MAX_ERROR_MESSAGE = 34;
     final private static long ARTIFICIAL_WAIT_MS = 100;
+    private final Pattern HTML_PATTERN = Pattern.compile("(<html>.*?)(?:<br>.*|</html>)");
     private final Project project;
     private final String mavenSettingsFile;
     private final String awsPath;
@@ -144,14 +147,23 @@ public class GenerationDialog extends DialogWrapper {
         // cannot use here ApplicationManager.getApplication().invokeLater, does nothing
         try {
             SwingUtilities.invokeLater(() -> {
+                String shortMessage;
+                boolean isLongMessage;
                 JLabel label = row.label;
-                boolean longMessage = message.length() > MAX_ERROR_MESSAGE;
                 boolean error = taskState == TaskState.ERROR;
-                label.setText(longMessage? message.substring(0, MAX_ERROR_MESSAGE) + "..." : message);
+                Matcher html = HTML_PATTERN.matcher(message);
+                if (html.matches()) {
+                    isLongMessage = true;
+                    shortMessage = html.group(1);
+                } else {
+                    isLongMessage = message.length() > MAX_ERROR_MESSAGE;
+                    shortMessage = isLongMessage?  message.substring(0, MAX_ERROR_MESSAGE) + "..." : message;
+                }
+                label.setText(shortMessage);
                 if (taskState.icon != label.getIcon()) {
                     label.setIcon(taskState.icon);
                 }
-                if (longMessage || error) {
+                if (isLongMessage || error) {
                     if (row.mouseListener == null) {
                         label.addMouseListener(row.mouseListener = new RowMouseAdapter());
                     }
