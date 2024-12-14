@@ -80,20 +80,18 @@ public class AWSInvoker  {
     }
 
 
-    private String handleSsoError(String error) throws OperationException{
-        if ((error.startsWith("Error loading SSO Token")
-                || error.startsWith("Error when retrieving token from sso"))
-                && !controller.isCancelled()) {
+    private String handleSsoError(String error) throws OperationException {
+        if (error.startsWith("Error loading SSO Token")
+                || error.startsWith("Error when retrieving token from sso"))  {
             try {
                 invoke("aws sso login" + profile, this::handleSsoRequest, ErrorHandler.NULL);
             } catch (OperationException oex) {
-                throw new OperationException("SSO login: " + oex.getMessage());
+                String message = oex.getMessage();
+                throw message == null? oex : new OperationException("SSO login: " + message);
             }
-            if (!controller.isCancelled()) {
-                // we invoke again the original command.
-                // we do not expect now any MFA or SSO handling, as SSO is already completed
-                return invoke(command, RequestHandler.NULL, ErrorHandler.NULL);
-            }
+            // we invoke again the original command.
+            // we do not expect now any MFA or SSO handling, as SSO is already completed
+            return invoke(command, RequestHandler.NULL, ErrorHandler.NULL);
         }
         return null;
     }
@@ -101,6 +99,7 @@ public class AWSInvoker  {
     private String invoke(@NotNull  String command,
                           @NotNull RequestHandler requestHandler,
                           @NotNull ErrorHandler errorHandler) throws OperationException {
+        controller.checkCancellation();
         try {
             LOGGER.debug(command);
             Process process = Runtime.getRuntime().exec(command);
@@ -108,10 +107,7 @@ public class AWSInvoker  {
                 ProcessReader inputReader = new ProcessReader(process.getInputStream());
                 ProcessReader outputReader = new ProcessReader(process.getErrorStream());
                 while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
-                    if (controller.isCancelled()) {
-                        process.destroy();
-                        return null;
-                    }
+                    controller.checkCancellation();
                     requestHandler.handle(process, inputReader, outputReader);
                 }
                 if (process.exitValue() == 0) {
@@ -133,7 +129,7 @@ public class AWSInvoker  {
             } finally {
                 process.destroy();
             }
-        } catch (OperationException oex) {
+        } catch (OperationException  oex) {
             throw oex;
         } catch (Exception ex) {
             throw new OperationException("Error executing aws:" + ex.getMessage());

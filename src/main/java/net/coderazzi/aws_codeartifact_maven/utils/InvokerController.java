@@ -13,8 +13,10 @@ public abstract class InvokerController {
         this.generationDialog = dialog;
     }
 
-    public boolean isCancelled() {
-        return generationDialog.isCancelled();
+    public void checkCancellation() throws OperationException {
+        if (generationDialog.isCancelled()) {
+            throw OperationException.cancelled();
+        }
     }
 
     public abstract void showMessage(String message);

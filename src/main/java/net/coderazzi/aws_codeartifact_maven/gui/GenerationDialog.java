@@ -123,22 +123,18 @@ public class GenerationDialog extends DialogWrapper {
                     MavenSettingsFileHandler mavenSettingsFileHandler = new MavenSettingsFileHandler(mavenSettingsFile);
                     mavenSettingsFileHandler.locateServer(configuration.mavenServerId);
                     if (!cancelled) {
-                        setMessage(messageField, state, "Obtaining AWS Auth Token");
                         InvokerController controller = new InvokerController(this) {
                             @Override
                             public void showMessage(String message) {
-                                if (!cancelled) {
-                                    setMessage(messageField, TaskState.RUNNING, message);
-                                }
+                                setMessage(messageField, TaskState.RUNNING, message);
                             }
                         };
+                        setMessage(messageField, state, "Obtaining AWS Auth Token");
                         String token = new AWSInvoker(controller, configuration.domain, configuration.domainOwner,
                                 awsPath, configuration.profile, configuration.region).getAuthToken();
-                        if (!cancelled) {
-                            setMessage(messageField, state, "Updating settings file");
-                            mavenSettingsFileHandler.setPassword(token);
-                            setMessage(messageField, state = TaskState.COMPLETED, "Auth token generated");
-                        }
+                        setMessage(messageField, state, "Updating settings file");
+                        mavenSettingsFileHandler.setPassword(token);
+                        setMessage(messageField, state = TaskState.COMPLETED, "Auth token generated");
                     }
                 } catch (OperationException iex) {
                     if (!cancelled) {
@@ -153,12 +149,11 @@ public class GenerationDialog extends DialogWrapper {
         return state;
     }
 
-
     private void setMessage(JLabel label, TaskState taskState, String message) {
         // cannot use here ApplicationManager.getApplication().invokeLater, does nothing
         try {
             SwingUtilities.invokeLater(() -> {
-                label.setText(message.length() > MAX_ERROR_MESSAGE?
+                label.setText(message.length() > MAX_ERROR_MESSAGE ?
                         message.substring(0, MAX_ERROR_MESSAGE) + "..." : message);
                 if (taskState.icon != label.getIcon()) {
                     label.setIcon(taskState.icon);
@@ -176,8 +171,10 @@ public class GenerationDialog extends DialogWrapper {
                     }
                 }
             });
-            if (taskState != TaskState.RUNNING)  Thread.sleep(ARTIFICIAL_WAIT_MS);
-        } catch(Exception ex){}
+            if (taskState != TaskState.RUNNING) Thread.sleep(ARTIFICIAL_WAIT_MS);
+        } catch (Exception ex) {
+            // nothing to do at this stage
+        }
     }
 
     protected @NotNull JPanel createButtonsPanel(@NotNull List buttons) {
