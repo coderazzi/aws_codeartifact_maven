@@ -2,6 +2,8 @@ package net.coderazzi.aws_codeartifact_maven.utils;
 
 import com.intellij.openapi.ui.Messages;
 import net.coderazzi.aws_codeartifact_maven.gui.GenerationDialog;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
@@ -19,7 +21,12 @@ public abstract class InvokerController {
         }
     }
 
-    public abstract void showMessage(String message);
+    /**
+     * Shows a short message to be displayed on the generation dialog.
+     * @param shortMessage can be null
+     * @param popupMessage a message to be displayed immediately on a popup, can be null
+     */
+    public abstract void showMessage(@NotNull String shortMessage, @Nullable String popupMessage);
 
     public String requestMfaCode(String request) throws OperationException {
         final String []hold = new String[1];
