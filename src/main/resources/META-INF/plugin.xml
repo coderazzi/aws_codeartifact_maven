@@ -2,7 +2,7 @@
              require-restart="false">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>4.1.0</version>
+  <version>4.1.1</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -104,6 +104,8 @@
 
   <change-notes><![CDATA[
     <ul>
+      <li>Version 4.1.1 : 16th Dec 2024: Display SSO info in separate message.
+                          Use AWS path for SSO login as defined in the configuration window</li>
       <li>Version 4.1.0 : 14th Dec 2024: SSO support</li>
       <li>Version 4.0.2 : 05th Dec 2024: Improved documentation, released as non beta</li>
       <li>Version 4.0.1 : 18th Nov 2024: Handle properly a generation dialog too big</li>
