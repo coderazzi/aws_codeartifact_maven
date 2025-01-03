@@ -1,3 +1,5 @@
+![JetBrains logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)
+
 # CodeArtifact+Maven Idea plugin
 
 * Website: https://coderazzi.net/codeartifact-maven
