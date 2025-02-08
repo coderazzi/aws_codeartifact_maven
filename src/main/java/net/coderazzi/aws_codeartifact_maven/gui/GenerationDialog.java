@@ -14,7 +14,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,6 +28,12 @@ import static com.intellij.util.ui.JBUI.Borders.empty;
 public class GenerationDialog extends DialogWrapper {
 
     public static final String BACK_TEXT = "Back";
+
+    private static class ConfigurationRow {
+        final AwsConfiguration configuration;
+        JBLabel message;
+        ConfigurationRow(AwsConfiguration configuration) { this.configuration = configuration; }
+    }
 
     final private static int MAX_ERROR_MESSAGE = 34;
     final private static long ARTIFICIAL_WAIT_MS = 100;
@@ -104,65 +113,62 @@ public class GenerationDialog extends DialogWrapper {
     private TaskState requestToken(String name, AwsConfiguration configuration) {
         TaskState state = TaskState.RUNNING;
         if (configuration.enabled || !isGenerateForAll) {
-            ConfigurationRow confRow = configurations.get(name);
+            JLabel messageField = configurations.get(name).message;
             if (!cancelled) {
                 try {
                     checkNotEmptyString(configuration.domain, "domain");
                     checkNotEmptyString(configuration.domainOwner, "domainOwner");
                     checkNotEmptyString(configuration.mavenServerId, "mavenServerId");
-                    setMessage(confRow, state, "Checking settings file");
+                    setMessage(messageField, state, "Checking settings file");
                     MavenSettingsFileHandler mavenSettingsFileHandler = new MavenSettingsFileHandler(mavenSettingsFile);
                     mavenSettingsFileHandler.locateServer(configuration.mavenServerId);
                     if (!cancelled) {
                         InvokerController controller = new InvokerController(this) {
                             @Override
                             public void showMessage(String message) {
-                                setMessage(confRow, TaskState.RUNNING, message);
+                                setMessage(messageField, TaskState.RUNNING, message);
                             }
                         };
-                        setMessage(confRow, state, "Obtaining AWS Auth Token");
+                        setMessage(messageField, state, "Obtaining AWS Auth Token");
                         String token = new AWSInvoker(controller, configuration.domain, configuration.domainOwner,
                                 awsPath, configuration.profile, configuration.region).getAuthToken();
-                        setMessage(confRow, state, "Updating settings file");
+                        setMessage(messageField, state, "Updating settings file");
                         mavenSettingsFileHandler.setPassword(token);
-                        setMessage(confRow, state = TaskState.COMPLETED, "Auth token generated");
+                        setMessage(messageField, state = TaskState.COMPLETED, "Auth token generated");
                     }
                 } catch (OperationException iex) {
                     if (!cancelled) {
-                        setMessage(confRow, state = TaskState.ERROR, iex.getMessage());
+                        setMessage(messageField, state = TaskState.ERROR, iex.getMessage());
                     }
                 }
             }
             if (state == TaskState.RUNNING && cancelled) {
-                setMessage(confRow, state = TaskState.CANCELLED, "Cancelled");
+                setMessage(messageField, state = TaskState.CANCELLED, "Cancelled");
             }
         }
         return state;
     }
 
-    private void setMessage(ConfigurationRow row, TaskState taskState, String message) {
+    private void setMessage(JLabel label, TaskState taskState, String message) {
         // cannot use here ApplicationManager.getApplication().invokeLater, does nothing
         try {
             SwingUtilities.invokeLater(() -> {
-                JLabel label = row.label;
-                boolean longMessage = message.length() > MAX_ERROR_MESSAGE;
-                boolean error = taskState == TaskState.ERROR;
-                label.setText(longMessage? message.substring(0, MAX_ERROR_MESSAGE) + "..." : message);
+                label.setText(message.length() > MAX_ERROR_MESSAGE ?
+                        message.substring(0, MAX_ERROR_MESSAGE) + "..." : message);
                 if (taskState.icon != label.getIcon()) {
                     label.setIcon(taskState.icon);
-                }
-                if (longMessage || error) {
-                    if (row.mouseListener == null) {
-                        label.addMouseListener(row.mouseListener = new RowMouseAdapter());
+                    if (taskState == TaskState.ERROR) {
+                        label.addMouseListener(new MouseAdapter() {
+                            @Override
+                            public void mouseClicked(MouseEvent e) {
+                                Messages.showErrorDialog(project, message, MainDialog.COMPONENT_TITLE);
+                            }
+                        });
+                        if (configurations.size() == 1) {
+                            // show the error immediately
+                            Messages.showErrorDialog(project, message, MainDialog.COMPONENT_TITLE);
+                        }
                     }
-                    row.mouseListener.isError = error;
-                    row.mouseListener.wholeMessage = message;
-                    if (error && configurations.size()==1) {
-                        Messages.showErrorDialog(project, message, MainDialog.COMPONENT_TITLE);
-                    }
-                } else if (row.mouseListener != null) {
-                    label.removeMouseListener(row.mouseListener);
-                    row.mouseListener = null;
                 }
             });
             if (taskState != TaskState.RUNNING) Thread.sleep(ARTIFICIAL_WAIT_MS);
@@ -214,9 +220,9 @@ public class GenerationDialog extends DialogWrapper {
                 text = "Disabled";
                 icon = AllIcons.General.Warning;
             }
-            centerPanel.add(row.label = createLabel(text), c);
-            row.label.setIconWithAlignment(icon, SwingConstants.LEFT, SwingConstants.CENTER);
-            row.label.setCopyable(false);
+            centerPanel.add(row.message = createLabel(text), c);
+            row.message.setIconWithAlignment(icon, SwingConstants.LEFT, SwingConstants.CENTER);
+            row.message.setCopyable(false);
         }
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -291,26 +297,6 @@ public class GenerationDialog extends DialogWrapper {
             this.icon = icon;
         }
         final public Icon icon;
-    }
-
-    private static class ConfigurationRow {
-        final AwsConfiguration configuration;
-        JBLabel label;
-        RowMouseAdapter mouseListener;
-        ConfigurationRow(AwsConfiguration configuration) { this.configuration = configuration; }
-    }
-
-    private class RowMouseAdapter extends MouseAdapter{
-        boolean isError;
-        String wholeMessage;
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            if (isError) {
-                Messages.showErrorDialog(project, wholeMessage, MainDialog.COMPONENT_TITLE);
-            } else {
-                Messages.showInfoMessage(project, wholeMessage, MainDialog.COMPONENT_TITLE);
-            }
-        }
     }
 
 }
