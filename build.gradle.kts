@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "net.coderazzi"
-version = "4.2.0"
+version = "4.2.0-aws-vault"
 
 repositories {
   mavenCentral()
