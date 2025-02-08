@@ -87,22 +87,7 @@ Currently, only MFA based on roles is supported, where the chosen profile identi
 For more information on the distinction between role-based-MFA and user-based-MFA, check
 [https://coderazzi.net/cloud/aws/mfa](https://coderazzi.net/cloud/aws/mfa)
 
-## SSO support
-
-From version 4.1.0, the plugin includes support for SSO.
-
-If a token request appears during the token generation, the plugin will start automatically the SSO login procedure.
-The AWS cli displays then a URL, where the user will enter his SSO credentials, and a security code.
-The OS will automatically open the URL in the default browser, and will present the same security code.
-These operations happen automatically in the background, the plugin generation's window will only display
-this security code.   
-From that moment, the browser's UI handles the whole process, with as many attempts from the
-user as required. This can end with success, or with a timeout, although the user can cancel
-the plugin' progress at any moment
-
-
 ## Versions
-* Version 4.1.0 : 14th Dec 2024: SSO support
 * Version 4.0.2 : 05th Dec 2024: Improved documentation, released as non beta
 * Version 4.0.1 : 18th Nov 2024: Handle properly a generation dialog too big
 * Version 4.0.0 : 17th Nov 2024: Support multiple repositories at once
