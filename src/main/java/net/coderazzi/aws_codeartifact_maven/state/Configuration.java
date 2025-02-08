@@ -123,6 +123,14 @@ final public class Configuration {
         state.awsPath = awsPath;
     }
 
+    public String getAWSVaultPath() {
+        return state.awsVaultPath;
+    }
+
+    public void setAwsVaultPath(@NotNull String awsVaultPath) {
+        state.awsVaultPath = awsVaultPath;
+    }
+
     public String getMavenServerSettingsFile() {
         return state.mavenSettingsFile;
     }

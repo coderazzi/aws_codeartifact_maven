@@ -65,7 +65,8 @@ When selected, a window appears to enter the required details:
   &lt;AWS_SHARED_CREDENTIALS_FILE&gt;
 * **Region**: the target region. If specified, it overrides the region given by the profile -if any-
 * **Maven settings file**: the location of the maven settings file, usually under ~/.m2
-* **AWS cli path**: the location of the aws executable, cabe specified as **aws** if it can be found in the path
+* **aws path**: the location of the *aws* executable, can be specified as **aws** if it can be found in the path
+* **aws-vault path**: optional, the location of the *aws-vault* executable.
 
 The first five settings above can be defined multiple times, using different configurations.
 A configuration is defined using the fields:
@@ -85,24 +86,8 @@ Currently, only MFA based on roles is supported, where the chosen profile identi
 For more information on the distinction between role-based-MFA and user-based-MFA, check
 [https://coderazzi.net/cloud/aws/mfa](https://coderazzi.net/cloud/aws/mfa)
 
-## SSO support
-
-From version 4.1.0, the plugin includes support for SSO.
-
-If a token request appears during the token generation, the plugin will start automatically the SSO login procedure.
-The AWS cli displays then a URL, where the user will enter his SSO credentials, and a security code.
-The OS will automatically open the URL in the default browser, and will present the same security code.
-These operations happen automatically in the background, the plugin generation's window will only display
-this security code.   
-From that moment, the browser's UI handles the whole process, with as many attempts from the
-user as required. This can end with success, or with a timeout, although the user can cancel
-the plugin' progress at any moment
-
-
 ## Versions
-* Version 4.1.1 : 16th Dec 2024: Display SSO info in separate message. 
-                  Use AWS path for SSO login as defined in the configuration window
-* Version 4.1.0 : 14th Dec 2024: SSO support
+* Version 4.2.0 : 07th Feb 2025: Added support for aws-vault
 * Version 4.0.2 : 05th Dec 2024: Improved documentation, released as non beta
 * Version 4.0.1 : 18th Nov 2024: Handle properly a generation dialog too big
 * Version 4.0.0 : 17th Nov 2024: Support multiple repositories at once

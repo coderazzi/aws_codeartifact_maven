@@ -2,7 +2,7 @@
              require-restart="false">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>4.1.1</version>
+  <version>4.0.2</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -76,7 +76,8 @@
       &lt;AWS_SHARED_CREDENTIALS_FILE&gt;</li>
      <li><b>Region</b>: the target region. If specified, it overrides the region given by the profile -if any-</li>
      <li><b>Maven settings file</b>: the location of the maven settings file, usually under USER-HOME/.m2</li>
-     <li><b>AWS cli path</b>: where to find the <b>aws</b> executable</li>
+     <li><b>aws path</b>: where to find the <b>aws</b> executable</li>
+     <li><b>aws-vault path</b>: where to find the <b>aws-vault</b> executable. This is optional</li>
     </ul>
 
   <p> The first five settings above can be defined multiple times, using different configurations.
@@ -104,9 +105,7 @@
 
   <change-notes><![CDATA[
     <ul>
-      <li>Version 4.1.1 : 16th Dec 2024: Display SSO info in separate message.
-                          Use AWS path for SSO login as defined in the configuration window</li>
-      <li>Version 4.1.0 : 14th Dec 2024: SSO support</li>
+      <li>Version 4.2.0 : 07th Deb 2025: Added support for aws-vault</li>
       <li>Version 4.0.2 : 05th Dec 2024: Improved documentation, released as non beta</li>
       <li>Version 4.0.1 : 18th Nov 2024: Handle properly a generation dialog too big</li>
       <li>Version 4.0.0 : 17th Nov 2024: Support multiple repositories at once</li>

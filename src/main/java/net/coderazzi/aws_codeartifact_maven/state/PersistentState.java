@@ -16,6 +16,7 @@ final class PersistentState implements PersistentStateComponent<PersistentState>
     public int version;
     public String mavenSettingsFile;
     public String awsPath;
+    public String awsVaultPath;
     public boolean generateForAll;
     public String configuration;
 

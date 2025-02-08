@@ -59,6 +59,7 @@ public class MainDialog extends DialogWrapper {
 
     private final JTextField settingsFile = new JTextField(32);
     private final JTextField awsPath = new JTextField(32);
+    private final JTextField awsVaultPath = new JTextField(32);
 
     private final JBCheckBox generateAllCheckBox = new JBCheckBox("Generate Tokens for all configurations");
     private final JBCheckBox enabledCheckbox = new JBCheckBox();
@@ -375,6 +376,7 @@ public class MainDialog extends DialogWrapper {
         regionsModel.addElement(Configuration.DEFAULT_PROFILE_REGION);
         Configuration.getValidRegions().forEach(regionsModel::addElement);
         handleTextFieldChange(awsPath, state::setAwsPath);
+        handleTextFieldChange(awsVaultPath, state::setAwsVaultPath);
         handleTextFieldChange(domainOwner, x -> state.getCurrentConfiguration().domainOwner = x);
         handleTextFieldChange(domain, x -> state.getCurrentConfiguration().domain = x);
         handleComboBoxChange(serverIdComboBox, this::handleMavenServerIdChange);
@@ -414,6 +416,7 @@ public class MainDialog extends DialogWrapper {
 
         TextFieldWithBrowseButton settingsFileBrowser = new TextFieldWithBrowseButton(settingsFile, x -> reloadServersInBackground());
         TextFieldWithBrowseButton awsPathBrowser = new TextFieldWithBrowseButton(awsPath);
+        TextFieldWithBrowseButton awsVaultPathBrowser  = new TextFieldWithBrowseButton(awsVaultPath);
         ComponentWithBrowseButton<ComboBoxWithWidePopup> mavenServerIdWrapper =
                 new ComponentWithBrowseButton<>(serverIdComboBox, x -> reloadServersInBackground());
         ComponentWithBrowseButton<ComboBoxWithWidePopup> profileWrapper =
@@ -456,17 +459,24 @@ public class MainDialog extends DialogWrapper {
         centerPanel.add(createTitledSeparator("Locations"), gridbag.nextLine().coverLine());
         centerPanel.add(createLabel("Maven settings file:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(settingsFileBrowser, gridbag.next().coverLine());
-        centerPanel.add(createLabel("AWS cli path:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(createLabel("aws path:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(awsPathBrowser, gridbag.next().coverLine());
+        // TODO: next label should be italic??
+        centerPanel.add(createItalicLabel("aws-vault path:"), gridbag.nextLine().next().weightx(labelsWeight));
+        centerPanel.add(awsVaultPathBrowser, gridbag.next().coverLine());
+
         centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 24, 0));
 
         settingsFile.setText(state.getMavenServerSettingsFile());
         settingsFile.addActionListener(x -> reloadServersInBackground()); // handle ENTER key
         awsPath.setText(state.getAWSPath());
+        awsVaultPath.setText(state.getAWSVaultPath());
 
         settingsFileBrowser.addBrowseFolderListener("Maven Settings File", null, null,
                 new FileChooserDescriptor(true, false, false, false, false, false));
         awsPathBrowser.addBrowseFolderListener("aws Executable Location", null, null,
+                new FileChooserDescriptor(true, false, false, false, false, false));
+        awsVaultPathBrowser.addBrowseFolderListener("aws-vault Executable Location", null, null,
                 new FileChooserDescriptor(true, false, false, false, false, false));
         mavenServerIdWrapper.setButtonIcon(AllIcons.Actions.Refresh);
         profileWrapper.setButtonIcon(AllIcons.Actions.Refresh);
@@ -504,6 +514,12 @@ public class MainDialog extends DialogWrapper {
         label.setComponentStyle(UIUtil.ComponentStyle.SMALL);
         label.setFontColor(UIUtil.FontColor.BRIGHTER);
         label.setBorder(empty(0, 5, 2, 0));
+        return label;
+    }
+
+    private JBLabel createItalicLabel(String text) {
+        JBLabel label = createLabel(text);
+        label.setFont(label.getFont().deriveFont(Font.ITALIC));
         return label;
     }
 
