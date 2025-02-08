@@ -7,6 +7,4 @@ public class OperationException extends Exception {
     public OperationException(String message, Object ...args) {
         super(String.format(message, args));
     }
-
-    public static OperationException cancelled() throws OperationException {throw new OperationException(null);}
 }
