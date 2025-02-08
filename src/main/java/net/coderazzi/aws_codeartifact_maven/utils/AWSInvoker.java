@@ -16,7 +16,7 @@ public class AWSInvoker  {
     private final Pattern MFA_PATTERN = Pattern.compile(".*?(Enter MFA code for \\S+\\s)$", Pattern.DOTALL);
     private final Pattern ssoPattern = Pattern.compile(".*SSO authorization.*URL:\\s*(\\S+)\\s*.*enter the code:\\s+(\\S+)\\s.*", Pattern.DOTALL);
     private final InvokerController controller;
-    private final String command, profile, awsPath;
+    private final String command, profile;
 
     public AWSInvoker(InvokerController controller,
                       String domain,
@@ -25,7 +25,6 @@ public class AWSInvoker  {
                       Object awsProfile,
                       String awsRegion) {
         this.controller = controller;
-        this.awsPath = awsPath;
         String region = awsRegion == null || awsRegion.isBlank() ||
                 awsRegion.equals(Configuration.DEFAULT_PROFILE_REGION) ? "" :
                 String.format("--region %s ", awsRegion);
@@ -55,12 +54,10 @@ public class AWSInvoker  {
         // This method is called when we start the aws sso login invocation
         // During the invocation, the AWS cli will present a code to be
         // verified in the browser, so we just display it, without further action
-        String message = inputReader.read();
-        Matcher m = ssoPattern.matcher(message);
+        Matcher m = ssoPattern.matcher(inputReader.read());
         if (m.matches()) {
             inputReader.reset();
-            controller.showMessage("<html>SSO login: code <b>" + m.group(2) + "</b></html>",
-                    message);
+            controller.showMessage("<html>SSO login: code <b>" + m.group(2) + "</b><br>URL: " + m.group(1) + "</html>");
         }
     }
 
@@ -86,7 +83,7 @@ public class AWSInvoker  {
         if (error.startsWith("Error loading SSO Token")
                 || error.startsWith("Error when retrieving token from sso"))  {
             try {
-                invoke(awsPath + " sso login" + profile, this::handleSsoRequest, ErrorHandler.NULL);
+                invoke("aws sso login" + profile, this::handleSsoRequest, ErrorHandler.NULL);
             } catch (OperationException oex) {
                 String message = oex.getMessage();
                 throw message == null? oex : new OperationException("SSO login: " + message);

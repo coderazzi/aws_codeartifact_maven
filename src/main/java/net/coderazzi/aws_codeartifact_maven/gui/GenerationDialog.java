@@ -119,13 +119,8 @@ public class GenerationDialog extends DialogWrapper {
                     if (!cancelled) {
                         InvokerController controller = new InvokerController(this) {
                             @Override
-                            public void showMessage(@NotNull String shortMessage, @Nullable String popupMessage) {
-                                SwingUtilities.invokeLater(() -> {
-                                    setMessage(confRow, TaskState.RUNNING, shortMessage);
-                                    if (popupMessage!=null) {
-                                        Messages.showInfoMessage(project, popupMessage, MainDialog.COMPONENT_TITLE);
-                                    }
-                                });
+                            public void showMessage(String message) {
+                                setMessage(confRow, TaskState.RUNNING, message);
                             }
                         };
                         setMessage(confRow, state, "Obtaining AWS Auth Token");
@@ -150,45 +145,41 @@ public class GenerationDialog extends DialogWrapper {
 
     private void setMessage(ConfigurationRow row, TaskState taskState, String message) {
         // cannot use here ApplicationManager.getApplication().invokeLater, does nothing
-        if (SwingUtilities.isEventDispatchThread()) {
-            String shortMessage;
-            boolean isLongMessage;
-            JLabel label = row.label;
-            boolean error = taskState == TaskState.ERROR;
-            Matcher html = HTML_PATTERN.matcher(message);
-            if (html.matches()) {
-                isLongMessage = true;
-                shortMessage = html.group(1);
-            } else {
-                isLongMessage = message.length() > MAX_ERROR_MESSAGE;
-                shortMessage = isLongMessage?  message.substring(0, MAX_ERROR_MESSAGE) + "..." : message;
-            }
-            label.setText(shortMessage);
-            if (taskState.icon != label.getIcon()) {
-                label.setIcon(taskState.icon);
-            }
-            if (isLongMessage || error) {
-                if (row.mouseListener == null) {
-                    label.addMouseListener(row.mouseListener = new RowMouseAdapter());
-                }
-                row.mouseListener.isError = error;
-                row.mouseListener.wholeMessage = message;
-                if (error && configurations.size()==1) {
-                    Messages.showErrorDialog(project, message, MainDialog.COMPONENT_TITLE);
-                }
-            } else if (row.mouseListener != null) {
-                label.removeMouseListener(row.mouseListener);
-                row.mouseListener = null;
-            }
-        } else {
+        try {
             SwingUtilities.invokeLater(() -> {
-                try {
-                    setMessage(row, taskState, message);
-                    if (taskState != TaskState.RUNNING) Thread.sleep(ARTIFICIAL_WAIT_MS);
-                } catch (Exception ex) {
-                    // nothing to do at this stage
+                String shortMessage;
+                boolean isLongMessage;
+                JLabel label = row.label;
+                boolean error = taskState == TaskState.ERROR;
+                Matcher html = HTML_PATTERN.matcher(message);
+                if (html.matches()) {
+                    isLongMessage = true;
+                    shortMessage = html.group(1);
+                } else {
+                    isLongMessage = message.length() > MAX_ERROR_MESSAGE;
+                    shortMessage = isLongMessage?  message.substring(0, MAX_ERROR_MESSAGE) + "..." : message;
+                }
+                label.setText(shortMessage);
+                if (taskState.icon != label.getIcon()) {
+                    label.setIcon(taskState.icon);
+                }
+                if (isLongMessage || error) {
+                    if (row.mouseListener == null) {
+                        label.addMouseListener(row.mouseListener = new RowMouseAdapter());
+                    }
+                    row.mouseListener.isError = error;
+                    row.mouseListener.wholeMessage = message;
+                    if (error && configurations.size()==1) {
+                        Messages.showErrorDialog(project, message, MainDialog.COMPONENT_TITLE);
+                    }
+                } else if (row.mouseListener != null) {
+                    label.removeMouseListener(row.mouseListener);
+                    row.mouseListener = null;
                 }
             });
+            if (taskState != TaskState.RUNNING) Thread.sleep(ARTIFICIAL_WAIT_MS);
+        } catch (Exception ex) {
+            // nothing to do at this stage
         }
     }
 
