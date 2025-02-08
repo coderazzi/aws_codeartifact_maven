@@ -132,8 +132,8 @@ public class GenerationDialog extends DialogWrapper {
                                 }
                             }
                         };
-                        String token = new AWSInvoker(controller, configuration.domain, configuration.domainOwner,
-                                awsPath, configuration.profile, configuration.region).getAuthToken();
+                        String token = new AWSInvoker(controller).getAuthToken(configuration.domain, configuration.domainOwner,
+                                awsPath, configuration.profile, configuration.region);
                         if (!cancelled) {
                             setMessage(messageField, state, "Updating settings file");
                             mavenSettingsFileHandler.setPassword(token);
@@ -141,9 +141,7 @@ public class GenerationDialog extends DialogWrapper {
                         }
                     }
                 } catch (OperationException iex) {
-                    if (!cancelled) {
-                        setMessage(messageField, state = TaskState.ERROR, iex.getMessage());
-                    }
+                    setMessage(messageField, state = TaskState.ERROR, iex.getMessage());
                 }
             }
             if (state == TaskState.RUNNING && cancelled) {
