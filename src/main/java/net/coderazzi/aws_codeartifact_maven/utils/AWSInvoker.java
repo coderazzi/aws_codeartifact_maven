@@ -2,7 +2,6 @@ package net.coderazzi.aws_codeartifact_maven.utils;
 
 import com.intellij.openapi.diagnostic.Logger;
 import net.coderazzi.aws_codeartifact_maven.state.Configuration;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.concurrent.TimeUnit;
@@ -13,8 +12,6 @@ public class AWSInvoker  {
 
     private final static Logger LOGGER = Logger.getInstance(AWSInvoker.class);
     private final static String ENCODING = "UTF-8"; // python 3 (aws cli) encoding
-    private final Pattern MFA_PATTERN = Pattern.compile(".*?(Enter MFA code for \\S+\\s)$", Pattern.DOTALL);
-    private final Pattern ssoPattern = Pattern.compile(".*SSO authorization.*enter the code:\\s+(\\S+)\\s.*", Pattern.DOTALL);
 
     private final InvokerController controller;
     private final String command, profile;
@@ -37,9 +34,6 @@ public class AWSInvoker  {
                 awsPath, region, domain, domainOwner, profile);
     }
 
-    /**
-     * Returns the authentication token, or raises an OperationException
-     */
     public String getAuthToken() throws OperationException {
         String ret = invoke(command, this::handleMfaRequest, this::handleSsoError);
         if (ret == null) {
@@ -48,35 +42,32 @@ public class AWSInvoker  {
         return ret;
     }
 
-    private void handleSsoRequest(Process process,
-                                  ProcessReader inputReader,
-                                  ProcessReader outputReader)
+    private boolean handleSsoRequest(Process process,
+                                     ProcessReader inputReader,
+                                     ProcessReader outputReader)
             throws OperationException {
-        // This method is called when we start the aws sso login invocation
-        // During the invocation, the AWS cli will present a code to be
-        // verified in the browser, so we just display it, without further action
-        Matcher m = ssoPattern.matcher(inputReader.read());
-        if (m.matches()) {
-            inputReader.reset();
-            controller.showMessage("SSO login: code " + m.group(1));
+        String ssoCode = inputReader.getSsoCheckingCode();
+        if (ssoCode != null) {
+            controller.showMessage("SSO login: code " + ssoCode);
         }
+        return false;
     }
 
-    private void handleMfaRequest(Process process,
-                                  ProcessReader inputReader,
-                                  ProcessReader outputReader)
+    private boolean handleMfaRequest(Process process,
+                                     ProcessReader inputReader,
+                                     ProcessReader outputReader)
             throws OperationException, IOException {
-        Matcher m = MFA_PATTERN.matcher(outputReader.read());
-        if (m.matches()) {
-            outputReader.reset();
-            String mfaCode = controller.requestMfaCode( m.group(1));
-            if (mfaCode == null || mfaCode.isEmpty()) {
-                throw new OperationException("No MFA code provided");
+        String mfaRequest = outputReader.getMfaCodeRequest();
+        if (mfaRequest != null) {
+            String mfaCode = controller.requestMfaCode(mfaRequest);
+            if (mfaCode == null) {
+                process.destroy();
+                return true;
             }
-            // we enter now the provided mfa code in the process output
             process.getOutputStream().write((mfaCode + "\n").getBytes(ENCODING));
             process.getOutputStream().flush();
         }
+        return false;
     }
 
 
@@ -85,54 +76,49 @@ public class AWSInvoker  {
                 || error.startsWith("Error when retrieving token from sso"))
                 && !controller.isCancelled()) {
             try {
-                invoke("aws sso login" + profile, this::handleSsoRequest, ErrorHandler.NULL);
+                invoke("aws sso login" + profile, this::handleSsoRequest, null);
             } catch (OperationException oex) {
                 throw new OperationException("SSO login: " + oex.getMessage());
             }
             if (!controller.isCancelled()) {
-                // we invoke again the original command.
-                // we do not expect now any MFA or SSO handling, as SSO is already completed
-                return invoke(command, RequestHandler.NULL, ErrorHandler.NULL);
+                return invoke(command, null, null);
             }
         }
         return null;
     }
 
-    private String invoke(@NotNull  String command,
-                          @NotNull RequestHandler requestHandler,
-                          @NotNull ErrorHandler errorHandler) throws OperationException {
+    private String invoke(String command, RequestHandler requestHandler, ErrorHandler errorHandler) throws OperationException {
         try {
             LOGGER.debug(command);
             Process process = Runtime.getRuntime().exec(command);
-            try {
-                ProcessReader inputReader = new ProcessReader(process.getInputStream());
-                ProcessReader outputReader = new ProcessReader(process.getErrorStream());
-                while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
-                    if (controller.isCancelled()) {
-                        process.destroy();
-                        return null;
-                    }
-                    requestHandler.handle(process, inputReader, outputReader);
+            ProcessReader inputReader = new ProcessReader(process.getInputStream());
+            ProcessReader outputReader = new ProcessReader(process.getErrorStream());
+            while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
+                if (controller.isCancelled()) {
+                    process.destroy();
+                    return null;
                 }
-                if (process.exitValue() == 0) {
-                    return inputReader.getOutput();
+                if (requestHandler !=null && requestHandler.handle(process, inputReader, outputReader)) {
+                    return null;
                 }
-                String error = outputReader.getOutput();
-                if (error == null) {
-                    error = "Auth token request failed without additional information";
-                } else {
-                    String ret = errorHandler.handle(error = error.trim());
-                    if (ret != null) {
-                        return ret;
-                    }
-                    if (!profile.isEmpty() && error.contains("aws configure")) {
-                        error += "\n\n You could also consider \"aws configure " + profile.trim() + "\"";
-                    }
-                }
-                throw new OperationException(error);
-            } finally {
-                process.destroy();
             }
+            if (process.exitValue() == 0) {
+                return inputReader.getOutput();
+            }
+            String error = outputReader.getOutput();
+            if (error == null) {
+                error = "Auth token request failed without additional information";
+            } else {
+                error = error.trim();
+                String ret = errorHandler==null? null : errorHandler.handle(error);
+                if (ret != null) {
+                    return ret;
+                }
+                if (!profile.isEmpty() && error.contains("aws configure")) {
+                    error += "\n\n You could also consider \"aws configure " + profile.trim() + "\"";
+                }
+            }
+            throw new OperationException(error);
         } catch (OperationException oex) {
             throw oex;
         } catch (Exception ex) {
@@ -140,13 +126,12 @@ public class AWSInvoker  {
         }
     }
 
-    /**
-     * Utility class to handle an input stream asynchronously
-     */
     static class ProcessReader implements Runnable {
         private final InputStream inputStream;
         private final Thread thread;
         private final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        private final Pattern mfaPattern = Pattern.compile(".*?(Enter MFA code for \\S+\\s)$", Pattern.DOTALL);
+        private final Pattern ssoPattern = Pattern.compile(".*SSO authorization.*enter the code:\\s+(\\S+)\\s.*", Pattern.DOTALL);
 
         public ProcessReader(InputStream inputStream) {
             this.inputStream = inputStream;
@@ -160,12 +145,26 @@ public class AWSInvoker  {
             } catch (InterruptedException ex) {
                 // thread interrupted, app being stopped, nothing else to do here
             }
-            String read = read();
+            String read = getRead();
             return read.isEmpty() ? null : read;
         }
 
-        public void reset(){
-            byteArrayOutputStream.reset();
+        public synchronized String getMfaCodeRequest() {
+            Matcher m = mfaPattern.matcher(getRead());
+            if (m.matches()) {
+                byteArrayOutputStream.reset();
+                return m.group(1);
+            }
+            return null;
+        }
+
+        public synchronized String getSsoCheckingCode() {
+            Matcher m = ssoPattern.matcher(getRead());
+            if (m.matches()) {
+                byteArrayOutputStream.reset();
+                return m.group(1);
+            }
+            return null;
         }
 
         @Override
@@ -189,7 +188,7 @@ public class AWSInvoker  {
             }
         }
 
-        public String read() {
+        private String getRead() {
             try {
                 return byteArrayOutputStream.toString(ENCODING);
             } catch (UnsupportedEncodingException ex) {
@@ -199,31 +198,15 @@ public class AWSInvoker  {
         }
     }
 
-    /**
-     * Interface used while the AWS cli is invoked, to handle any
-     * input / output provided by AWS
-     */
     interface RequestHandler {
-
-        void handle(Process process,
-                    ProcessReader inputReader,
-                    ProcessReader outputReader)
+        boolean handle(Process process,
+                       ProcessReader inputReader,
+                       ProcessReader outputReader)
                 throws OperationException, IOException;
-
-        RequestHandler NULL =
-                (a, b, c) -> {};
     }
 
-    /**
-     * Interface used to handle errors provided by the AWS cli
-     */
     interface ErrorHandler {
-        /**
-         * Returns a non-null string if the error is recovered
-         */
         String handle(String error) throws OperationException;
-
-        ErrorHandler NULL = (e ) -> null;
     }
 
 
