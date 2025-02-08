@@ -45,7 +45,6 @@ public class AWSInvoker  {
         if (ret == null) {
             throw new OperationException("No output collected from AWS command");
         }
-        LOGGER.debug("AWS authorization token generated: {}", ret);
         return ret;
     }
 
@@ -104,7 +103,7 @@ public class AWSInvoker  {
                           @NotNull ErrorHandler errorHandler) throws OperationException {
         controller.checkCancellation();
         try {
-            LOGGER.debug("Invoking aws: {}", command);
+            LOGGER.debug(command);
             Process process = Runtime.getRuntime().exec(command);
             try {
                 ProcessReader inputReader = new ProcessReader(process.getInputStream());
@@ -133,10 +132,8 @@ public class AWSInvoker  {
                 process.destroy();
             }
         } catch (OperationException  oex) {
-            LOGGER.error("Partially handled error: {}", oex.getMessage());
             throw oex;
         } catch (Exception ex) {
-            LOGGER.error("Error invoking aws", ex);
             throw new OperationException("Error executing aws:" + ex.getMessage());
         }
     }

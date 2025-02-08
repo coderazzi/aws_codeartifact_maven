@@ -102,8 +102,6 @@ the plugin' progress at any moment
 
 
 ## Versions
-* Version 4.1.1 : 16th Dec 2024: Display SSO info in separate message. 
-                  Use AWS path for SSO login as defined in the configuration window
 * Version 4.1.0 : 14th Dec 2024: SSO support
 * Version 4.0.2 : 05th Dec 2024: Improved documentation, released as non beta
 * Version 4.0.1 : 18th Nov 2024: Handle properly a generation dialog too big
