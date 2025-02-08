@@ -7,7 +7,7 @@ import javax.swing.*;
 
 public abstract class InvokerController {
 
-    private final GenerationDialog generationDialog;
+    private GenerationDialog generationDialog;
 
     public InvokerController(GenerationDialog dialog) {
         this.generationDialog = dialog;
