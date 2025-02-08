@@ -57,7 +57,7 @@ public class AWSInvoker  {
         Matcher m = ssoPattern.matcher(inputReader.read());
         if (m.matches()) {
             inputReader.reset();
-            controller.showMessage("<html>SSO login: code <b>" + m.group(2) + "</b><br>URL: " + m.group(1) + "</html>");
+            controller.showMessage("<html>SSO login: code " + m.group(2) + "<br>URL: " + m.group(1) + "</html>");
         }
     }
 
