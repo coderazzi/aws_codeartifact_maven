@@ -20,12 +20,12 @@ public class AWSProfileHandler {
 
     public static final String DEFAULT_PROFILE = "default";
     // https://docs.aws.amazon.com/IAM/latest/APIReference/API_CreateInstanceProfile.html
-    // Profile name pattern: [\w+=,.@-]+
+    // Profile name pattern: [\w+=,.@:-]+
     private static final Pattern configPattern =
-            Pattern.compile("^\\s*\\[\\s*profile\\s+([\\w+=,.@-]+)\\s*]\\s*$",
+            Pattern.compile("^\\s*\\[\\s*profile\\s+([\\w+=,.@:-]+)\\s*]\\s*$",
             Pattern.CASE_INSENSITIVE);
     private static final Pattern credentialsPattern =
-            Pattern.compile("^\\s*\\[\\s*([\\w+=,.@-]+)\\s*]\\s*$",
+            Pattern.compile("^\\s*\\[\\s*([\\w+=,.@:-]+)\\s*]\\s*$",
             Pattern.CASE_INSENSITIVE);
 
     public static Set<String> getDefaultProfiles() {
