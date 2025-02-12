@@ -2,7 +2,7 @@
              require-restart="false">
   <id>net.coderazzi.aws_codeartifact_maven</id>
   <name>AWS CodeArtifact + Maven</name>
-  <version>4.0.2</version>
+  <version>4.0.3</version>
   <vendor email="lu@coderazzi.net" url="https://coderazzi.net">coderazzi</vendor>
 
   <description><![CDATA[
@@ -104,6 +104,7 @@
 
   <change-notes><![CDATA[
     <ul>
+      <li>Version 4.0.3 : 12th Feb 2025: Support colon characters in profiles, implemented by Safwen Baroudi</li>
       <li>Version 4.0.2 : 05th Dec 2024: Improved documentation, released as non beta</li>
       <li>Version 4.0.1 : 18th Nov 2024: Handle properly a generation dialog too big</li>
       <li>Version 4.0.0 : 17th Nov 2024: Support multiple repositories at once</li>
