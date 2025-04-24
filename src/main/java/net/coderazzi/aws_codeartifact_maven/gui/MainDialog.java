@@ -508,11 +508,7 @@ public class MainDialog extends DialogWrapper {
     }
 
     private TitledSeparator createTitledSeparator(String text) {
-        TitledSeparator ret = new TitledSeparator(text);
-//        if (!ColorUtil.isDark(getOwner().getBackground())) {
-//            ret.setBackground(LIGHT_SEPARATOR_COLOR);
-//        }
-        return ret;
+        return new TitledSeparator(text);
     }
     
     @Override
