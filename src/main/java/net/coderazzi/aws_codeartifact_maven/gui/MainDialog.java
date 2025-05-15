@@ -41,7 +41,6 @@ public class MainDialog extends DialogWrapper {
     private final static String DARK_ICON = "META-INF/pluginIcon_dark.svg";
     private final static String LIGHT_ICON = "META-INF/pluginIcon.svg";
     public static final int LOAD_MESSAGE_SUCCESS_TIMEOUT_MS = 1500;
-    public static final Color LIGHT_SEPARATOR_COLOR = Color.LIGHT_GRAY;
 
     private final JTextField domain = new JTextField(32);
     private final JTextField domainOwner = new JTextField(32);
