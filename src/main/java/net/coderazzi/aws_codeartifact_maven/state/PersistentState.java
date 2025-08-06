@@ -1,7 +1,7 @@
 package net.coderazzi.aws_codeartifact_maven.state;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +39,7 @@ final class PersistentState implements PersistentStateComponent<PersistentState>
     }
 
     public static PersistentState getInstance() {
-        return ServiceManager.getService(PersistentState.class);
+        return ApplicationManager.getApplication().getService(PersistentState.class);
     }
 
 }
