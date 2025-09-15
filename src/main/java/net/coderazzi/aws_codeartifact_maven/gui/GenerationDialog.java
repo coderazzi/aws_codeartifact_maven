@@ -161,7 +161,9 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
                 }
             });
             if (taskState != TaskState.RUNNING)  Thread.sleep(ARTIFICIAL_WAIT_MS);
-        } catch(Exception ex){}
+        } catch(Exception ex){
+            /* nothing to do at this stage */
+        }
     }
 
     protected @NotNull JPanel createButtonsPanel(@NotNull List buttons) {
