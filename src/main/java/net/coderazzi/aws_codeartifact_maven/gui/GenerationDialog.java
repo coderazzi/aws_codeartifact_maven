@@ -45,7 +45,8 @@ class GenerationDialog extends DialogWrapper implements AWSInvoker.BackgroundCon
     private final String awsPath;
     private final Map<String, ConfigurationRow> configurations = new TreeMap<>();
     private final boolean isGenerateForAll;
-    private boolean cancelled, completed, closeDialog;
+    private volatile boolean  cancelled;
+    private boolean completed, closeDialog;
 
     public GenerationDialog(final Project project,
                             final Configuration state) {
