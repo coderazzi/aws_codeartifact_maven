@@ -14,12 +14,12 @@ class ConfigurationNameDialog extends DialogWrapper {
 
     private final JTextField text = new JTextField(20);
     private final String name;
-    private final Set<String> usedNames;
+    private final Set<String> existingNames;
 
-    public ConfigurationNameDialog(String name, Set<String> usedNames) {
+    public ConfigurationNameDialog(String name, Set<String> existingNames) {
         super(true); // use current window as parent
         this.name = name;
-        this.usedNames = usedNames;
+        this.existingNames = existingNames;
         init();
         if (name == null) {
             setTitle("Create New Configuration");
@@ -59,7 +59,7 @@ class ConfigurationNameDialog extends DialogWrapper {
 
     private void updateOkButtonState() {
         String text = getName();
-        setOKActionEnabled(!text.isEmpty() && (text.equals(name) || !usedNames.contains(text)));
+        setOKActionEnabled(!text.isEmpty() && (text.equals(name) || !existingNames.contains(text)));
     }
 
 }
