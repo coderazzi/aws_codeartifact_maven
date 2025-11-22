@@ -431,12 +431,12 @@ public class MainDialog extends DialogWrapper {
                 .setDefaultInsets(JBUI.insets(0, 0, AbstractLayout.DEFAULT_VGAP, AbstractLayout.DEFAULT_HGAP));
 
         JPanel centerPanel = new JPanel(new GridBagLayout());
-        centerPanel.add(createTitledSeparator("Repository Configurations"), gridbag.nextLine().coverLine());
+        centerPanel.add(new TitledSeparator("Repository Configurations"), gridbag.nextLine().coverLine());
         centerPanel.add(createLabel("Configuration:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(configurationsWithAdd, gridbag.next().coverLine());
         centerPanel.add(createLabel("Enabled"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(enabledCheckbox, gridbag.next().coverLine());
-        centerPanel.add(createTitledSeparator("Repository Info"), gridbag.nextLine().coverLine());
+        centerPanel.add(new TitledSeparator("Repository Info"), gridbag.nextLine().coverLine());
         centerPanel.add(createLabel("Domain:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(domain, gridbag.next().coverLine());
         centerPanel.add(createLabel("Domain owner:"), gridbag.nextLine().next().weightx(labelsWeight));
@@ -452,7 +452,7 @@ public class MainDialog extends DialogWrapper {
         centerPanel.add(profileWarningLabel, gridbag.next().coverLine());
         centerPanel.add(createLabel("Region:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(regionComboBox, gridbag.next().coverLine());
-        centerPanel.add(createTitledSeparator("Locations"), gridbag.nextLine().coverLine());
+        centerPanel.add(new TitledSeparator("Locations"), gridbag.nextLine().coverLine());
         centerPanel.add(createLabel("Maven settings file:"), gridbag.nextLine().next().weightx(labelsWeight));
         centerPanel.add(settingsFileBrowser, gridbag.next().coverLine());
         centerPanel.add(createLabel("AWS cli path:"), gridbag.nextLine().next().weightx(labelsWeight));
@@ -506,10 +506,6 @@ public class MainDialog extends DialogWrapper {
         return label;
     }
 
-    private TitledSeparator createTitledSeparator(String text) {
-        return new TitledSeparator(text);
-    }
-    
     @Override
     public void doCancelAction() {
         loadingServersThread = null;
