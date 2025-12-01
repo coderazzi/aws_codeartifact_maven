@@ -3,6 +3,7 @@ package net.coderazzi.aws_codeartifact_maven.gui;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.IconLoader;
@@ -411,8 +412,8 @@ public class MainDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
 
-        TextFieldWithBrowseButton settingsFileBrowser = new TextFieldWithBrowseButton(settingsFile, x -> reloadServersInBackground());
-        TextFieldWithBrowseButton awsPathBrowser = new TextFieldWithBrowseButton(awsPath);
+        ButtonedComponent settingsFileBrowser = new ButtonedComponent(settingsFile);
+        ButtonedComponent awsPathBrowser = new ButtonedComponent(awsPath);
         ComponentWithBrowseButton<ComboBoxWithWidePopup> mavenServerIdWrapper =
                 new ComponentWithBrowseButton<>(serverIdComboBox, x -> reloadServersInBackground());
         ComponentWithBrowseButton<ComboBoxWithWidePopup> profileWrapper =
@@ -463,10 +464,8 @@ public class MainDialog extends DialogWrapper {
         settingsFile.addActionListener(x -> reloadServersInBackground()); // handle ENTER key
         awsPath.setText(state.getAWSPath());
 
-        settingsFileBrowser.addBrowseFolderListener("Maven Settings File", null, null,
-                new FileChooserDescriptor(true, false, false, false, false, false));
-        awsPathBrowser.addBrowseFolderListener("aws Executable Location", null, null,
-                new FileChooserDescriptor(true, false, false, false, false, false));
+        settingsFileBrowser.addBrowseAction("Maven Settings File", FileChooserDescriptorFactory.createSingleFileDescriptor("xml"));
+        awsPathBrowser.addBrowseAction("aws Executable Location", FileChooserDescriptorFactory.createSingleFileOrExecutableAppDescriptor());
         mavenServerIdWrapper.setButtonIcon(AllIcons.Actions.Refresh);
         profileWrapper.setButtonIcon(AllIcons.Actions.Refresh);
         configurations.setButtonIcon(AllIcons.General.Settings);
