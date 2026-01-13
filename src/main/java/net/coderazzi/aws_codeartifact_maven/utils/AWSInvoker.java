@@ -4,6 +4,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import net.coderazzi.aws_codeartifact_maven.state.Configuration;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,24 +17,18 @@ public class AWSInvoker {
         String requestMfaCode(String request) throws OperationException;
     }
 
+
     public static String getAuthToken(String domain,
                                       String domainOwner,
                                       String awsPath,
                                       Object awsProfile,
                                       String awsRegion,
                                       BackgroundController controller) throws OperationException {
-        // Do not send the profile if awsProfile is null or default
-        String profile = awsProfile == null || "".equals(awsProfile) || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE) ? "" :
-                String.format("--profile %s ", awsProfile);
-        String region = awsRegion == null || awsRegion.isBlank() ||
-                awsRegion.equals(Configuration.DEFAULT_PROFILE_REGION) ? "" :
-                String.format("--region %s ", awsRegion);
-        String command = String.format(
-                "%s codeartifact get-authorization-token %s%s--domain %s --domain-owner %s --query authorizationToken --output text",
-                awsPath, profile, region, domain, domainOwner);
+        String profile = getProfile(awsProfile);
+        List<String> commandParams = getCommandParameters(domain, domainOwner, awsPath, awsRegion, profile);
         try {
-            LOGGER.debug(command);
-            Process process = Runtime.getRuntime().exec(command);
+            LOGGER.debug(String.join(" ", commandParams));
+            Process process = Runtime.getRuntime().exec(commandParams.toArray(new String[0]));
             ProcessReader inputReader = new ProcessReader(process.getInputStream());
             ProcessReader outputReader = new ProcessReader(process.getErrorStream());
             while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
@@ -63,8 +59,8 @@ public class AWSInvoker {
                 error = "Auth token request failed without additional information";
             } else {
                 error = error.trim();
-                if (!profile.isEmpty() && error.contains("aws configure")) {
-                    error += "\n\n You could also consider \"aws configure " + profile.trim() + "\"";
+                if (profile != null && error.contains("aws configure")) {
+                    error += "\n\n You could also consider \"aws configure --profile " + profile + "\"";
                 }
             }
             throw new OperationException(error);
@@ -73,6 +69,42 @@ public class AWSInvoker {
         } catch (Exception ex) {
             throw new OperationException("Error executing aws:" + ex.getMessage());
         }
+    }
+
+    private static List<String> getCommandParameters(String domain,
+                                                     String domainOwner,
+                                                     String awsPath,
+                                                     String awsRegion,
+                                                     String profile){
+        ArrayList<String> commandParams = new ArrayList<>();
+        commandParams.add(awsPath);
+        commandParams.add("codeartifact");
+        commandParams.add("get-authorization-token");
+        commandParams.add("--domain");
+        commandParams.add(domain);
+        commandParams.add("--domain-owner");
+        commandParams.add(domainOwner);
+        commandParams.add("--domain-owner");
+        commandParams.add("--query authorizationToken");
+        commandParams.add("--output");
+        commandParams.add("--text");
+        // Do not send the profile if awsProfile is null or default
+        if (profile != null) {
+            commandParams.add("--profile");
+            commandParams.add(profile);
+        }
+        if (awsRegion != null && !awsRegion.isBlank() && !awsRegion.equals(Configuration.DEFAULT_PROFILE_REGION)){
+            commandParams.add("--region");
+            commandParams.add(awsRegion);
+        }
+        return commandParams;
+    }
+
+    private static String getProfile(Object awsProfile) {
+        if (awsProfile == null || "".equals(awsProfile) || awsProfile.equals(AWSProfileHandler.DEFAULT_PROFILE)) {
+            return null;
+        }
+        return awsProfile.toString();
     }
 
     private static class ProcessReader implements Runnable {
