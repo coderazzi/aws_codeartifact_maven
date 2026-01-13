@@ -7,7 +7,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ui.StartupUiUtil;
+import com.intellij.ui.JBColor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +19,7 @@ public class ButtonedComponent <J extends JComponent> extends JPanel{
     private final FixedSizeButton button;
 
     public ButtonedComponent(J component) {
-        super(new BorderLayout(!SystemInfo.isMac && !StartupUiUtil.isUnderDarcula() ? 2 : 0, 0));
+        super(new BorderLayout(!SystemInfo.isMac && !JBColor.isBright() ? 2 : 0, 0));
         this.mainComponent = component;
         this.setFocusable(false);
         this.button = new FixedSizeButton(this.mainComponent);
