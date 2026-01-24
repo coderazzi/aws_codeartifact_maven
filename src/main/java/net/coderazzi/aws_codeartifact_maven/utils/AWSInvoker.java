@@ -84,10 +84,10 @@ public class AWSInvoker {
         commandParams.add(domain);
         commandParams.add("--domain-owner");
         commandParams.add(domainOwner);
-        commandParams.add("--domain-owner");
-        commandParams.add("--query authorizationToken");
+        commandParams.add("--query");
+        commandParams.add("authorizationToken");
         commandParams.add("--output");
-        commandParams.add("--text");
+        commandParams.add("text");
         // Do not send the profile if awsProfile is null or default
         if (profile != null) {
             commandParams.add("--profile");
