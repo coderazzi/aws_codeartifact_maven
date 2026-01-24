@@ -89,7 +89,7 @@ For more information on the distinction between role-based-MFA and user-based-MF
 
 ## Versions
 * Version 4.0.5 : 24th Jan 2026: Removed deprecated and scheduled for removal API calls.
-* Version 4.0.4 :  1st Dec 2025: Removed deprecated API calls.
+* Version 4.0.4 : 01st Dec 2025: Removed deprecated API calls.
 * Version 4.0.3 : 12th Feb 2025: Support colon characters in profiles, implemented by Safwen Baroudi.
 * Version 4.0.2 : 05th Dec 2024: Improved documentation, released as non beta
 * Version 4.0.1 : 18th Nov 2024: Handle properly a generation dialog too big
